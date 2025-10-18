@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -27,6 +28,7 @@ export default function Register() {
   const [, setLocation] = useLocation();
   const { register: registerUser, isAuthenticated, isLoading, user } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -82,7 +84,7 @@ export default function Register() {
                 name="fullName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
+                    <FormLabel>{t('auth.full_name')}</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="John Doe"
@@ -99,7 +101,7 @@ export default function Register() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t('auth.email')}</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
@@ -117,7 +119,7 @@ export default function Register() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>{t('auth.password')}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
@@ -154,17 +156,17 @@ export default function Register() {
                 disabled={form.formState.isSubmitting}
                 data-testid="button-register"
               >
-                {form.formState.isSubmitting ? "Creating account..." : "Create account"}
+                {form.formState.isSubmitting ? "Creating account..." : t('auth.create_account')}
               </Button>
             </form>
           </Form>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <div className="text-sm text-muted-foreground text-center">
-            Already have an account?{" "}
+            {t('auth.have_account')}{" "}
             <Link href="/login" data-testid="link-login">
               <span className="text-primary hover:underline cursor-pointer">
-                Sign in
+                {t('auth.sign_in')}
               </span>
             </Link>
           </div>

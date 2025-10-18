@@ -8,8 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GraduationCap, BookOpen, Users, Award } from "lucide-react";
 import type { Course } from "@shared/schema";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Home() {
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const { data: coursesData, isLoading: coursesLoading } = useQuery<{
@@ -36,20 +38,20 @@ export default function Home() {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-              Transform Your Future with Expert-Led Courses
+              {t("home.hero_title")}
             </h1>
             <p className="text-lg md:text-xl mb-8 opacity-90">
-              Learn from industry experts and achieve your goals with our comprehensive learning platform
+              {t("home.hero_subtitle")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/register" data-testid="link-hero-register">
                 <Button size="lg" variant="default" className="bg-white text-primary hover:bg-white/90">
-                  Get Started Free
+                  {t("home.get_started")}
                 </Button>
               </Link>
               <Link href="#courses" data-testid="link-hero-courses">
                 <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 backdrop-blur-md">
-                  Browse Courses
+                  {t("home.browse_courses")}
                 </Button>
               </Link>
             </div>
@@ -59,19 +61,19 @@ export default function Home() {
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold">{courses?.length || 0}+</div>
-              <div className="text-sm md:text-base opacity-90">Courses</div>
+              <div className="text-sm md:text-base opacity-90">{t("home.stats.courses")}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold">10k+</div>
-              <div className="text-sm md:text-base opacity-90">Students</div>
+              <div className="text-sm md:text-base opacity-90">{t("home.stats.students")}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold">50+</div>
-              <div className="text-sm md:text-base opacity-90">Expert Teachers</div>
+              <div className="text-sm md:text-base opacity-90">{t("home.stats.teachers")}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold">4.8</div>
-              <div className="text-sm md:text-base opacity-90">Average Rating</div>
+              <div className="text-sm md:text-base opacity-90">{t("home.stats.rating")}</div>
             </div>
           </div>
         </div>
@@ -118,8 +120,8 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold mb-2">Featured Courses</h2>
-              <p className="text-muted-foreground">Discover our most popular courses</p>
+              <h2 className="text-3xl font-bold mb-2">{t("home.featured_courses")}</h2>
+              <p className="text-muted-foreground">{t("courses.subtitle")}</p>
             </div>
           </div>
 
@@ -131,7 +133,7 @@ export default function Home() {
               onClick={() => setSelectedCategory("all")}
               data-testid="button-category-all"
             >
-              All Courses
+              {t("courses.filter_all")}
             </Button>
             {categories?.map((category) => (
               <Button
@@ -141,7 +143,9 @@ export default function Home() {
                 onClick={() => setSelectedCategory(category.id.toString())}
                 data-testid={`button-category-${category.id}`}
               >
-                {category.name}
+                {t(`category.${category.name.toLowerCase()}`) !== `category.${category.name.toLowerCase()}` 
+                  ? t(`category.${category.name.toLowerCase()}`) 
+                  : category.name}
               </Button>
             ))}
           </div>
@@ -185,7 +189,7 @@ export default function Home() {
                       <div className="absolute top-2 right-2">
                         {course.isFree ? (
                           <Badge variant="secondary" className="bg-secondary/90 backdrop-blur-sm">
-                            Free
+                            {t("courses.free")}
                           </Badge>
                         ) : (
                           <Badge variant="default" className="bg-primary/90 backdrop-blur-sm">
@@ -212,7 +216,7 @@ export default function Home() {
           ) : (
             <div className="text-center py-12">
               <BookOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No courses found</h3>
+              <h3 className="text-xl font-semibold mb-2">{t("courses.no_courses")}</h3>
               <p className="text-muted-foreground">
                 {selectedCategory === "all"
                   ? "No courses available yet. Check back soon!"

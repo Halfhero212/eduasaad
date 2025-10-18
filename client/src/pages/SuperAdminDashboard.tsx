@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useLocation } from "wouter";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import type { User } from "@shared/schema";
 
 export default function SuperAdminDashboard() {
   const { user: currentUser, isLoading } = useAuth();
+  const { t } = useLanguage();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [newTeacherEmail, setNewTeacherEmail] = useState("");
@@ -123,15 +125,15 @@ export default function SuperAdminDashboard() {
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Superadmin Dashboard</h1>
-          <p className="text-muted-foreground">Manage platform users and monitor statistics</p>
+          <h1 className="text-3xl font-bold mb-2">{t("dashboard.superadmin.title")}</h1>
+          <p className="text-muted-foreground">{t("dashboard.superadmin.subtitle")}</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Teachers</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("dashboard.superadmin.total_teachers")}</CardTitle>
               <GraduationCap className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -140,7 +142,7 @@ export default function SuperAdminDashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("dashboard.superadmin.total_students")}</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -149,7 +151,7 @@ export default function SuperAdminDashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("dashboard.superadmin.total_courses")}</CardTitle>
               <BookOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -158,7 +160,7 @@ export default function SuperAdminDashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Enrollments</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("dashboard.superadmin.total_enrollments")}</CardTitle>
               <UserCheck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -171,26 +173,26 @@ export default function SuperAdminDashboard() {
         <Card className="mb-8">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Teachers</CardTitle>
-              <CardDescription>Manage teacher accounts</CardDescription>
+              <CardTitle>{t("dashboard.superadmin.teachers")}</CardTitle>
+              <CardDescription>{t("dashboard.superadmin.manage_teachers")}</CardDescription>
             </div>
             <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
               <DialogTrigger asChild>
                 <Button data-testid="button-create-teacher">
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Teacher
+                  {t("dashboard.superadmin.create_teacher")}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Create Teacher Account</DialogTitle>
+                  <DialogTitle>{t("dialog.create_teacher.title")}</DialogTitle>
                   <DialogDescription>
-                    Create a new teacher account. A random password will be generated.
+                    {t("dialog.create_teacher.description")}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div>
-                    <Label htmlFor="name">Full Name</Label>
+                    <Label htmlFor="name">{t("dialog.create_teacher.full_name")}</Label>
                     <Input
                       id="name"
                       value={newTeacherName}
@@ -200,7 +202,7 @@ export default function SuperAdminDashboard() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t("dialog.create_teacher.email")}</Label>
                     <Input
                       id="email"
                       type="email"
@@ -217,7 +219,7 @@ export default function SuperAdminDashboard() {
                     disabled={createTeacherMutation.isPending}
                     data-testid="button-submit-teacher"
                   >
-                    {createTeacherMutation.isPending ? "Creating..." : "Create Teacher"}
+                    {createTeacherMutation.isPending ? t("dialog.create_teacher.creating") : t("dialog.create_teacher.create")}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -227,9 +229,9 @@ export default function SuperAdminDashboard() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>{t("dashboard.superadmin.name")}</TableHead>
+                  <TableHead>{t("dashboard.superadmin.email")}</TableHead>
+                  <TableHead>{t("dashboard.superadmin.status")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -239,14 +241,14 @@ export default function SuperAdminDashboard() {
                       <TableCell className="font-medium">{teacher.fullName}</TableCell>
                       <TableCell>{teacher.email}</TableCell>
                       <TableCell>
-                        <Badge variant="secondary">Active</Badge>
+                        <Badge variant="secondary">{t("dashboard.superadmin.active")}</Badge>
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center text-muted-foreground">
-                      No teachers found
+                      {t("dashboard.superadmin.no_teachers")}
                     </TableCell>
                   </TableRow>
                 )}
@@ -258,16 +260,16 @@ export default function SuperAdminDashboard() {
         {/* Students Management */}
         <Card>
           <CardHeader>
-            <CardTitle>Students</CardTitle>
-            <CardDescription>View all registered students</CardDescription>
+            <CardTitle>{t("dashboard.superadmin.students")}</CardTitle>
+            <CardDescription>{t("dashboard.superadmin.manage_students")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>{t("dashboard.superadmin.name")}</TableHead>
+                  <TableHead>{t("dashboard.superadmin.email")}</TableHead>
+                  <TableHead>{t("dashboard.superadmin.status")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -277,14 +279,14 @@ export default function SuperAdminDashboard() {
                       <TableCell className="font-medium">{student.fullName}</TableCell>
                       <TableCell>{student.email}</TableCell>
                       <TableCell>
-                        <Badge>Active</Badge>
+                        <Badge>{t("dashboard.superadmin.active")}</Badge>
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center text-muted-foreground">
-                      No students found
+                      {t("dashboard.superadmin.no_students")}
                     </TableCell>
                   </TableRow>
                 )}
