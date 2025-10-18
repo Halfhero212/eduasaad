@@ -39,9 +39,11 @@ import { eq, and, desc, sql } from "drizzle-orm";
 export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
+  getUserById(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined>;
+  deleteUser(id: number): Promise<void>;
   getAllTeachers(): Promise<User[]>;
   getAllStudents(): Promise<User[]>;
 
@@ -119,6 +121,10 @@ export class PostgresStorage implements IStorage {
     return user;
   }
 
+  async getUserById(id: number): Promise<User | undefined> {
+    return this.getUser(id);
+  }
+
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
     return user;
@@ -132,6 +138,10 @@ export class PostgresStorage implements IStorage {
   async updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined> {
     const [updated] = await db.update(users).set(updates as any).where(eq(users.id, id)).returning();
     return updated;
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
   }
 
   async getAllTeachers(): Promise<User[]> {

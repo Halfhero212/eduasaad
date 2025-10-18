@@ -12,9 +12,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Users, GraduationCap, BookOpen, UserCheck, Plus } from "lucide-react";
+import { Users, GraduationCap, BookOpen, UserCheck, Plus, Trash, Copy } from "lucide-react";
 import type { User } from "@shared/schema";
 
 export default function SuperAdminDashboard() {
@@ -25,6 +27,9 @@ export default function SuperAdminDashboard() {
   const [newTeacherEmail, setNewTeacherEmail] = useState("");
   const [newTeacherName, setNewTeacherName] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
+  const [deleteTeacherId, setDeleteTeacherId] = useState<number | null>(null);
+  const [deleteStudentId, setDeleteStudentId] = useState<number | null>(null);
 
   const { data: statsData } = useQuery<{
     stats: {
@@ -61,18 +66,59 @@ export default function SuperAdminDashboard() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/teachers"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
-      toast({
-        title: "Teacher created successfully",
-        description: `Password: ${data.password}. Please save this password and share it with the teacher.`,
-      });
+      setGeneratedPassword(data.password);
       setNewTeacherEmail("");
       setNewTeacherName("");
       setCreateDialogOpen(false);
     },
     onError: (error) => {
       toast({
-        title: "Failed to create teacher",
-        description: error instanceof Error ? error.message : "Something went wrong",
+        title: t("dialog.create_teacher.failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteTeacherMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/admin/teachers/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/teachers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      setDeleteTeacherId(null);
+      toast({
+        title: t("dialog.delete.teacher_success"),
+        description: t("dialog.delete.teacher_success_desc"),
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: t("dialog.delete.failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteStudentMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/admin/students/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/students"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      setDeleteStudentId(null);
+      toast({
+        title: t("dialog.delete.student_success"),
+        description: t("dialog.delete.student_success_desc"),
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: t("dialog.delete.failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
         variant: "destructive",
       });
     },
@@ -81,8 +127,8 @@ export default function SuperAdminDashboard() {
   const handleCreateTeacher = () => {
     if (!newTeacherName || !newTeacherEmail) {
       toast({
-        title: "Validation error",
-        description: "Please fill in all fields",
+        title: t("dialog.create_teacher.validation_error"),
+        description: t("dialog.create_teacher.fill_all_fields"),
         variant: "destructive",
       });
       return;
@@ -91,6 +137,16 @@ export default function SuperAdminDashboard() {
       fullName: newTeacherName,
       email: newTeacherEmail,
     });
+  };
+
+  const handleCopyPassword = () => {
+    if (generatedPassword) {
+      navigator.clipboard.writeText(generatedPassword);
+      toast({
+        title: t("dialog.create_teacher.password_copied"),
+        description: t("dialog.create_teacher.password_copied_desc"),
+      });
+    }
   };
 
   useEffect(() => {
@@ -128,6 +184,45 @@ export default function SuperAdminDashboard() {
           <h1 className="text-3xl font-bold mb-2">{t("dashboard.superadmin.title")}</h1>
           <p className="text-muted-foreground">{t("dashboard.superadmin.subtitle")}</p>
         </div>
+
+        {/* Password Display Alert */}
+        {generatedPassword && (
+          <Alert className="mb-8 border-primary bg-primary/5" data-testid="alert-teacher-password">
+            <AlertDescription>
+              <div className="space-y-4">
+                <div>
+                  <p className="font-semibold text-lg mb-1">{t("dialog.create_teacher.success")}</p>
+                  <p className="text-sm text-muted-foreground">{t("dialog.create_teacher.password_note")}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <Label className="text-xs">{t("dialog.create_teacher.password_label")}</Label>
+                    <div className="mt-1 p-3 bg-background rounded-md border-2 border-primary">
+                      <code className="text-2xl font-bold tracking-wider" data-testid="text-generated-password">{generatedPassword}</code>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handleCopyPassword}
+                    variant="outline"
+                    size="icon"
+                    className="mt-5"
+                    data-testid="button-copy-password"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+                <Button
+                  onClick={() => setGeneratedPassword(null)}
+                  variant="secondary"
+                  size="sm"
+                  data-testid="button-close-password"
+                >
+                  {t("action.close")}
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -232,6 +327,7 @@ export default function SuperAdminDashboard() {
                   <TableHead>{t("dashboard.superadmin.name")}</TableHead>
                   <TableHead>{t("dashboard.superadmin.email")}</TableHead>
                   <TableHead>{t("dashboard.superadmin.status")}</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -243,11 +339,21 @@ export default function SuperAdminDashboard() {
                       <TableCell>
                         <Badge variant="secondary">{t("dashboard.superadmin.active")}</Badge>
                       </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setDeleteTeacherId(teacher.id)}
+                          data-testid={`button-delete-teacher-${teacher.id}`}
+                        >
+                          <Trash className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center text-muted-foreground">
+                    <TableCell colSpan={4} className="text-center text-muted-foreground">
                       {t("dashboard.superadmin.no_teachers")}
                     </TableCell>
                   </TableRow>
@@ -270,6 +376,7 @@ export default function SuperAdminDashboard() {
                   <TableHead>{t("dashboard.superadmin.name")}</TableHead>
                   <TableHead>{t("dashboard.superadmin.email")}</TableHead>
                   <TableHead>{t("dashboard.superadmin.status")}</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -281,11 +388,21 @@ export default function SuperAdminDashboard() {
                       <TableCell>
                         <Badge>{t("dashboard.superadmin.active")}</Badge>
                       </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setDeleteStudentId(student.id)}
+                          data-testid={`button-delete-student-${student.id}`}
+                        >
+                          <Trash className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center text-muted-foreground">
+                    <TableCell colSpan={4} className="text-center text-muted-foreground">
                       {t("dashboard.superadmin.no_students")}
                     </TableCell>
                   </TableRow>
@@ -294,6 +411,56 @@ export default function SuperAdminDashboard() {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Delete Teacher Confirmation Dialog */}
+        <AlertDialog open={deleteTeacherId !== null} onOpenChange={(open) => !open && setDeleteTeacherId(null)}>
+          <AlertDialogContent data-testid="dialog-delete-teacher">
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("dialog.delete.title")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("dialog.delete.teacher_message")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel data-testid="button-cancel-delete-teacher">
+                {t("dialog.delete.cancel")}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteTeacherId && deleteTeacherMutation.mutate(deleteTeacherId)}
+                disabled={deleteTeacherMutation.isPending}
+                className="bg-destructive hover:bg-destructive/90"
+                data-testid="button-confirm-delete-teacher"
+              >
+                {deleteTeacherMutation.isPending ? t("dialog.delete.deleting") : t("dialog.delete.confirm")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Delete Student Confirmation Dialog */}
+        <AlertDialog open={deleteStudentId !== null} onOpenChange={(open) => !open && setDeleteStudentId(null)}>
+          <AlertDialogContent data-testid="dialog-delete-student">
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("dialog.delete.title")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("dialog.delete.student_message")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel data-testid="button-cancel-delete-student">
+                {t("dialog.delete.cancel")}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteStudentId && deleteStudentMutation.mutate(deleteStudentId)}
+                disabled={deleteStudentMutation.isPending}
+                className="bg-destructive hover:bg-destructive/90"
+                data-testid="button-confirm-delete-student"
+              >
+                {deleteStudentMutation.isPending ? t("dialog.delete.deleting") : t("dialog.delete.confirm")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

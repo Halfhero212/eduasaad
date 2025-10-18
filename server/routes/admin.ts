@@ -112,6 +112,48 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  // Delete teacher (superadmin only)
+  app.delete("/api/admin/teachers/:id", requireAuth, requireRole("superadmin"), async (req, res) => {
+    try {
+      const teacherId = parseInt(req.params.id);
+      
+      // Check if teacher exists
+      const teacher = await storage.getUserById(teacherId);
+      if (!teacher || teacher.role !== "teacher") {
+        return res.status(404).json({ error: "Teacher not found" });
+      }
+
+      // Delete the teacher
+      await storage.deleteUser(teacherId);
+
+      res.json({ success: true, message: "Teacher deleted successfully" });
+    } catch (error) {
+      console.error("Delete teacher error:", error);
+      res.status(500).json({ error: "Failed to delete teacher" });
+    }
+  });
+
+  // Delete student (superadmin only)
+  app.delete("/api/admin/students/:id", requireAuth, requireRole("superadmin"), async (req, res) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      
+      // Check if student exists
+      const student = await storage.getUserById(studentId);
+      if (!student || student.role !== "student") {
+        return res.status(404).json({ error: "Student not found" });
+      }
+
+      // Delete the student
+      await storage.deleteUser(studentId);
+
+      res.json({ success: true, message: "Student deleted successfully" });
+    } catch (error) {
+      console.error("Delete student error:", error);
+      res.status(500).json({ error: "Failed to delete student" });
+    }
+  });
+
   // Update enrollment status (superadmin/teacher)
   app.put("/api/admin/enrollments/:id/status", requireAuth, requireRole("superadmin", "teacher"), async (req: AuthRequest, res) => {
     try {
