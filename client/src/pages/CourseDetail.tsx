@@ -20,8 +20,7 @@ export default function CourseDetail() {
   const { toast } = useToast();
 
   const { data: courseData, isLoading } = useQuery<{
-    course: Course;
-    teacher: User;
+    course: Course & { teacher: User | null };
     lessons: CourseLesson[];
     isEnrolled: boolean;
   }>({
@@ -96,7 +95,8 @@ export default function CourseDetail() {
     );
   }
 
-  const { course, teacher, lessons, isEnrolled } = courseData;
+  const { course, lessons, isEnrolled } = courseData;
+  const teacher = course.teacher;
   const whatYouWillLearnPoints = course.whatYouWillLearn?.split("\n").filter(Boolean) || [];
 
   const getInitials = (name?: string) => {
