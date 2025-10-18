@@ -1,16 +1,16 @@
-# Learning Platform Design Guidelines
+# EduPlatform Design Guidelines
 
 ## Design Approach
 
-**Selected Approach**: Hybrid - Material Design foundation with Udemy/Coursera-inspired course presentation
+**Selected Approach**: Hybrid - Material Design foundation with Coursera/edX-inspired educational interfaces
 
-**Rationale**: Educational platforms require clarity and usability for learning efficiency while maintaining visual appeal to encourage engagement. Material Design provides excellent data-dense dashboard patterns, while successful EdTech platforms demonstrate effective course merchandising.
+**Rationale**: Educational platforms demand exceptional clarity for cognitive focus while maintaining visual appeal to sustain engagement. Material Design provides robust patterns for data-dense dashboards, while leading EdTech platforms demonstrate effective course merchandising and learning experiences.
 
 **Key References**:
-- Udemy: Course cards, pricing display, category navigation
-- Coursera: Clean video player interface, progress tracking
-- Linear: Typography hierarchy and spacing
-- Material Design: Dashboard layouts, data tables, notification systems
+- Coursera: Video player interface, progress tracking, clean hierarchy
+- edX: Professional course presentation, trust indicators
+- Linear: Typography excellence, spacing rhythm
+- Material Design: Dashboard layouts, data visualization
 
 ---
 
@@ -18,189 +18,179 @@
 
 ### A. Color Palette
 
-**Light Mode (Primary)**:
-- Primary: 245 70% 55% (Vibrant indigo-blue for CTAs, active states)
-- Secondary: 200 85% 50% (Cyan accent for highlights, progress indicators)
-- Success: 142 71% 45% (Green for completions, achievements)
-- Warning: 38 92% 50% (Amber for pending quizzes, notifications)
-- Error: 0 72% 51% (Red for errors, deletion actions)
-- Background: 0 0% 100% (Pure white)
-- Surface: 220 13% 97% (Light gray for cards)
-- Text Primary: 220 26% 14% (Near-black)
-- Text Secondary: 220 9% 46% (Medium gray)
-
-**Dark Mode Support**: Not required initially (focus on polished light mode)
+**Light Mode**:
+- Primary: 210 80% 48% (Deep trustworthy blue for CTAs, navigation)
+- Secondary: 160 60% 45% (Calming teal for progress, achievements)
+- Success: 145 65% 42% (Professional green for completions)
+- Warning: 35 90% 55% (Warm amber for attention)
+- Error: 355 75% 50% (Controlled red for errors)
+- Background: 210 20% 98% (Soft off-white, reduces eye strain)
+- Surface: 210 15% 95% (Light blue-gray for cards, elevating content)
+- Text Primary: 215 25% 20% (Deep blue-black for readability)
+- Text Secondary: 215 15% 50% (Medium gray for supporting text)
+- Accent Highlight: 175 70% 40% (Vibrant green for interactive elements)
 
 **Gradient Applications**:
-- Hero sections: Linear gradient from Primary to Secondary (245 70% 55% to 200 85% 50%)
-- Dashboard stat cards: Subtle gradients using 10% opacity overlays
-- Course thumbnails: Gradient overlays for text readability
+- Hero sections: 210 80% 48% to 175 70% 40% (blue to green, 60° angle)
+- Course category badges: Subtle 10% opacity color wash
+- Progress indicators: Animated gradient fills for completion states
 
 ### B. Typography
 
-**Font Families** (via Google Fonts):
-- Primary: 'Inter' - All UI elements, body text (400, 500, 600, 700 weights)
-- Headings: 'Plus Jakarta Sans' - Page titles, section headers (600, 700 weights)
-- Monospace: 'JetBrains Mono' - Code snippets in technical courses (400, 500)
+**Font Families** (Google Fonts CDN):
+- Primary: 'Inter' (400, 500, 600, 700) - UI, body text, data tables
+- Headings: 'Plus Jakarta Sans' (600, 700, 800) - Page titles, hero headlines
+- Monospace: 'Fira Code' (400, 500) - Code blocks in programming courses
 
 **Type Scale**:
-- Hero Headline: 4xl to 6xl (responsive)
-- Page Title: 3xl to 4xl
-- Section Header: 2xl
-- Card Title: xl
-- Body: base
-- Caption/Meta: sm
-- Tiny Labels: xs
+- Hero: text-5xl md:text-6xl lg:text-7xl
+- Page Title: text-3xl md:text-4xl
+- Section Header: text-2xl md:text-3xl
+- Card Title/Lesson: text-lg md:text-xl
+- Body: text-base
+- Meta/Caption: text-sm
+- Labels: text-xs
+
+**Line Heights**: Generous spacing for readability - leading-relaxed for body text, leading-tight for headlines
 
 ### C. Layout System
 
-**Container Widths**:
-- Full viewport: Course player, hero sections
-- max-w-7xl: Main content areas, course grids
-- max-w-4xl: Forms, single-column content
-- max-w-2xl: Text-heavy content (lesson descriptions)
+**Spacing Primitives**: Use 4, 6, 8 for tight spacing | 12, 16, 20 for section padding | 24, 32 for major section breaks
 
-**Spacing Primitives** (Tailwind units):
-- Tight spacing: 2, 3
-- Standard spacing: 4, 6, 8
-- Section spacing: 12, 16, 20, 24
-- Large gaps: 32
+**Container Strategy**:
+- Course catalog/grids: max-w-7xl
+- Dashboard content: max-w-6xl
+- Reading content/forms: max-w-3xl
+- Video player: Full-width with max-w-7xl inner container
 
-**Grid Layouts**:
-- Course cards: grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
-- Dashboard stats: grid-cols-1 md:grid-cols-2 lg:grid-cols-4
-- Quiz submissions: grid-cols-1 lg:grid-cols-2
+**Grid Patterns**:
+- Course cards: grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6
+- Dashboard stats: grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4
+- Lesson sidebar: Fixed 320px width on desktop, full-width drawer on mobile
 
 ### D. Component Library
 
-**Navigation**:
-- Sticky header with logo, main navigation, user dropdown, notification bell
-- Role-based menu items (Superadmin/Teacher/Student views)
-- Mobile: Hamburger menu with slide-out drawer
-- Breadcrumbs for deep navigation (Course > Lesson > Quiz)
+**Navigation Bar**:
+- Fixed header with backdrop blur, subtle border-bottom
+- Left: Logo + main nav (Browse Courses, My Learning, Dashboard)
+- Right: Search icon, notification bell with badge, user dropdown with avatar
+- Mobile: Hamburger with full-screen overlay menu
+- Role indicator badge next to avatar (Superadmin/Teacher/Student)
 
 **Course Cards**:
-- 16:9 aspect ratio thumbnail with gradient overlay
-- Category badge (top-left)
-- Price tag or "FREE" badge (top-right)
-- Course title (2 lines max with ellipsis)
-- Teacher name with small avatar
-- Star rating + enrollment count
-- Progress bar for enrolled courses (student view)
-- Hover: Lift shadow, scale to 102%
+- 16:9 thumbnail with category badge overlay (top-left, small pill)
+- Gradient scrim bottom 40% for text legibility
+- Course title (bold, 2-line clamp), instructor name with micro avatar
+- Rating stars + enrollment count row
+- Price/FREE badge (prominent, top-right corner)
+- Enrolled students see progress bar at bottom edge
+- Hover: Subtle lift (translateY -2px), enhanced shadow
+
+**Hero Section** (Homepage):
+- Full-width background image: Modern learning environment (students with laptops, bright collaborative space)
+- Gradient overlay: 210 80% 48% to 175 70% 40% with 85% opacity for text contrast
+- Centered content: Headline "Transform Your Future with Expert-Led Courses", subheadline, search bar (large, white background), trust metrics row
+- Search bar: Prominent with icon, placeholder "What do you want to learn?", rounded-lg
+- Buttons on hero images: Blurred background (backdrop-blur-md bg-white/20)
 
 **Dashboard Components**:
-- Stat Cards: Icon, large number, label, trend indicator
-- Data Tables: Striped rows, sortable headers, action buttons
-- Progress Rings: Circular completion indicators
-- Activity Feed: Timeline layout with icons and timestamps
-- Chart Widgets: Using Chart.js for analytics
+- Stat Cards: Large number (text-4xl), icon in colored circle, label, trend arrow with percentage
+- Data Tables: Alternating row background, sticky headers, sortable columns, row actions (icon buttons)
+- Progress Rings: SVG circular progress with percentage inside, color-coded by completion
+- Activity Timeline: Left-aligned vertical line with timestamps, user avatars, action descriptions
+- Analytics Charts: Clean line/bar charts using Chart.js, minimal grid lines, branded colors
 
-**Video Player**:
-- 16:9 responsive YouTube embed
-- Custom controls overlay on hover
-- Lesson sidebar (collapsible on mobile)
-- Progress indicator below video
-- Next/Previous lesson buttons
-- Mark complete checkbox
+**Video Player Layout**:
+- Main area (70% width lg): Responsive 16:9 YouTube embed, lesson title above, description accordion below, Q&A thread section
+- Sidebar (30% width lg, drawer on mobile): Scrollable lesson list with check icons for completed, lock icons for locked, active lesson highlighted
+- Below video: Mark Complete button (success color), Next Lesson button (primary)
+- Controls: Clean overlay on hover, progress bar always visible
 
-**Forms**:
-- Floating labels for text inputs
-- Clear validation states (green checkmark, red error text)
-- Multi-step forms for course creation (progress stepper)
-- File upload: Drag-drop zone with preview for quiz images
+**Quiz Interface**:
+- Student view: Question display with large text, image upload drag-drop zone (dashed border, teal accent on hover), submit button
+- Teacher view: Submissions grid (3 columns), each showing student name, thumbnail preview, timestamp, status badge
+- Solution modal: Full-size image preview, feedback textarea, approve/reject action buttons
+
+**Comment Threads**:
+- Student question: Avatar, name, timestamp, question text, reply count
+- Teacher reply: Indented, highlighted background (Surface color), "Teacher" badge, answer text
+- New question form: Textarea with floating label, character count, submit button
+
+**Forms & Inputs**:
+- Floating labels for text inputs (transform on focus)
+- Validation: Green checkmark icon for valid, red text below for errors
+- Multi-step course creation: Horizontal stepper with numbered circles, progress line
+- File uploads: Large drag-drop area with cloud upload icon, file type restrictions shown
 
 **Buttons**:
-- Primary: Solid fill with Primary color
-- Secondary: Outline with Primary color
-- Success: Solid fill with Success color
-- Danger: Solid fill with Error color
-- Ghost: Transparent with hover background
-- Sizes: sm, base, lg
-- Icons: Leading or trailing with 4 spacing
+- Primary: bg-Primary text-white, hover:brightness-110
+- Secondary: border-Primary text-Primary, hover:bg-Primary/5
+- Success: bg-Success text-white (Complete, Approve)
+- Danger: bg-Error text-white (Delete, Reject)
+- Ghost: transparent, hover:bg-Surface
+- All sizes: py-2 px-4 (sm), py-3 px-6 (base), py-4 px-8 (lg)
 
-**Modals & Overlays**:
-- Quiz submission modal with image preview
-- Confirmation dialogs for deletions
-- Notification dropdown (max-height with scroll)
-- WhatsApp redirect modal explaining purchase process
-
-**Notifications**:
-- Toast notifications: Top-right corner, auto-dismiss (4s)
-- Notification bell: Badge count indicator
-- Notification dropdown: Grouped by type (Questions, Quiz submissions, Replies)
-- Unread indicator: Bold text, colored dot
-
-**Empty States**:
-- Centered icon + message + CTA button
-- "No courses yet" with "Create Course" button
-- "No progress" with "Browse Courses" link
+**Modals & Notifications**:
+- Modal overlay: bg-black/50 backdrop-blur-sm
+- Modal content: Rounded corners, shadow-2xl, max-w-2xl
+- Toast notifications: Top-right, slide-in animation, auto-dismiss 4s
+- Notification dropdown: Max 5 visible, scroll for more, grouped by type with dividers
 
 ### E. Page-Specific Layouts
 
-**Homepage/Course Catalog**:
-- Hero: Full-width gradient with search bar, large headline "Master New Skills with Iraqi's Top Teachers"
-- Category tabs or pills for filtering
-- Course grid below hero
-- Stats banner: "X Students Enrolled • Y Courses Available • Z Expert Teachers"
+**Homepage**:
+- Hero with background image and search (as described above)
+- Trust bar: Stats row (X,000+ Students • Y Courses • Z Expert Teachers)
+- Category pills: Horizontal scroll on mobile, wrapped grid on desktop
+- Featured courses grid: 4 columns on xl, "View All Courses" link
+- How It Works: 3-column feature cards with numbered icons
 
-**Dashboard Pages**:
-- Superadmin: 4-column stat cards, user management table, platform analytics charts, recent activity feed
-- Teacher: 4-column stats (My Courses, Total Students, Pending Quizzes, Questions), course list with edit actions, student progress table
-- Student: 3-column stats (Enrolled, Completed, Quiz Score Avg), continue learning section, progress rings per course
+**Role Dashboards**:
+- **Superadmin**: 4-column stat cards, user management table with filters, platform revenue chart, recent activity feed (right sidebar on xl)
+- **Teacher**: 3-column stats (Courses, Students, Pending Reviews), "My Courses" table with edit/view actions, "Recent Questions" feed, "Create New Course" prominent CTA
+- **Student**: 3-column stats (Enrolled, Completed, Quiz Average), "Continue Learning" carousel, progress breakdown per course (list with progress rings), "Browse More Courses" CTA
 
-**Course Detail Page**:
-- Course hero: Large thumbnail, title, teacher info, price/FREE, WhatsApp Buy button
-- Tabs: Overview, Curriculum (lessons list), Reviews (future)
-- "What You'll Learn" bulleted list with checkmarks
-- Lesson list: Collapsible sections, video duration, lock icons for unpurchased
+**Course Detail**:
+- Course hero: Left 60% large thumbnail, right 40% title, instructor info with avatar, rating, student count, price, WhatsApp CTA (green #25D366)
+- Tabs navigation: Overview, Curriculum, Instructor
+- Overview: "What You'll Learn" bulleted list with green checkmarks, requirements, description
+- Curriculum: Expandable section accordions, lesson titles with duration and video icon
 
-**Video Player/Lesson Page**:
-- Left: 70% video player + lesson description below
-- Right: 30% lesson sidebar with all course lessons (scrollable)
-- Bottom: Q&A section (threaded comments, student question + teacher reply)
-
-**Quiz Interface**:
-- Question display with image upload zone
-- Submitted solutions grid (teacher view)
-- Solution preview modal with approve/feedback actions
-
-**User Management (Superadmin)**:
-- Teacher creation form: Email, auto-generate password, copy button
-- User tables: Filters, search, status indicators (active/suspended)
-- Bulk actions dropdown
+**Lesson/Video Page**:
+- Video player with sidebar layout (described in components)
+- Breadcrumb: Course Name > Lesson Title
+- Q&A section below video: Threaded layout, "Ask Question" button
 
 ### F. Animations
 
-**Use Sparingly**:
-- Page transitions: Fade in content (200ms)
-- Card hover: Transform scale + shadow (150ms ease-out)
-- Dropdown menus: Slide down (200ms)
-- Progress bars: Animated fill on load
-- Toast notifications: Slide in from right
+**Strategic Use**:
+- Page load: Content fade-in (duration-200)
+- Card interactions: Hover lift (duration-150 ease-out)
+- Dropdowns: Slide-down (duration-200)
+- Progress bars/rings: Animated fill on viewport entry
+- Tab switching: Crossfade content (duration-300)
 
-**No animations** on: Form inputs, modals, table sorting
+**No animations**: Form validation states, table sorting, modal open/close (instant)
 
 ---
 
 ## Images
 
-**Hero Image**: Full-width hero section with background image of students/learning environment. Use gradient overlay (245 70% 55% to 200 85% 50% with 75% opacity) for text readability. Search "diverse students studying online" or "modern classroom technology".
+**Hero Image**: Full-width background showing diverse students collaborating in modern learning space with laptops and tablets. Bright, natural lighting. Overlay gradient 210 80% 48% to 175 70% 40% at 85% opacity.
 
-**Course Thumbnails**: Teachers upload or select from library. Placeholder images: category-specific illustrations (coding, math, science). Recommend unsplash.com or pexels.com for high-quality education imagery.
+**Course Thumbnails**: Category-specific high-quality images - recommend Unsplash or Pexels (search: "programming workspace", "mathematics education", "science laboratory", "business meeting"). Teachers upload custom or select from curated library.
 
-**Dashboard Illustrations**: Empty state graphics from undraw.co or storyset.com (education theme).
+**Empty States**: Illustrations from unDraw (education collection) - students reading, online learning, achievement themes.
 
-**Icons**: Font Awesome 6 (CDN) for all UI icons - use solid style primarily, regular for secondary actions.
+**Icons**: Font Awesome 6 Pro (CDN) - solid style for primary actions, regular for secondary. Use duotone for dashboard stat card icons.
 
 ---
 
 ## Accessibility & Polish
 
-- Minimum touch target: 44x44px for mobile
-- Contrast ratio: 4.5:1 for body text, 3:1 for large text
-- Focus states: 2px Primary colored ring on all interactive elements
-- Loading states: Skeleton screens for course grids, spinner for forms
-- Error handling: Inline validation messages, toast for API errors
-- WhatsApp button: Green (#25D366) with WhatsApp icon, opens in new tab
-- Responsive breakpoints: sm(640px), md(768px), lg(1024px), xl(1280px)
+- Focus rings: 2px Primary color ring with 2px offset on all interactive elements
+- Touch targets: Minimum 44x44px for mobile interactions
+- Contrast: Maintain 4.5:1 for body text, 3:1 for large text against backgrounds
+- Loading states: Skeleton screens for course grids (animated pulse), spinner for form submissions
+- Responsive breakpoints: sm:640px, md:768px, lg:1024px, xl:1280px, 2xl:1536px
+- WhatsApp redirect: Modal explaining purchase process before external redirect
