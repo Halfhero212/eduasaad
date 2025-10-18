@@ -1,0 +1,480 @@
+========================================
+COMPLETE LEARNING PLATFORM PROJECT
+COPY THIS TO A NEW REPLIT PROJECT
+========================================
+
+I need you to create a COMPLETE learning platform with both backend API and frontend, ready for deployment.
+
+PROJECT: Iraqi Students Learning Platform (Udemy-style)
+ARCHITECTURE: Decoupled - Backend API + Separate Frontend
+BACKEND DEPLOY: Vercel (serverless)
+FRONTEND DEPLOY: GitHub Pages (static hosting)
+DATABASE: PostgreSQL (Neon - free tier)
+
+========================================
+FOLDER STRUCTURE NEEDED:
+========================================
+
+Create TWO separate folders:
+
+1. backend/     ← API for Vercel
+2. frontend/    ← Static site for GitHub Pages
+
+Root structure:
+/
+├── backend/
+│   ├── server.js
+│   ├── vercel.json
+│   ├── package.json
+│   ├── .env.example
+│   ├── .gitignore
+│   ├── README.md
+│   ├── VERCEL_DEPLOYMENT.md
+│   ├── routes/
+│   │   ├── auth.js
+│   │   ├── courses.js
+│   │   ├── dashboard.js
+│   │   └── my-courses.js
+│   ├── middleware/
+│   │   └── auth.js
+│   └── database/
+│       └── init-postgres.js
+│
+└── frontend/
+    ├── index.html
+    ├── login.html
+    ├── register.html
+    ├── dashboard.html
+    ├── courses.html
+    ├── course-detail.html
+    ├── create-course.html
+    ├── manage-course.html
+    ├── my-courses.html
+    ├── lesson-player.html
+    ├── css/
+    │   └── style.css
+    ├── js/
+    │   ├── config.js
+    │   ├── auth.js
+    │   ├── api.js
+    │   ├── courses.js
+    │   ├── course-detail.js
+    │   ├── dashboard.js
+    │   ├── create-course.js
+    │   ├── manage-course.js
+    │   ├── my-courses.js
+    │   └── lesson-player.js
+    ├── .gitignore
+    └── README.md
+
+========================================
+BACKEND API SPECIFICATIONS:
+========================================
+
+TECHNOLOGY:
+- Node.js + Express.js
+- PostgreSQL (pg package)
+- JWT authentication
+- bcrypt password hashing
+- CORS enabled for all origins
+- express-validator
+
+DATABASE SCHEMA (PostgreSQL):
+
+1. users
+   - id SERIAL PRIMARY KEY
+   - email VARCHAR(255) UNIQUE NOT NULL
+   - password VARCHAR(255) NOT NULL (bcrypt hashed)
+   - full_name VARCHAR(255) NOT NULL
+   - role VARCHAR(50) CHECK(role IN ('teacher', 'student'))
+   - created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+2. course_categories
+   - id SERIAL PRIMARY KEY
+   - name VARCHAR(255) UNIQUE NOT NULL
+   - description TEXT
+   - Pre-populate with: Programming, Mathematics, Science, Languages, Business, Design
+
+3. courses
+   - id SERIAL PRIMARY KEY
+   - teacher_id INTEGER REFERENCES users(id)
+   - category_id INTEGER REFERENCES course_categories(id)
+   - title VARCHAR(500) NOT NULL
+   - description TEXT NOT NULL
+   - what_you_will_learn TEXT
+   - thumbnail_url TEXT
+   - created_at TIMESTAMP
+
+4. course_lessons
+   - id SERIAL PRIMARY KEY
+   - course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE
+   - title VARCHAR(500) NOT NULL
+   - youtube_url TEXT NOT NULL
+   - lesson_order INTEGER NOT NULL
+   - duration_minutes INTEGER
+   - created_at TIMESTAMP
+
+5. enrollments
+   - id SERIAL PRIMARY KEY
+   - student_id INTEGER REFERENCES users(id)
+   - course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE
+   - enrolled_at TIMESTAMP
+   - UNIQUE(student_id, course_id)
+
+6. lesson_progress
+   - id SERIAL PRIMARY KEY
+   - student_id INTEGER REFERENCES users(id)
+   - lesson_id INTEGER REFERENCES course_lessons(id) ON DELETE CASCADE
+   - completed BOOLEAN DEFAULT FALSE
+   - completed_at TIMESTAMP
+   - UNIQUE(student_id, lesson_id)
+
+API ENDPOINTS (all prefixed with /api/):
+
+AUTH (/api/auth):
+- POST /register - Register new user
+  Body: { email, password, full_name, role }
+  Response: { success, message }
+
+- POST /login - Login user
+  Body: { email, password }
+  Response: { success, token, user: { id, email, full_name, role } }
+
+- POST /logout - Logout
+  Response: { success, message }
+
+COURSES (/api/courses):
+- GET / - Get all courses (optional ?category=id)
+  Response: { success, courses: [], categories: [] }
+
+- GET /categories - Get all categories
+  Response: { success, categories: [] }
+
+- GET /:id - Get course details
+  Response: { success, course, lessons: [], isEnrolled }
+
+- POST /create - Create course (teacher only, requires JWT)
+  Headers: Authorization: Bearer <token>
+  Body: { title, description, what_you_will_learn, category_id }
+  Response: { success, courseId, message }
+
+- POST /:id/enroll - Enroll in course (student only, requires JWT)
+  Headers: Authorization: Bearer <token>
+  Response: { success, message }
+
+- GET /:id/manage - Get course for management (teacher only, requires JWT)
+  Headers: Authorization: Bearer <token>
+  Response: { success, course, lessons: [] }
+
+- POST /:id/lessons - Add lesson (teacher only, requires JWT)
+  Headers: Authorization: Bearer <token>
+  Body: { title, youtube_url, lesson_order }
+  Response: { success, lessonId, message }
+
+- GET /:courseId/lessons/:lessonId - Get lesson details (requires JWT)
+  Headers: Authorization: Bearer <token>
+  Response: { success, lesson, course, allLessons: [], progress }
+
+- POST /:courseId/lessons/:lessonId/complete - Mark lesson complete (student only, requires JWT)
+  Headers: Authorization: Bearer <token>
+  Response: { success, message }
+
+DASHBOARD (/api/dashboard):
+- GET / - Get dashboard stats (requires JWT)
+  Headers: Authorization: Bearer <token>
+  Response (Teacher): { success, stats: { courses, students, lessons }, popularCourses: [] }
+  Response (Student): { success, stats: { enrolled, completed }, recentCourses: [] }
+
+MY COURSES (/api/my-courses):
+- GET / - Get user's courses (requires JWT)
+  Headers: Authorization: Bearer <token>
+  Response (Teacher): { success, courses: [] } (created courses)
+  Response (Student): { success, courses: [] } (enrolled courses with progress)
+
+BACKEND TECHNICAL REQUIREMENTS:
+- server.js exports app: module.exports = app
+- Only listen in development: if (process.env.NODE_ENV !== 'production')
+- PostgreSQL connection pool with SSL in production
+- All routes use async/await with PostgreSQL
+- Parameterized queries ($1, $2, etc)
+- JWT authentication middleware
+- Role-based access control
+- All responses are JSON
+- CORS enabled
+
+vercel.json:
+{
+  "version": 2,
+  "builds": [{ "src": "server.js", "use": "@vercel/node" }],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/server.js" },
+    { "src": "/(.*)", "dest": "/server.js" }
+  ],
+  "env": { "NODE_ENV": "production" }
+}
+
+Environment variables (.env.example):
+- DATABASE_URL=postgresql://...
+- SESSION_SECRET=random-secret
+- NODE_ENV=production
+
+========================================
+FRONTEND SPECIFICATIONS:
+========================================
+
+TECHNOLOGY:
+- Pure HTML, CSS, JavaScript (no frameworks)
+- Bootstrap 5.3.0 (CDN)
+- Font Awesome 6.4.0 (CDN)
+- Responsive design
+- Local storage for JWT token
+
+DESIGN:
+- Modern gradient theme (indigo to cyan)
+- Card-based layouts
+- Smooth animations and transitions
+- Hero sections with gradients
+- Icons throughout
+- Empty states with helpful messages
+- Progress bars for course completion
+- Hover effects on cards
+- Mobile responsive
+
+PAGES NEEDED:
+
+1. index.html (Homepage/Course Catalog)
+   - Hero section
+   - Category sidebar filter
+   - Search bar (real-time filter)
+   - Course cards grid
+   - Login/Register buttons if not logged in
+   - Navigation with user menu if logged in
+
+2. login.html
+   - Login form (email, password)
+   - Link to register
+   - Error messages
+   - Redirect to dashboard on success
+
+3. register.html
+   - Registration form (email, password, full_name, role)
+   - Role selection (Teacher/Student)
+   - Link to login
+   - Error messages
+
+4. dashboard.html
+   - Different views for teacher vs student
+   - Teacher: Stats cards (courses, students, lessons), popular courses
+   - Student: Stats cards (enrolled, completed), recent courses
+   - Quick action buttons
+   - Charts/progress visualization
+
+5. courses.html
+   - Same as index.html but requires login
+   - Full course catalog with filters
+
+6. course-detail.html
+   - Course information
+   - Teacher name
+   - What you'll learn
+   - Lessons list
+   - Enroll button (students)
+   - Start Learning button (enrolled students)
+   - Manage button (course owner)
+
+7. create-course.html (teachers only)
+   - Form to create new course
+   - Title, description, category, learning objectives
+   - Submit redirects to manage-course
+
+8. manage-course.html (teachers only)
+   - Course details
+   - Add lesson form (title, YouTube URL, order)
+   - List of existing lessons
+   - Student count
+
+9. my-courses.html
+   - Teacher view: Created courses with student counts
+   - Student view: Enrolled courses with progress bars
+   - Empty states if no courses
+
+10. lesson-player.html
+    - YouTube video embed
+    - Lesson title
+    - Course breadcrumb navigation
+    - Sidebar with all course lessons
+    - Mark as complete button (students)
+    - Next/Previous lesson buttons
+    - Video protection (disable right-click, keyboard shortcuts)
+
+CSS (style.css):
+- Gradient backgrounds
+- Modern card designs with shadows
+- Smooth transitions
+- Responsive grid layouts
+- Custom progress bars
+- Button hover effects
+- Mobile-first approach
+
+JAVASCRIPT FILES:
+
+config.js:
+- API_BASE_URL = 'https://your-backend.vercel.app' (to be updated after deployment)
+
+auth.js:
+- saveToken(token) - Store JWT in localStorage
+- getToken() - Retrieve JWT
+- isLoggedIn() - Check if user has valid token
+- logout() - Clear token and redirect
+- getUserFromToken() - Decode JWT to get user info
+- requireAuth() - Redirect to login if not authenticated
+
+api.js:
+- apiCall(endpoint, method, data) - Centralized API calls
+- Automatically includes Authorization header
+- Handles errors and shows user-friendly messages
+
+courses.js (for index.html/courses.html):
+- Load and display courses
+- Category filtering
+- Search functionality
+- Render course cards
+
+course-detail.js:
+- Load course details
+- Load lessons
+- Handle enrollment
+- Check if enrolled
+
+dashboard.js:
+- Load role-specific stats
+- Display charts/metrics
+- Render recent/popular courses
+
+create-course.js:
+- Handle course creation form
+- Validation
+- Submit to API
+
+manage-course.js:
+- Load course for editing
+- Add lesson form
+- Display lesson list
+
+my-courses.js:
+- Load user's courses
+- Different rendering for teacher/student
+- Progress bars for students
+
+lesson-player.js:
+- Extract YouTube video ID
+- Embed video
+- Load lesson details
+- Mark as complete
+- Next/Previous navigation
+- Disable right-click and dev tools on video
+
+FRONTEND TECHNICAL REQUIREMENTS:
+- All API calls use fetch() with try/catch
+- Store JWT in localStorage
+- Include Authorization header: Bearer <token>
+- Handle 401 errors (redirect to login)
+- Show loading states
+- Display error messages to user
+- Client-side form validation
+- URL parameters for dynamic pages (e.g., ?id=123)
+- Responsive navigation menu
+- Footer with links
+
+========================================
+DEPLOYMENT INSTRUCTIONS:
+========================================
+
+BACKEND (Vercel):
+1. Create Neon PostgreSQL at neon.tech (free)
+2. Create GitHub repo: learning-platform-backend
+3. Upload backend/ folder contents
+4. Go to vercel.com, import GitHub repo
+5. Add environment variables:
+   - DATABASE_URL
+   - SESSION_SECRET
+   - NODE_ENV=production
+6. Deploy
+7. Copy Vercel URL (e.g., https://learning-platform-api.vercel.app)
+
+FRONTEND (GitHub Pages):
+1. Update frontend/js/config.js with Vercel backend URL
+2. Create GitHub repo: learning-platform-frontend
+3. Upload frontend/ folder contents
+4. Go to repo Settings → Pages
+5. Source: Deploy from main branch, root folder
+6. Site will be live at: https://username.github.io/learning-platform-frontend
+
+========================================
+FEATURES TO IMPLEMENT:
+========================================
+
+✅ User authentication (JWT)
+✅ Role-based access (Teacher/Student)
+✅ Course catalog with categories
+✅ Course creation (teachers)
+✅ Lesson management (YouTube videos)
+✅ Student enrollment (free)
+✅ Progress tracking (lesson completion)
+✅ Dashboard with stats
+✅ My Courses page
+✅ Lesson player with navigation
+✅ Search and filter courses
+✅ Responsive design
+✅ Modern UI with gradients
+✅ Empty states
+✅ Error handling
+✅ Loading states
+
+========================================
+IMPORTANT NOTES:
+========================================
+
+- Backend uses PostgreSQL ONLY (no SQLite)
+- Frontend is 100% static (no server-side rendering)
+- All API communication via REST with JSON
+- JWT stored in localStorage (frontend)
+- CORS must be enabled on backend
+- All routes prefixed with /api/ on backend
+- Frontend config.js must be updated with backend URL after deployment
+- No mock data - real API integration
+- Password hashing with bcrypt (10 rounds)
+- Auto-initialize database tables on first backend run
+- Bootstrap 5 + Font Awesome via CDN (no npm in frontend)
+
+========================================
+DELIVERABLES:
+========================================
+
+Create TWO folders:
+1. backend/ - Ready to upload to GitHub → deploy to Vercel
+2. frontend/ - Ready to upload to GitHub → deploy to GitHub Pages
+
+Include deployment guides:
+- backend/VERCEL_DEPLOYMENT.md
+- frontend/GITHUB_PAGES_DEPLOYMENT.md
+
+Both should be downloadable, ready to deploy, and fully functional when connected.
+
+========================================
+SUCCESS CRITERIA:
+========================================
+
+After deployment:
+✅ Teachers can register, create courses, add lessons
+✅ Students can register, browse courses, enroll, watch lessons
+✅ Progress tracking works
+✅ Dashboard shows accurate stats
+✅ All features from original platform work
+✅ Modern, responsive UI
+✅ Fast, serverless backend
+✅ Free deployment (Neon + Vercel + GitHub Pages)
+
+========================================
+END OF COMPLETE PROJECT SPECIFICATIONS
+========================================
