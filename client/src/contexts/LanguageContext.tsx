@@ -66,6 +66,7 @@ const translations: Record<Language, Record<string, string>> = {
     "courses.no_lessons": "لا توجد دروس متاحة بعد",
     "courses.your_instructor": "معلمك",
     "courses.unknown": "غير معروف",
+    "courses.whatsapp_message": "مرحباً! أود التسجيل في \"{title}\" (${price})",
     
     // Lesson
     "lesson.not_found": "الدرس غير موجود",
@@ -92,6 +93,12 @@ const translations: Record<Language, Record<string, string>> = {
     "toast.question_posted_desc": "سيرد معلمك قريباً",
     "toast.question_failed": "فشل نشر السؤال",
     "toast.error_generic": "حدث خطأ ما",
+    "toast.course_created": "تم إنشاء الدورة بنجاح",
+    "toast.course_created_desc": "يمكنك الآن إضافة دروس لدورتك",
+    "toast.course_create_failed": "فشل إنشاء الدورة",
+    "toast.validation_error": "خطأ في التحقق",
+    "toast.fill_required_fields": "يرجى ملء جميع الحقول المطلوبة",
+    "toast.enter_valid_price": "يرجى إدخال سعر صالح أو تحديد الدورة كمجانية",
     
     // Auth
     "auth.login": "تسجيل الدخول",
@@ -168,6 +175,18 @@ const translations: Record<Language, Record<string, string>> = {
     "action.next": "التالي",
     "action.close": "إغلاق",
     
+    // Form Labels
+    "label.course_title": "عنوان الدورة",
+    "label.category": "الفئة",
+    "label.description": "الوصف",
+    "label.price": "السعر",
+    
+    // Placeholders
+    "placeholder.course_title": "مقدمة في تطوير الويب",
+    "placeholder.course_description": "دورة شاملة تغطي...",
+    "placeholder.what_you_learn": "بناء تطبيقات الويب\nفهم JavaScript\nالعمل مع واجهات برمجة التطبيقات",
+    "placeholder.price": "49.99",
+    
     // Categories
     "category.programming": "البرمجة",
     "category.mathematics": "الرياضيات",
@@ -236,6 +255,7 @@ const translations: Record<Language, Record<string, string>> = {
     "courses.no_lessons": "No lessons available yet",
     "courses.your_instructor": "Your Instructor",
     "courses.unknown": "Unknown",
+    "courses.whatsapp_message": "Hi! I would like to enroll in \"{title}\" (${price})",
     
     // Lesson
     "lesson.not_found": "Lesson not found",
@@ -262,6 +282,12 @@ const translations: Record<Language, Record<string, string>> = {
     "toast.question_posted_desc": "Your teacher will respond soon",
     "toast.question_failed": "Failed to post question",
     "toast.error_generic": "Something went wrong",
+    "toast.course_created": "Course created successfully",
+    "toast.course_created_desc": "You can now add lessons to your course",
+    "toast.course_create_failed": "Failed to create course",
+    "toast.validation_error": "Validation error",
+    "toast.fill_required_fields": "Please fill in all required fields",
+    "toast.enter_valid_price": "Please enter a valid price or mark the course as free",
     
     // Auth
     "auth.login": "Login",
@@ -337,6 +363,18 @@ const translations: Record<Language, Record<string, string>> = {
     "action.back": "Back",
     "action.next": "Next",
     "action.close": "Close",
+    
+    // Form Labels
+    "label.course_title": "Course Title",
+    "label.category": "Category",
+    "label.description": "Description",
+    "label.price": "Price",
+    
+    // Placeholders
+    "placeholder.course_title": "Introduction to Web Development",
+    "placeholder.course_description": "A comprehensive course that covers...",
+    "placeholder.what_you_learn": "Build web applications\nUnderstand JavaScript\nWork with APIs",
+    "placeholder.price": "49.99",
     
     // Categories
     "category.programming": "Programming",

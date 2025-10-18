@@ -54,8 +54,11 @@ export default function CourseDetail() {
 
   const handleWhatsAppEnroll = () => {
     if (!courseData) return;
+    const messageTemplate = t("courses.whatsapp_message");
     const message = encodeURIComponent(
-      `Hi! I would like to enroll in "${courseData.course.title}" ($${courseData.course.price})`
+      messageTemplate
+        .replace("{title}", courseData.course.title)
+        .replace("${price}", String(courseData.course.price))
     );
     const phone = whatsappNumber?.whatsappNumber || "9647801234567";
     window.open(`https://wa.me/${phone}?text=${message}`, "_blank");

@@ -54,8 +54,8 @@ export default function TeacherDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/my-courses"] });
       toast({
-        title: "Course created successfully",
-        description: "You can now add lessons to your course",
+        title: t("toast.course_created"),
+        description: t("toast.course_created_desc"),
       });
       setNewCourse({
         title: "",
@@ -69,8 +69,8 @@ export default function TeacherDashboard() {
     },
     onError: (error) => {
       toast({
-        title: "Failed to create course",
-        description: error instanceof Error ? error.message : "Something went wrong",
+        title: t("toast.course_create_failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
         variant: "destructive",
       });
     },
@@ -79,16 +79,16 @@ export default function TeacherDashboard() {
   const handleCreateCourse = () => {
     if (!newCourse.title || !newCourse.description || !newCourse.categoryId) {
       toast({
-        title: "Validation error",
-        description: "Please fill in all required fields",
+        title: t("toast.validation_error"),
+        description: t("toast.fill_required_fields"),
         variant: "destructive",
       });
       return;
     }
     if (!newCourse.isFree && (!newCourse.price || parseFloat(newCourse.price) <= 0)) {
       toast({
-        title: "Validation error",
-        description: "Please enter a valid price or mark the course as free",
+        title: t("toast.validation_error"),
+        description: t("toast.enter_valid_price"),
         variant: "destructive",
       });
       return;
@@ -181,23 +181,23 @@ export default function TeacherDashboard() {
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div>
-                    <Label htmlFor="title">{t("courses.title")} *</Label>
+                    <Label htmlFor="title">{t("label.course_title")} *</Label>
                     <Input
                       id="title"
                       value={newCourse.title}
                       onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
-                      placeholder="Introduction to Web Development"
+                      placeholder={t("placeholder.course_title")}
                       data-testid="input-course-title"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="category">{t("courses.filter_all")} *</Label>
+                    <Label htmlFor="category">{t("label.category")} *</Label>
                     <Select
                       value={newCourse.categoryId}
                       onValueChange={(value) => setNewCourse({ ...newCourse, categoryId: value })}
                     >
                       <SelectTrigger data-testid="select-category">
-                        <SelectValue placeholder={t("courses.filter_all")} />
+                        <SelectValue placeholder={t("label.category")} />
                       </SelectTrigger>
                       <SelectContent>
                         {categories?.map((cat) => (
@@ -209,12 +209,12 @@ export default function TeacherDashboard() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="description">{t("courses.subtitle")} *</Label>
+                    <Label htmlFor="description">{t("label.description")} *</Label>
                     <Textarea
                       id="description"
                       value={newCourse.description}
                       onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })}
-                      placeholder="A comprehensive course that covers..."
+                      placeholder={t("placeholder.course_description")}
                       rows={3}
                       data-testid="input-course-description"
                     />
@@ -225,7 +225,7 @@ export default function TeacherDashboard() {
                       id="whatYouWillLearn"
                       value={newCourse.whatYouWillLearn}
                       onChange={(e) => setNewCourse({ ...newCourse, whatYouWillLearn: e.target.value })}
-                      placeholder="Build web applications\nUnderstand JavaScript\nWork with APIs"
+                      placeholder={t("placeholder.what_you_learn")}
                       rows={3}
                       data-testid="input-course-learn"
                     />
@@ -243,13 +243,13 @@ export default function TeacherDashboard() {
                     </div>
                     {!newCourse.isFree && (
                       <div className="flex-1">
-                        <Label htmlFor="price">{t("courses.paid")} *</Label>
+                        <Label htmlFor="price">{t("label.price")} *</Label>
                         <Input
                           id="price"
                           type="number"
                           value={newCourse.price}
                           onChange={(e) => setNewCourse({ ...newCourse, price: e.target.value })}
-                          placeholder="49.99"
+                          placeholder={t("placeholder.price")}
                           min="0"
                           step="0.01"
                           data-testid="input-course-price"
