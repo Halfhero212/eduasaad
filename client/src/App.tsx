@@ -16,6 +16,7 @@ import TeacherDashboard from "@/pages/TeacherDashboard";
 import SuperAdminDashboard from "@/pages/SuperAdminDashboard";
 import LessonPlayer from "@/pages/LessonPlayer";
 import CourseDetail from "@/pages/CourseDetail";
+import CourseManagement from "@/pages/CourseManagement";
 
 function Router() {
   return (
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/dashboard/student" component={StudentDashboard} />
       <Route path="/dashboard/teacher" component={TeacherDashboard} />
       <Route path="/dashboard/superadmin" component={SuperAdminDashboard} />
+      <Route path="/manage/courses/:id" component={CourseManagement} />
       <Route path="/courses/:id" component={CourseDetail} />
       <Route path="/courses/:courseId/lessons/:lessonId" component={LessonPlayer} />
       <Route component={NotFound} />

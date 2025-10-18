@@ -14,6 +14,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const translations: Record<Language, Record<string, string>> = {
   ar: {
     // Common
+    "common.loading": "جاري التحميل...",
     "app.name": "منصة التعلم",
     "app.tagline": "حوّل مستقبلك بدورات يقدمها خبراء",
     "app.description": "تعلم من خبراء الصناعة وحقق أهدافك مع منصتنا التعليمية الشاملة",
@@ -87,6 +88,11 @@ const translations: Record<Language, Record<string, string>> = {
     "toast.enrollment_success": "نجح التسجيل",
     "toast.enrollment_success_desc": "يمكنك الآن الوصول إلى محتوى الدورة",
     "toast.enrollment_failed": "فشل التسجيل",
+    "toast.lesson_added": "تمت إضافة الدرس",
+    "toast.lesson_added_desc": "تم إضافة الدرس الجديد بنجاح",
+    "toast.quiz_created": "تم إنشاء الاختبار",
+    "toast.quiz_created_desc": "تم إنشاء الاختبار الجديد بنجاح",
+    "toast.failed": "فشل",
     "toast.lesson_completed": "اكتمل الدرس!",
     "toast.lesson_completed_desc": "عمل رائع! واصل التعلم.",
     "toast.question_posted": "تم نشر السؤال",
@@ -196,12 +202,32 @@ const translations: Record<Language, Record<string, string>> = {
     "action.back": "رجوع",
     "action.next": "التالي",
     "action.close": "إغلاق",
+    "action.add_lesson": "إضافة درس",
+    "action.add_quiz": "إضافة اختبار",
+    "action.view_public": "عرض الصفحة العامة",
+    
+    // Manage Course
+    "manage.lessons_desc": "إدارة دروس الدورة وإضافة محتوى جديد",
+    "manage.no_lessons": "لا توجد دروس بعد. أضف درسك الأول!",
     
     // Form Labels
     "label.course_title": "عنوان الدورة",
+    "label.lesson_title": "عنوان الدرس",
+    "label.youtube_url": "رابط يوتيوب",
+    "label.duration_minutes": "المدة (بالدقائق)",
+    "label.lesson_order": "الترتيب",
+    "label.minutes": "دقيقة",
+    "label.quiz_title": "عنوان الاختبار",
+    "label.quiz_description": "وصف الاختبار",
+    "label.deadline": "الموعد النهائي",
     "label.category": "الفئة",
     "label.description": "الوصف",
     "label.price": "السعر",
+    
+    // Placeholders
+    "placeholder.lesson_title": "مثال: مقدمة في البرمجة",
+    "placeholder.quiz_title": "مثال: اختبار الوحدة 1",
+    "placeholder.quiz_description": "أجب عن الأسئلة التالية...",
     
     // Placeholders
     "placeholder.course_title": "مقدمة في تطوير الويب",
@@ -225,6 +251,7 @@ const translations: Record<Language, Record<string, string>> = {
   },
   en: {
     // Common
+    "common.loading": "Loading...",
     "app.name": "EduPlatform",
     "app.tagline": "Transform Your Future with Expert-Led Courses",
     "app.description": "Learn from industry experts and achieve your goals with our comprehensive learning platform",
@@ -298,6 +325,11 @@ const translations: Record<Language, Record<string, string>> = {
     "toast.enrollment_success": "Enrollment successful",
     "toast.enrollment_success_desc": "You can now access the course content",
     "toast.enrollment_failed": "Enrollment failed",
+    "toast.lesson_added": "Lesson added",
+    "toast.lesson_added_desc": "New lesson added successfully",
+    "toast.quiz_created": "Quiz created",
+    "toast.quiz_created_desc": "New quiz created successfully",
+    "toast.failed": "Failed",
     "toast.lesson_completed": "Lesson completed!",
     "toast.lesson_completed_desc": "Great job! Keep learning.",
     "toast.question_posted": "Question posted",
@@ -407,12 +439,32 @@ const translations: Record<Language, Record<string, string>> = {
     "action.back": "Back",
     "action.next": "Next",
     "action.close": "Close",
+    "action.add_lesson": "Add Lesson",
+    "action.add_quiz": "Add Quiz",
+    "action.view_public": "View Public Page",
+    
+    // Manage Course
+    "manage.lessons_desc": "Manage your course lessons and add new content",
+    "manage.no_lessons": "No lessons yet. Add your first lesson!",
     
     // Form Labels
     "label.course_title": "Course Title",
+    "label.lesson_title": "Lesson Title",
+    "label.youtube_url": "YouTube URL",
+    "label.duration_minutes": "Duration (minutes)",
+    "label.lesson_order": "Order",
+    "label.minutes": "minutes",
+    "label.quiz_title": "Quiz Title",
+    "label.quiz_description": "Quiz Description",
+    "label.deadline": "Deadline",
     "label.category": "Category",
     "label.description": "Description",
     "label.price": "Price",
+    
+    // Placeholders
+    "placeholder.lesson_title": "e.g., Introduction to Programming",
+    "placeholder.quiz_title": "e.g., Unit 1 Quiz",
+    "placeholder.quiz_description": "Answer the following questions...",
     
     // Placeholders
     "placeholder.course_title": "Introduction to Web Development",

@@ -32,10 +32,12 @@ export default function TeacherDashboard() {
     isFree: false,
   });
 
-  const { data: courses } = useQuery<Course[]>({
+  const { data: coursesData } = useQuery<{ courses: (Course & { lessonCount: number; enrollmentCount: number })[] }>({
     queryKey: ["/api/my-courses"],
     enabled: !isLoading && currentUser?.role === "teacher",
   });
+
+  const courses = coursesData?.courses;
 
   const { data: categories } = useQuery<{ id: number; name: string }[]>({
     queryKey: ["/api/courses/categories"],
@@ -285,7 +287,7 @@ export default function TeacherDashboard() {
                       </p>
                     </CardContent>
                     <CardFooter>
-                      <Link href={`/courses/${course.id}`} className="w-full" data-testid={`link-manage-${course.id}`}>
+                      <Link href={`/manage/courses/${course.id}`} className="w-full" data-testid={`link-manage-${course.id}`}>
                         <Button variant="outline" className="w-full">
                           {t("action.edit")}
                         </Button>
