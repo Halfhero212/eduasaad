@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useParams, Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import type { CourseLesson } from "@shared/schema";
 export default function LessonPlayer() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [newComment, setNewComment] = useState("");
 
@@ -49,8 +51,8 @@ export default function LessonPlayer() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/lessons", lessonId] });
       toast({
-        title: "Lesson completed!",
-        description: "Great job! Keep learning.",
+        title: t("toast.lesson_completed"),
+        description: t("toast.lesson_completed_desc"),
       });
     },
   });
@@ -63,14 +65,14 @@ export default function LessonPlayer() {
       queryClient.invalidateQueries({ queryKey: ["/api/lessons", lessonId, "comments"] });
       setNewComment("");
       toast({
-        title: "Question posted",
-        description: "Your teacher will respond soon",
+        title: t("toast.question_posted"),
+        description: t("toast.question_posted_desc"),
       });
     },
     onError: (error) => {
       toast({
-        title: "Failed to post question",
-        description: error instanceof Error ? error.message : "Something went wrong",
+        title: t("toast.question_failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
         variant: "destructive",
       });
     },
@@ -98,9 +100,9 @@ export default function LessonPlayer() {
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-8 text-center">
-          <h1 className="text-2xl font-bold mb-4">Lesson not found</h1>
+          <h1 className="text-2xl font-bold mb-4">{t("lesson.not_found")}</h1>
           <Link href={`/courses/${courseId}`}>
-            <Button>Back to Course</Button>
+            <Button>{t("lesson.back_to_course")}</Button>
           </Link>
         </div>
       </div>
@@ -149,7 +151,7 @@ export default function LessonPlayer() {
                   </div>
                 ) : (
                   <div className="aspect-video bg-muted flex items-center justify-center">
-                    <p className="text-muted-foreground">No video available</p>
+                    <p className="text-muted-foreground">{t("lesson.no_video")}</p>
                   </div>
                 )}
               </CardContent>
@@ -166,14 +168,14 @@ export default function LessonPlayer() {
                     <Link href={`/courses/${courseId}/lessons/${prevLesson.id}`}>
                       <Button variant="outline" data-testid="button-prev-lesson">
                         <ChevronLeft className="w-4 h-4 mr-2" />
-                        Previous
+                        {t("lesson.previous")}
                       </Button>
                     </Link>
                   )}
                   {nextLesson && (
                     <Link href={`/courses/${courseId}/lessons/${nextLesson.id}`}>
                       <Button variant="outline" data-testid="button-next-lesson">
-                        Next
+                        {t("action.next")}
                         <ChevronRight className="w-4 h-4 ml-2" />
                       </Button>
                     </Link>
@@ -186,7 +188,7 @@ export default function LessonPlayer() {
                   data-testid="button-mark-complete"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  {progress.completed ? "Completed" : "Mark as Complete"}
+                  {progress.completed ? t("dashboard.student.completed") : t("lesson.mark_complete")}
                 </Button>
               </CardContent>
             </Card>
@@ -196,7 +198,7 @@ export default function LessonPlayer() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageSquare className="w-5 h-5" />
-                  Ask a Question
+                  {t("comment.ask_question")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -205,7 +207,7 @@ export default function LessonPlayer() {
                     <Textarea
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
-                      placeholder="Ask your teacher a question about this lesson..."
+                      placeholder={t("comment.ask_placeholder")}
                       rows={3}
                       data-testid="textarea-question"
                     />
@@ -214,7 +216,7 @@ export default function LessonPlayer() {
                       disabled={submitCommentMutation.isPending || !newComment.trim()}
                       data-testid="button-submit-question"
                     >
-                      {submitCommentMutation.isPending ? "Posting..." : "Post Question"}
+                      {submitCommentMutation.isPending ? t("comment.posting") : t("comment.post_question")}
                     </Button>
                   </div>
                 )}
@@ -233,7 +235,7 @@ export default function LessonPlayer() {
                             {comment.userName}{" "}
                             {comment.userRole === "teacher" && (
                               <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
-                                Teacher
+                                {t("comment.teacher_badge")}
                               </span>
                             )}
                           </div>
@@ -246,7 +248,7 @@ export default function LessonPlayer() {
                     ))
                   ) : (
                     <p className="text-center text-muted-foreground py-8">
-                      No questions yet. Be the first to ask!
+                      {t("comment.no_questions")}
                     </p>
                   )}
                 </div>
@@ -258,7 +260,7 @@ export default function LessonPlayer() {
           <div className="lg:col-span-1">
             <Card>
               <CardHeader>
-                <CardTitle>Course Content</CardTitle>
+                <CardTitle>{t("courses.course_content")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 {lessons.map((l, index) => (
@@ -276,7 +278,7 @@ export default function LessonPlayer() {
                       </div>
                       {l.durationMinutes && (
                         <div className="text-xs text-muted-foreground mt-1">
-                          {l.durationMinutes} min
+                          {l.durationMinutes} {t("courses.min")}
                         </div>
                       )}
                     </div>

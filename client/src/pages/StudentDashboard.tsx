@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useLocation, Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +23,7 @@ interface EnrolledCourse {
 
 export default function StudentDashboard() {
   const { user: currentUser, isLoading } = useAuth();
+  const { t } = useLanguage();
   const [, setLocation] = useLocation();
 
   const { data: enrollmentData } = useQuery<{ courses: EnrolledCourse[] }>({
@@ -66,15 +68,15 @@ export default function StudentDashboard() {
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Welcome back, {currentUser.fullName}!</h1>
-          <p className="text-muted-foreground">Continue your learning journey</p>
+          <h1 className="text-3xl font-bold mb-2">{t("dashboard.student.welcome")}, {currentUser.fullName}!</h1>
+          <p className="text-muted-foreground">{t("dashboard.student.continue")}</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Courses Enrolled</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("dashboard.student.enrolled_courses")}</CardTitle>
               <BookOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -83,7 +85,7 @@ export default function StudentDashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Completed Courses</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("dashboard.student.completed")}</CardTitle>
               <Award className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -92,7 +94,7 @@ export default function StudentDashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Progress</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("dashboard.student.avg_progress")}</CardTitle>
               <Target className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -104,8 +106,8 @@ export default function StudentDashboard() {
         {/* Enrolled Courses */}
         <Card>
           <CardHeader>
-            <CardTitle>My Courses</CardTitle>
-            <CardDescription>Track your learning progress</CardDescription>
+            <CardTitle>{t("dashboard.student.my_courses")}</CardTitle>
+            <CardDescription>{t("dashboard.student.continue")}</CardDescription>
           </CardHeader>
           <CardContent>
             {enrolledCourses && enrolledCourses.length > 0 ? (
@@ -128,7 +130,7 @@ export default function StudentDashboard() {
                         <div className="absolute top-2 right-2">
                           {course.isFree ? (
                             <Badge variant="secondary" className="bg-secondary/90 backdrop-blur-sm">
-                              Free
+                              {t("courses.free")}
                             </Badge>
                           ) : (
                             <Badge variant="default" className="bg-primary/90 backdrop-blur-sm">
@@ -143,7 +145,7 @@ export default function StudentDashboard() {
                       <CardDescription className="line-clamp-2 mb-3">{course.description}</CardDescription>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Progress</span>
+                          <span className="text-muted-foreground">{t("dashboard.student.progress")}</span>
                           <span className="font-medium">{course.progress}%</span>
                         </div>
                         <Progress value={course.progress} className="h-2" />
@@ -153,7 +155,7 @@ export default function StudentDashboard() {
                       <Link href={`/courses/${course.id}`} data-testid={`link-continue-${course.id}`} className="w-full">
                         <Button variant="default" className="w-full">
                           <PlayCircle className="w-4 h-4 mr-2" />
-                          {course.progress === 0 ? "Start Learning" : "Continue Learning"}
+                          {t("dashboard.student.continue_learning")}
                         </Button>
                       </Link>
                     </CardFooter>
@@ -163,13 +165,13 @@ export default function StudentDashboard() {
             ) : (
               <div className="text-center py-12">
                 <BookOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No enrolled courses</h3>
+                <h3 className="text-xl font-semibold mb-2">{t("dashboard.student.no_courses")}</h3>
                 <p className="text-muted-foreground mb-4">
-                  Explore our course catalog and start learning today
+                  {t("dashboard.student.explore")}
                 </p>
                 <Link href="/">
                   <Button>
-                    Browse Courses
+                    {t("nav.browse")}
                   </Button>
                 </Link>
               </div>

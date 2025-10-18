@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useLocation, Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -13,11 +14,12 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { BookOpen, Plus, Users, Edit } from "lucide-react";
+import { BookOpen, Plus, Users, TrendingUp } from "lucide-react";
 import type { Course } from "@shared/schema";
 
 export default function TeacherDashboard() {
   const { user: currentUser, isLoading } = useAuth();
+  const { t } = useLanguage();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [createCourseOpen, setCreateCourseOpen] = useState(false);
@@ -121,15 +123,15 @@ export default function TeacherDashboard() {
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Teacher Dashboard</h1>
-          <p className="text-muted-foreground">Manage your courses and lessons</p>
+          <h1 className="text-3xl font-bold mb-2">{t("dashboard.teacher.title")}</h1>
+          <p className="text-muted-foreground">{t("dashboard.teacher.manage_courses")}</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">My Courses</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("dashboard.teacher.my_courses")}</CardTitle>
               <BookOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -138,7 +140,7 @@ export default function TeacherDashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("dashboard.teacher.students")}</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -147,8 +149,8 @@ export default function TeacherDashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
-              <Edit className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">{t("dashboard.teacher.total_enrollments")}</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">0</div>
@@ -160,26 +162,26 @@ export default function TeacherDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>My Courses</CardTitle>
-              <CardDescription>Manage your courses and lessons</CardDescription>
+              <CardTitle>{t("dashboard.teacher.my_courses")}</CardTitle>
+              <CardDescription>{t("dashboard.teacher.manage_courses")}</CardDescription>
             </div>
             <Dialog open={createCourseOpen} onOpenChange={setCreateCourseOpen}>
               <DialogTrigger asChild>
                 <Button data-testid="button-create-course">
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Course
+                  {t("dashboard.teacher.create_course")}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                  <DialogTitle>Create New Course</DialogTitle>
+                  <DialogTitle>{t("dashboard.teacher.create_course")}</DialogTitle>
                   <DialogDescription>
-                    Fill in the details to create a new course
+                    {t("dashboard.teacher.manage_courses")}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div>
-                    <Label htmlFor="title">Course Title *</Label>
+                    <Label htmlFor="title">{t("courses.title")} *</Label>
                     <Input
                       id="title"
                       value={newCourse.title}
@@ -189,13 +191,13 @@ export default function TeacherDashboard() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="category">Category *</Label>
+                    <Label htmlFor="category">{t("courses.filter_all")} *</Label>
                     <Select
                       value={newCourse.categoryId}
                       onValueChange={(value) => setNewCourse({ ...newCourse, categoryId: value })}
                     >
                       <SelectTrigger data-testid="select-category">
-                        <SelectValue placeholder="Select a category" />
+                        <SelectValue placeholder={t("courses.filter_all")} />
                       </SelectTrigger>
                       <SelectContent>
                         {categories?.map((cat) => (
@@ -207,7 +209,7 @@ export default function TeacherDashboard() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="description">Description *</Label>
+                    <Label htmlFor="description">{t("courses.subtitle")} *</Label>
                     <Textarea
                       id="description"
                       value={newCourse.description}
@@ -218,7 +220,7 @@ export default function TeacherDashboard() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="whatYouWillLearn">What You Will Learn</Label>
+                    <Label htmlFor="whatYouWillLearn">{t("courses.what_you_learn")}</Label>
                     <Textarea
                       id="whatYouWillLearn"
                       value={newCourse.whatYouWillLearn}
@@ -237,11 +239,11 @@ export default function TeacherDashboard() {
                         onChange={(e) => setNewCourse({ ...newCourse, isFree: e.target.checked })}
                         data-testid="checkbox-is-free"
                       />
-                      <Label htmlFor="isFree">Free Course</Label>
+                      <Label htmlFor="isFree">{t("courses.free")}</Label>
                     </div>
                     {!newCourse.isFree && (
                       <div className="flex-1">
-                        <Label htmlFor="price">Price (USD) *</Label>
+                        <Label htmlFor="price">{t("courses.paid")} *</Label>
                         <Input
                           id="price"
                           type="number"
@@ -262,7 +264,7 @@ export default function TeacherDashboard() {
                     disabled={createCourseMutation.isPending}
                     data-testid="button-submit-course"
                   >
-                    {createCourseMutation.isPending ? "Creating..." : "Create Course"}
+                    {createCourseMutation.isPending ? t("action.submit") : t("dashboard.teacher.create_course")}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -279,13 +281,13 @@ export default function TeacherDashboard() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-muted-foreground">
-                        {course.isFree ? "Free" : `$${course.price}`}
+                        {course.isFree ? t("courses.free") : `$${course.price}`}
                       </p>
                     </CardContent>
                     <CardFooter>
                       <Link href={`/courses/${course.id}`} className="w-full" data-testid={`link-manage-${course.id}`}>
                         <Button variant="outline" className="w-full">
-                          Manage Course
+                          {t("action.edit")}
                         </Button>
                       </Link>
                     </CardFooter>
@@ -295,13 +297,13 @@ export default function TeacherDashboard() {
             ) : (
               <div className="text-center py-12">
                 <BookOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No courses yet</h3>
+                <h3 className="text-xl font-semibold mb-2">{t("dashboard.teacher.no_courses")}</h3>
                 <p className="text-muted-foreground mb-4">
-                  Create your first course to start teaching
+                  {t("dashboard.teacher.get_started")}
                 </p>
                 <Button onClick={() => setCreateCourseOpen(true)}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Your First Course
+                  {t("dashboard.teacher.create_course")}
                 </Button>
               </div>
             )}

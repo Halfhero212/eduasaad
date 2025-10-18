@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useParams, Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import type { Course, CourseLesson, User } from "@shared/schema";
 export default function CourseDetail() {
   const { id } = useParams<{ id: string }>();
   const { user, isAuthenticated } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
 
   const { data: courseData, isLoading } = useQuery<{
@@ -37,14 +39,14 @@ export default function CourseDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/courses", id] });
       toast({
-        title: "Enrollment successful",
-        description: "You can now access the course content",
+        title: t("toast.enrollment_success"),
+        description: t("toast.enrollment_success_desc"),
       });
     },
     onError: (error) => {
       toast({
-        title: "Enrollment failed",
-        description: error instanceof Error ? error.message : "Something went wrong",
+        title: t("toast.enrollment_failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
         variant: "destructive",
       });
     },
@@ -82,9 +84,9 @@ export default function CourseDetail() {
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-8 text-center">
-          <h1 className="text-2xl font-bold mb-4">Course not found</h1>
+          <h1 className="text-2xl font-bold mb-4">{t("courses.not_found")}</h1>
           <Link href="/">
-            <Button>Back to Home</Button>
+            <Button>{t("courses.back_to_home")}</Button>
           </Link>
         </div>
       </div>
@@ -103,6 +105,8 @@ export default function CourseDetail() {
       .toUpperCase()
       .slice(0, 2);
   };
+  
+  const getTeacherName = () => teacher?.fullName || t("courses.unknown");
 
   return (
     <div className="min-h-screen bg-background">
@@ -123,7 +127,7 @@ export default function CourseDetail() {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <div className="font-medium">Created by {teacher?.fullName || "Unknown"}</div>
+                  <div className="font-medium">{t("courses.created_by")} {getTeacherName()}</div>
                   <div className="text-sm opacity-80">{teacher?.email || ""}</div>
                 </div>
               </div>
@@ -131,7 +135,7 @@ export default function CourseDetail() {
               <div className="flex flex-wrap gap-6 opacity-90">
                 <div className="flex items-center gap-2">
                   <BookOpen className="h-4 w-4" />
-                  <span>{lessons.length} lessons</span>
+                  <span>{lessons.length} {t("courses.lessons")}</span>
                 </div>
               </div>
             </div>
@@ -142,11 +146,11 @@ export default function CourseDetail() {
                 <CardContent className="p-6">
                   <div className="text-center mb-4">
                     {course.isFree ? (
-                      <div className="text-4xl font-bold text-secondary">Free</div>
+                      <div className="text-4xl font-bold text-secondary">{t("courses.free")}</div>
                     ) : (
                       <>
                         <div className="text-4xl font-bold">${course.price}</div>
-                        <p className="text-sm text-muted-foreground">One-time payment</p>
+                        <p className="text-sm text-muted-foreground">{t("courses.one_time_payment")}</p>
                       </>
                     )}
                   </div>
@@ -155,7 +159,7 @@ export default function CourseDetail() {
                     <Link href={lessons.length > 0 ? `/courses/${course.id}/lessons/${lessons[0].id}` : "#"}>
                       <Button className="w-full" size="lg" data-testid="button-continue">
                         <PlayCircle className="h-5 w-5 mr-2" />
-                        Continue Learning
+                        {t("courses.continue_learning")}
                       </Button>
                     </Link>
                   ) : (
@@ -168,7 +172,7 @@ export default function CourseDetail() {
                           disabled={enrollMutation.isPending || !isAuthenticated}
                           data-testid="button-enroll-free"
                         >
-                          {enrollMutation.isPending ? "Enrolling..." : "Enroll for Free"}
+                          {enrollMutation.isPending ? t("courses.enrolling") : t("courses.enroll_free")}
                         </Button>
                       ) : (
                         <Button
@@ -178,12 +182,12 @@ export default function CourseDetail() {
                           data-testid="button-whatsapp"
                         >
                           <MessageSquare className="h-5 w-5 mr-2" />
-                          Buy via WhatsApp
+                          {t("courses.buy_whatsapp")}
                         </Button>
                       )}
                       {!isAuthenticated && (
                         <p className="text-xs text-muted-foreground text-center mt-3">
-                          Please <Link href="/login"><span className="text-primary underline">sign in</span></Link> to enroll
+                          {t("courses.sign_in_to_enroll")} <Link href="/login"><span className="text-primary underline">{t("auth.sign_in")}</span></Link>
                         </p>
                       )}
                     </>
@@ -203,7 +207,7 @@ export default function CourseDetail() {
             {whatYouWillLearnPoints.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>What You'll Learn</CardTitle>
+                  <CardTitle>{t("courses.what_you_learn")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -221,7 +225,7 @@ export default function CourseDetail() {
             {/* Course Content / Lessons */}
             <Card>
               <CardHeader>
-                <CardTitle>Course Content</CardTitle>
+                <CardTitle>{t("courses.course_content")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -239,25 +243,25 @@ export default function CourseDetail() {
                         )}
                         <div>
                           <div className="font-medium">
-                            Lesson {index + 1}: {lesson.title}
+                            {t("courses.lesson_label")} {index + 1}: {lesson.title}
                           </div>
                           {lesson.durationMinutes && (
                             <div className="text-sm text-muted-foreground">
-                              {lesson.durationMinutes} min
+                              {lesson.durationMinutes} {t("courses.min")}
                             </div>
                           )}
                         </div>
                       </div>
                       {isEnrolled && (
                         <Link href={`/courses/${course.id}/lessons/${lesson.id}`}>
-                          <Button variant="ghost" size="sm">Watch</Button>
+                          <Button variant="ghost" size="sm">{t("courses.watch")}</Button>
                         </Link>
                       )}
                     </div>
                   ))}
                   {lessons.length === 0 && (
                     <p className="text-center text-muted-foreground py-8">
-                      No lessons available yet
+                      {t("courses.no_lessons")}
                     </p>
                   )}
                 </div>
@@ -269,7 +273,7 @@ export default function CourseDetail() {
           <div className="lg:col-span-1">
             <Card>
               <CardHeader>
-                <CardTitle>Your Instructor</CardTitle>
+                <CardTitle>{t("courses.your_instructor")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-4 mb-4">
@@ -279,7 +283,7 @@ export default function CourseDetail() {
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-medium text-lg">{teacher?.fullName || "Unknown"}</div>
+                    <div className="font-medium text-lg">{getTeacherName()}</div>
                     <div className="text-sm text-muted-foreground">{teacher?.email || ""}</div>
                   </div>
                 </div>
