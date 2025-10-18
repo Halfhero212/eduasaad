@@ -24,25 +24,32 @@ export default function SuperAdminDashboard() {
   const [newTeacherName, setNewTeacherName] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
-  const { data: stats } = useQuery<{
-    teacherCount: number;
-    studentCount: number;
-    courseCount: number;
-    enrollmentCount: number;
+  const { data: statsData } = useQuery<{
+    stats: {
+      teacherCount: number;
+      studentCount: number;
+      courseCount: number;
+      enrollmentCount: number;
+    }
   }>({
     queryKey: ["/api/admin/stats"],
     enabled: !isLoading && currentUser?.role === "superadmin",
   });
 
-  const { data: teachers } = useQuery<User[]>({
+  const stats = statsData?.stats;
+
+  const { data: teachersData } = useQuery<{ teachers: User[] }>({
     queryKey: ["/api/admin/teachers"],
     enabled: !isLoading && currentUser?.role === "superadmin",
   });
 
-  const { data: students } = useQuery<User[]>({
+  const { data: studentsData } = useQuery<{ students: User[] }>({
     queryKey: ["/api/admin/students"],
     enabled: !isLoading && currentUser?.role === "superadmin",
   });
+
+  const teachers = teachersData?.teachers || [];
+  const students = studentsData?.students || [];
 
   const createTeacherMutation = useMutation({
     mutationFn: async (data: { fullName: string; email: string }) => {
