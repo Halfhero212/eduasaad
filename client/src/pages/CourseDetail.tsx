@@ -1,125 +1,183 @@
-import { Navbar } from "@/components/Navbar";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
+import { useParams, Link } from "wouter";
+import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { WhatsAppPurchaseButton } from "@/components/WhatsAppPurchaseButton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Clock, BookOpen, Users, CheckCircle, PlayCircle, Lock } from "lucide-react";
-import programmingThumb from "@assets/generated_images/Programming_course_thumbnail_d3f5d2c9.png";
-
-// Todo: Remove mock data
-const mockUser = {
-  name: "Ahmed Ali",
-  role: "student" as const,
-};
-
-const mockCourse = {
-  id: 1,
-  title: "Advanced JavaScript Programming",
-  description: "Master modern JavaScript with ES6+, async/await, promises, and advanced programming concepts. This comprehensive course will take you from intermediate to advanced level with real-world projects and hands-on exercises.",
-  teacher: {
-    name: "Dr. Ahmed Hassan",
-    avatar: "A",
-    bio: "Senior Software Engineer with 10+ years of experience in web development and JavaScript frameworks.",
-  },
-  category: "Programming",
-  price: 49,
-  thumbnail: programmingThumb,
-  duration: "12h 30m",
-  lessonCount: 24,
-  enrollmentCount: 342,
-  enrolled: false,
-  whatYouWillLearn: [
-    "Master ES6+ features including arrow functions, destructuring, and spread operators",
-    "Understand asynchronous programming with Promises and async/await",
-    "Learn advanced concepts like closures, prototypes, and the event loop",
-    "Build real-world projects using modern JavaScript best practices",
-    "Implement design patterns and write clean, maintainable code",
-    "Work with APIs and handle data fetching efficiently",
-  ],
-  lessons: [
-    { id: 1, title: "Introduction to Modern JavaScript", duration: "12:30", free: true },
-    { id: 2, title: "ES6+ Features Overview", duration: "15:45", free: true },
-    { id: 3, title: "Functions and Closures", duration: "18:20", free: false },
-    { id: 4, title: "Arrays and Objects Deep Dive", duration: "22:15", free: false },
-    { id: 5, title: "Asynchronous JavaScript", duration: "24:30", free: false },
-    { id: 6, title: "Working with APIs", duration: "20:15", free: false },
-  ],
-};
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Clock, BookOpen, Users, CheckCircle, PlayCircle, Lock, MessageSquare } from "lucide-react";
+import type { Course, CourseLesson, User } from "@shared/schema";
 
 export default function CourseDetail() {
+  const { id } = useParams<{ id: string }>();
+  const { user, isAuthenticated } = useAuth();
+  const { toast } = useToast();
+
+  const { data: courseData, isLoading } = useQuery<{
+    course: Course;
+    teacher: User;
+    lessons: CourseLesson[];
+    isEnrolled: boolean;
+  }>({
+    queryKey: ["/api/courses", id],
+  });
+
+  const { data: whatsappNumber } = useQuery<{ whatsappNumber: string }>({
+    queryKey: ["/api/whatsapp-number"],
+  });
+
+  const enrollMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("POST", `/api/courses/${id}/enroll`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/courses", id] });
+      toast({
+        title: "Enrollment successful",
+        description: "You can now access the course content",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Enrollment failed",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleWhatsAppEnroll = () => {
+    if (!courseData) return;
+    const message = encodeURIComponent(
+      `Hi! I would like to enroll in "${courseData.course.title}" ($${courseData.course.price})`
+    );
+    const phone = whatsappNumber?.whatsappNumber || "9647801234567";
+    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+  };
+
+  const handleFreeEnroll = () => {
+    enrollMutation.mutate();
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <Skeleton className="h-64 w-full mb-8" />
+          <Skeleton className="h-8 w-3/4 mb-4" />
+          <Skeleton className="h-4 w-full mb-2" />
+          <Skeleton className="h-4 w-2/3" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!courseData) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 text-center">
+          <h1 className="text-2xl font-bold mb-4">Course not found</h1>
+          <Link href="/">
+            <Button>Back to Home</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const { course, teacher, lessons, isEnrolled } = courseData;
+  const whatYouWillLearnPoints = course.whatYouWillLearn?.split("\n").filter(Boolean) || [];
+
   return (
     <div className="min-h-screen bg-background">
-      <Navbar user={mockUser} notificationCount={3} onLogout={() => console.log('Logout')} />
-
+      <Navbar />
+      
       {/* Course Hero */}
-      <div className="relative bg-gradient-to-r from-primary to-chart-2 text-primary-foreground">
-        <div className="absolute inset-0 opacity-20">
-          <img src={mockCourse.thumbnail} alt="" className="w-full h-full object-cover" />
-        </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="bg-gradient-to-r from-primary to-accent text-primary-foreground py-12">
+        <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <Badge className="mb-4 bg-background/20 text-primary-foreground backdrop-blur-sm">
-                {mockCourse.category}
-              </Badge>
-              <h1 className="text-3xl sm:text-4xl font-heading font-bold mb-4">
-                {mockCourse.title}
-              </h1>
-              <p className="text-lg text-primary-foreground/90 mb-6">
-                {mockCourse.description}
-              </p>
+              <h1 className="text-3xl md:text-4xl font-bold mb-4">{course.title}</h1>
+              <p className="text-lg opacity-90 mb-6">{course.description}</p>
+              
               <div className="flex items-center gap-4 mb-6">
                 <Avatar className="h-12 w-12">
-                  <AvatarFallback className="bg-background text-foreground">
-                    {mockCourse.teacher.avatar}
+                  <AvatarFallback className="bg-white text-primary">
+                    {teacher.fullName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <div className="font-medium">Created by {mockCourse.teacher.name}</div>
-                  <div className="text-sm text-primary-foreground/80">
-                    {mockCourse.teacher.bio}
-                  </div>
+                  <div className="font-medium">Created by {teacher.fullName}</div>
+                  <div className="text-sm opacity-80">{teacher.email}</div>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-6 text-primary-foreground/90">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  <span>{mockCourse.duration}</span>
-                </div>
+
+              <div className="flex flex-wrap gap-6 opacity-90">
                 <div className="flex items-center gap-2">
                   <BookOpen className="h-4 w-4" />
-                  <span>{mockCourse.lessonCount} lessons</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  <span>{mockCourse.enrollmentCount} students</span>
+                  <span>{lessons.length} lessons</span>
                 </div>
               </div>
             </div>
 
             {/* Price Card */}
             <div className="lg:col-span-1">
-              <Card className="sticky top-20">
+              <Card>
                 <CardContent className="p-6">
                   <div className="text-center mb-4">
-                    <div className="text-4xl font-bold mb-2">${mockCourse.price}</div>
-                    <p className="text-sm text-muted-foreground">One-time payment</p>
+                    {course.isFree ? (
+                      <div className="text-4xl font-bold text-secondary">Free</div>
+                    ) : (
+                      <>
+                        <div className="text-4xl font-bold">${course.price}</div>
+                        <p className="text-sm text-muted-foreground">One-time payment</p>
+                      </>
+                    )}
                   </div>
-                  {mockCourse.enrolled ? (
-                    <Button className="w-full mb-3" size="lg" data-testid="button-continue">
-                      <PlayCircle className="h-5 w-5 mr-2" />
-                      Continue Learning
-                    </Button>
+                  
+                  {isEnrolled ? (
+                    <Link href={lessons.length > 0 ? `/courses/${course.id}/lessons/${lessons[0].id}` : "#"}>
+                      <Button className="w-full" size="lg" data-testid="button-continue">
+                        <PlayCircle className="h-5 w-5 mr-2" />
+                        Continue Learning
+                      </Button>
+                    </Link>
                   ) : (
-                    <WhatsAppPurchaseButton
-                      courseName={mockCourse.title}
-                      price={mockCourse.price}
-                    />
+                    <>
+                      {course.isFree ? (
+                        <Button
+                          className="w-full"
+                          size="lg"
+                          onClick={handleFreeEnroll}
+                          disabled={enrollMutation.isPending || !isAuthenticated}
+                          data-testid="button-enroll-free"
+                        >
+                          {enrollMutation.isPending ? "Enrolling..." : "Enroll for Free"}
+                        </Button>
+                      ) : (
+                        <Button
+                          className="w-full bg-[#25D366] hover:bg-[#20BA5A]"
+                          size="lg"
+                          onClick={handleWhatsAppEnroll}
+                          data-testid="button-whatsapp"
+                        >
+                          <MessageSquare className="h-5 w-5 mr-2" />
+                          Buy via WhatsApp
+                        </Button>
+                      )}
+                      {!isAuthenticated && (
+                        <p className="text-xs text-muted-foreground text-center mt-3">
+                          Please <Link href="/login"><span className="text-primary underline">sign in</span></Link> to enroll
+                        </p>
+                      )}
+                    </>
                   )}
-                  <p className="text-xs text-muted-foreground text-center mt-3">
-                    Contact us via WhatsApp to complete your purchase
-                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -127,53 +185,71 @@ export default function CourseDetail() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Course Content */}
+      <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             {/* What You'll Learn */}
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-2xl font-heading font-bold mb-4">What you'll learn</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {mockCourse.whatYouWillLearn.map((item, index) => (
-                    <div key={index} className="flex items-start gap-2">
-                      <CheckCircle className="h-5 w-5 text-chart-3 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            {whatYouWillLearnPoints.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>What You'll Learn</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {whatYouWillLearnPoints.map((point, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Course Content */}
+            {/* Course Content / Lessons */}
             <Card>
-              <CardContent className="p-6">
-                <h2 className="text-2xl font-heading font-bold mb-4">Course Content</h2>
+              <CardHeader>
+                <CardTitle>Course Content</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <div className="space-y-2">
-                  {mockCourse.lessons.map((lesson, index) => (
+                  {lessons.map((lesson, index) => (
                     <div
                       key={lesson.id}
-                      className="flex items-center justify-between p-4 rounded-lg border hover-elevate active-elevate-2 cursor-pointer"
+                      className="flex items-center justify-between p-3 rounded-lg hover-elevate"
                       data-testid={`lesson-${lesson.id}`}
                     >
                       <div className="flex items-center gap-3">
-                        {lesson.free || mockCourse.enrolled ? (
+                        {isEnrolled ? (
                           <PlayCircle className="h-5 w-5 text-primary" />
                         ) : (
                           <Lock className="h-5 w-5 text-muted-foreground" />
                         )}
                         <div>
-                          <div className="font-medium text-sm">
+                          <div className="font-medium">
                             Lesson {index + 1}: {lesson.title}
                           </div>
-                          {lesson.free && !mockCourse.enrolled && (
-                            <Badge variant="secondary" className="mt-1">Free Preview</Badge>
+                          {lesson.durationMinutes && (
+                            <div className="text-sm text-muted-foreground">
+                              {lesson.durationMinutes} min
+                            </div>
                           )}
                         </div>
                       </div>
-                      <span className="text-sm text-muted-foreground">{lesson.duration}</span>
+                      {isEnrolled && (
+                        <Link href={`/courses/${course.id}/lessons/${lesson.id}`}>
+                          <Button variant="ghost" size="sm">Watch</Button>
+                        </Link>
+                      )}
                     </div>
                   ))}
+                  {lessons.length === 0 && (
+                    <p className="text-center text-muted-foreground py-8">
+                      No lessons available yet
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -182,22 +258,21 @@ export default function CourseDetail() {
           {/* Sidebar - Teacher Info */}
           <div className="lg:col-span-1">
             <Card>
-              <CardContent className="p-6">
-                <h3 className="font-heading font-bold mb-4">Your Instructor</h3>
-                <div className="flex items-center gap-3 mb-4">
+              <CardHeader>
+                <CardTitle>Your Instructor</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-4 mb-4">
                   <Avatar className="h-16 w-16">
-                    <AvatarFallback className="bg-gradient-to-br from-primary to-chart-2 text-primary-foreground text-xl">
-                      {mockCourse.teacher.avatar}
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xl">
+                      {teacher.fullName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-medium">{mockCourse.teacher.name}</div>
-                    <div className="text-sm text-muted-foreground">Teacher</div>
+                    <div className="font-medium text-lg">{teacher.fullName}</div>
+                    <div className="text-sm text-muted-foreground">{teacher.email}</div>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {mockCourse.teacher.bio}
-                </p>
               </CardContent>
             </Card>
           </div>

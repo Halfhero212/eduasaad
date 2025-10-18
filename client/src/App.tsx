@@ -3,10 +3,13 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/contexts/AuthContext";
 import NotFound from "@/pages/not-found";
 
 // Import pages
 import Home from "@/pages/Home";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
 import StudentDashboard from "@/pages/StudentDashboard";
 import TeacherDashboard from "@/pages/TeacherDashboard";
 import SuperAdminDashboard from "@/pages/SuperAdminDashboard";
@@ -30,11 +33,13 @@ function Router() {
     <Switch>
       {/* Main Pages */}
       <Route path="/" component={Home} />
-      <Route path="/student-dashboard" component={StudentDashboard} />
-      <Route path="/teacher-dashboard" component={TeacherDashboard} />
-      <Route path="/admin-dashboard" component={SuperAdminDashboard} />
-      <Route path="/lesson" component={LessonPlayer} />
-      <Route path="/course" component={CourseDetail} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route path="/dashboard/student" component={StudentDashboard} />
+      <Route path="/dashboard/teacher" component={TeacherDashboard} />
+      <Route path="/dashboard/superadmin" component={SuperAdminDashboard} />
+      <Route path="/courses/:id" component={CourseDetail} />
+      <Route path="/courses/:courseId/lessons/:lessonId" component={LessonPlayer} />
 
       {/* Component Examples */}
       <Route path="/examples/navbar" component={NavbarExample} />
@@ -57,10 +62,12 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

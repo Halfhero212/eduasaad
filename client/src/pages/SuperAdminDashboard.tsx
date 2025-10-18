@@ -1,162 +1,264 @@
-import { Navbar } from "@/components/Navbar";
-import { StatCard } from "@/components/StatCard";
-import { AdminUserManagement } from "@/components/AdminUserManagement";
-import { BookOpen, Users, GraduationCap, DollarSign } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLocation } from "wouter";
+import Navbar from "@/components/Navbar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-
-// Todo: Remove mock data
-const mockUser = {
-  name: "Super Admin",
-  role: "superadmin" as const,
-};
-
-const mockTeachers = [
-  {
-    id: 1,
-    name: "Dr. Ahmed Hassan",
-    email: "ahmed.hassan@example.com",
-    coursesCount: 5,
-    studentsCount: 342,
-    joinedDate: "Jan 15, 2024",
-  },
-  {
-    id: 2,
-    name: "Prof. Sarah Ali",
-    email: "sarah.ali@example.com",
-    coursesCount: 3,
-    studentsCount: 567,
-    joinedDate: "Feb 3, 2024",
-  },
-  {
-    id: 3,
-    name: "Mohammed Khalil",
-    email: "mohammed.k@example.com",
-    coursesCount: 8,
-    studentsCount: 891,
-    joinedDate: "Mar 12, 2024",
-  },
-];
-
-const mockRecentActivity = [
-  { action: "New Student Registration", user: "Layla Ibrahim", time: "5 mins ago", type: "student" },
-  { action: "Course Created", user: "Dr. Ahmed Hassan", time: "2 hours ago", type: "course" },
-  { action: "Course Purchase", user: "Omar Farid", time: "3 hours ago", type: "purchase" },
-  { action: "Teacher Account Created", user: "Amira Saleh", time: "1 day ago", type: "teacher" },
-];
-
-const mockTopCourses = [
-  { id: 1, title: "Web Development Bootcamp", enrollments: 891, revenue: 88209 },
-  { id: 2, title: "Calculus I - Complete Course", enrollments: 567, revenue: 0 },
-  { id: 3, title: "Advanced JavaScript", enrollments: 342, revenue: 16758 },
-];
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Users, GraduationCap, BookOpen, UserCheck, Plus } from "lucide-react";
+import type { User } from "@shared/schema";
 
 export default function SuperAdminDashboard() {
+  const { user: currentUser } = useAuth();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [newTeacherEmail, setNewTeacherEmail] = useState("");
+  const [newTeacherName, setNewTeacherName] = useState("");
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+
+  if (!currentUser || currentUser.role !== "superadmin") {
+    setLocation("/");
+    return null;
+  }
+
+  const { data: stats } = useQuery<{
+    teacherCount: number;
+    studentCount: number;
+    courseCount: number;
+    enrollmentCount: number;
+  }>({
+    queryKey: ["/api/admin/stats"],
+  });
+
+  const { data: teachers } = useQuery<User[]>({
+    queryKey: ["/api/admin/teachers"],
+  });
+
+  const { data: students } = useQuery<User[]>({
+    queryKey: ["/api/admin/students"],
+  });
+
+  const createTeacherMutation = useMutation({
+    mutationFn: async (data: { fullName: string; email: string }) => {
+      const res = await apiRequest("POST", "/api/auth/create-teacher", data);
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/teachers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      toast({
+        title: "Teacher created successfully",
+        description: `Password: ${data.password}. Please save this password and share it with the teacher.`,
+      });
+      setNewTeacherEmail("");
+      setNewTeacherName("");
+      setCreateDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to create teacher",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCreateTeacher = () => {
+    if (!newTeacherName || !newTeacherEmail) {
+      toast({
+        title: "Validation error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    createTeacherMutation.mutate({
+      fullName: newTeacherName,
+      email: newTeacherEmail,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <Navbar user={mockUser} notificationCount={5} onLogout={() => console.log('Logout')} />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
+      <Navbar />
+      <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-heading font-bold mb-2">Platform Overview</h1>
-          <p className="text-muted-foreground">Manage the entire learning platform</p>
+          <h1 className="text-3xl font-bold mb-2">Superadmin Dashboard</h1>
+          <p className="text-muted-foreground">Manage platform users and monitor statistics</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard
-            title="Total Students"
-            value="2,543"
-            icon={Users}
-            trend={{ value: "18%", isPositive: true }}
-            gradient="from-primary to-chart-2"
-          />
-          <StatCard
-            title="Total Teachers"
-            value="48"
-            icon={GraduationCap}
-            trend={{ value: "12%", isPositive: true }}
-            gradient="from-chart-2 to-chart-3"
-          />
-          <StatCard
-            title="Total Courses"
-            value="156"
-            icon={BookOpen}
-            trend={{ value: "8%", isPositive: true }}
-            gradient="from-chart-3 to-chart-4"
-          />
-          <StatCard
-            title="Revenue (MTD)"
-            value="$34.2K"
-            icon={DollarSign}
-            trend={{ value: "23%", isPositive: true }}
-            gradient="from-chart-4 to-primary"
-          />
-        </div>
-
-        {/* Platform Activity & Top Courses */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Recent Activity */}
           <Card>
-            <CardHeader>
-              <CardTitle>Recent Platform Activity</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Teachers</CardTitle>
+              <GraduationCap className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent className="space-y-3">
-              {mockRecentActivity.map((activity, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 rounded-lg hover-elevate" data-testid={`activity-${index}`}>
-                  <div className={`w-2 h-2 rounded-full mt-2 ${
-                    activity.type === 'student' ? 'bg-chart-2' :
-                    activity.type === 'teacher' ? 'bg-primary' :
-                    activity.type === 'course' ? 'bg-chart-3' :
-                    'bg-chart-4'
-                  }`}></div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <div className="font-medium text-sm">{activity.action}</div>
-                        <div className="text-xs text-muted-foreground">{activity.user}</div>
-                      </div>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">{activity.time}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <CardContent>
+              <div className="text-2xl font-bold" data-testid="stat-teachers">{stats?.teacherCount || 0}</div>
             </CardContent>
           </Card>
-
-          {/* Top Courses */}
           <Card>
-            <CardHeader>
-              <CardTitle>Top Performing Courses</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent className="space-y-3">
-              {mockTopCourses.map((course, index) => (
-                <div key={course.id} className="flex items-center gap-3 p-3 rounded-lg hover-elevate" data-testid={`top-course-${course.id}`}>
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold">
-                    {index + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm">{course.title}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {course.enrollments} enrollments
-                      {course.revenue > 0 && ` • $${course.revenue.toLocaleString()} revenue`}
-                    </div>
-                  </div>
-                  {course.revenue === 0 && (
-                    <Badge variant="secondary">FREE</Badge>
-                  )}
-                </div>
-              ))}
+            <CardContent>
+              <div className="text-2xl font-bold" data-testid="stat-students">{stats?.studentCount || 0}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
+              <BookOpen className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold" data-testid="stat-courses">{stats?.courseCount || 0}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Enrollments</CardTitle>
+              <UserCheck className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold" data-testid="stat-enrollments">{stats?.enrollmentCount || 0}</div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Teacher Management */}
-        <AdminUserManagement
-          teachers={mockTeachers}
-          onCreateTeacher={(name, email) => console.log('Creating teacher:', { name, email })}
-        />
+        {/* Teachers Management */}
+        <Card className="mb-8">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Teachers</CardTitle>
+              <CardDescription>Manage teacher accounts</CardDescription>
+            </div>
+            <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button data-testid="button-create-teacher">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Teacher
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create Teacher Account</DialogTitle>
+                  <DialogDescription>
+                    Create a new teacher account. A random password will be generated.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div>
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      value={newTeacherName}
+                      onChange={(e) => setNewTeacherName(e.target.value)}
+                      placeholder="John Doe"
+                      data-testid="input-teacher-name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={newTeacherEmail}
+                      onChange={(e) => setNewTeacherEmail(e.target.value)}
+                      placeholder="teacher@example.com"
+                      data-testid="input-teacher-email"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    onClick={handleCreateTeacher}
+                    disabled={createTeacherMutation.isPending}
+                    data-testid="button-submit-teacher"
+                  >
+                    {createTeacherMutation.isPending ? "Creating..." : "Create Teacher"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {teachers && teachers.length > 0 ? (
+                  teachers.map((teacher) => (
+                    <TableRow key={teacher.id} data-testid={`row-teacher-${teacher.id}`}>
+                      <TableCell className="font-medium">{teacher.fullName}</TableCell>
+                      <TableCell>{teacher.email}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">Active</Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center text-muted-foreground">
+                      No teachers found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        {/* Students Management */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Students</CardTitle>
+            <CardDescription>View all registered students</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {students && students.length > 0 ? (
+                  students.map((student) => (
+                    <TableRow key={student.id} data-testid={`row-student-${student.id}`}>
+                      <TableCell className="font-medium">{student.fullName}</TableCell>
+                      <TableCell>{student.email}</TableCell>
+                      <TableCell>
+                        <Badge>Active</Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center text-muted-foreground">
+                      No students found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

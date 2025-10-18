@@ -1,164 +1,156 @@
-import { Navbar } from "@/components/Navbar";
-import { StatCard } from "@/components/StatCard";
-import { CourseCard } from "@/components/CourseCard";
-import { BookOpen, Award, Target, TrendingUp } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLocation, Link } from "wouter";
+import Navbar from "@/components/Navbar";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import programmingThumb from "@assets/generated_images/Programming_course_thumbnail_d3f5d2c9.png";
-import mathThumb from "@assets/generated_images/Mathematics_course_thumbnail_0882555e.png";
+import { Button } from "@/components/ui/button";
+import { BookOpen, Award, Target, PlayCircle } from "lucide-react";
 
-// Todo: Remove mock data
-const mockUser = {
-  name: "Ahmed Ali",
-  role: "student" as const,
-};
-
-const mockEnrolledCourses = [
-  {
-    id: 1,
-    title: "Advanced JavaScript Programming",
-    description: "Master modern JavaScript with ES6+, async/await, and advanced concepts",
-    teacher: { name: "Dr. Ahmed Hassan", avatar: "A" },
-    category: "Programming",
-    price: 49,
-    thumbnail: programmingThumb,
-    lessonCount: 24,
-    duration: "12h 30m",
-    enrollmentCount: 342,
-    enrolled: true,
-    progress: 65,
-  },
-  {
-    id: 2,
-    title: "Calculus I - Complete Course",
-    description: "Learn calculus from basics to advanced topics",
-    teacher: { name: "Prof. Sarah Ali", avatar: "S" },
-    category: "Mathematics",
-    isFree: true,
-    thumbnail: mathThumb,
-    lessonCount: 18,
-    duration: "8h 45m",
-    enrollmentCount: 567,
-    enrolled: true,
-    progress: 100,
-  },
-  {
-    id: 4,
-    title: "Web Development Bootcamp",
-    description: "Complete web development course covering HTML, CSS, JavaScript, React, and Node.js",
-    teacher: { name: "Amira Saleh", avatar: "A" },
-    category: "Programming",
-    price: 99,
-    thumbnail: programmingThumb,
-    lessonCount: 48,
-    duration: "25h 15m",
-    enrollmentCount: 891,
-    enrolled: true,
-    progress: 23,
-  },
-];
-
-const mockRecentActivity = [
-  { lesson: "Functions and Closures", course: "Advanced JavaScript", time: "2 hours ago", progress: 65 },
-  { lesson: "Integration Techniques", course: "Calculus I", time: "1 day ago", progress: 100 },
-  { lesson: "CSS Grid Layout", course: "Web Development", time: "3 days ago", progress: 23 },
-];
+interface EnrolledCourse {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  isFree: boolean;
+  thumbnailUrl: string | null;
+  progress: number;
+}
 
 export default function StudentDashboard() {
+  const { user: currentUser } = useAuth();
+  const [, setLocation] = useLocation();
+
+  if (!currentUser || currentUser.role !== "student") {
+    setLocation("/");
+    return null;
+  }
+
+  const { data: enrolledCourses } = useQuery<EnrolledCourse[]>({
+    queryKey: ["/api/enrollments/my-courses"],
+  });
+
+  const completedCourses = enrolledCourses?.filter(c => c.progress === 100) || [];
+  const averageProgress = enrolledCourses && enrolledCourses.length > 0
+    ? Math.round(enrolledCourses.reduce((acc, c) => acc + c.progress, 0) / enrolledCourses.length)
+    : 0;
+
   return (
     <div className="min-h-screen bg-background">
-      <Navbar user={mockUser} notificationCount={3} onLogout={() => console.log('Logout')} />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
+      <Navbar />
+      <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-heading font-bold mb-2">Welcome back, {mockUser.name}!</h1>
+          <h1 className="text-3xl font-bold mb-2">Welcome back, {currentUser.fullName}!</h1>
           <p className="text-muted-foreground">Continue your learning journey</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard
-            title="Courses Enrolled"
-            value="3"
-            icon={BookOpen}
-            gradient="from-primary to-chart-2"
-          />
-          <StatCard
-            title="Lessons Completed"
-            value="42"
-            icon={Award}
-            trend={{ value: "12%", isPositive: true }}
-            gradient="from-chart-2 to-chart-3"
-          />
-          <StatCard
-            title="Average Progress"
-            value="62%"
-            icon={Target}
-            gradient="from-chart-3 to-chart-4"
-          />
-          <StatCard
-            title="Quiz Average"
-            value="89%"
-            icon={TrendingUp}
-            trend={{ value: "5%", isPositive: true }}
-            gradient="from-chart-4 to-primary"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Courses Enrolled</CardTitle>
+              <BookOpen className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold" data-testid="stat-enrolled">{enrolledCourses?.length || 0}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Completed Courses</CardTitle>
+              <Award className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold" data-testid="stat-completed">{completedCourses.length}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Average Progress</CardTitle>
+              <Target className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold" data-testid="stat-progress">{averageProgress}%</div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Continue Learning & Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Continue Learning */}
-          <div className="lg:col-span-2">
-            <h2 className="text-xl font-heading font-bold mb-4">Continue Learning</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {mockEnrolledCourses.slice(0, 2).map((course) => (
-                <CourseCard
-                  key={course.id}
-                  {...course}
-                  onClick={() => console.log('Continue course:', course.id)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Recent Activity */}
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {mockRecentActivity.map((activity, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <div>
-                        <div className="font-medium">{activity.lesson}</div>
-                        <div className="text-muted-foreground text-xs">{activity.course}</div>
+        {/* Enrolled Courses */}
+        <Card>
+          <CardHeader>
+            <CardTitle>My Courses</CardTitle>
+            <CardDescription>Track your learning progress</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {enrolledCourses && enrolledCourses.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {enrolledCourses.map((course) => (
+                  <Card key={course.id} data-testid={`card-course-${course.id}`} className="hover-elevate">
+                    <CardHeader className="p-0">
+                      <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-accent/20">
+                        {course.thumbnailUrl ? (
+                          <img
+                            src={course.thumbnailUrl}
+                            alt={course.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <BookOpen className="w-12 h-12 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="absolute top-2 right-2">
+                          {course.isFree ? (
+                            <Badge variant="secondary" className="bg-secondary/90 backdrop-blur-sm">
+                              Free
+                            </Badge>
+                          ) : (
+                            <Badge variant="default" className="bg-primary/90 backdrop-blur-sm">
+                              ${course.price}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-xs text-muted-foreground">{activity.time}</div>
-                    </div>
-                    <Progress value={activity.progress} className="h-1.5" />
-                  </div>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <CardTitle className="text-lg mb-2 line-clamp-2">{course.title}</CardTitle>
+                      <CardDescription className="line-clamp-2 mb-3">{course.description}</CardDescription>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Progress</span>
+                          <span className="font-medium">{course.progress}%</span>
+                        </div>
+                        <Progress value={course.progress} className="h-2" />
+                      </div>
+                    </CardContent>
+                    <CardFooter className="p-4 pt-0">
+                      <Link href={`/courses/${course.id}`} data-testid={`link-continue-${course.id}`} className="w-full">
+                        <Button variant="default" className="w-full">
+                          <PlayCircle className="w-4 h-4 mr-2" />
+                          {course.progress === 0 ? "Start Learning" : "Continue Learning"}
+                        </Button>
+                      </Link>
+                    </CardFooter>
+                  </Card>
                 ))}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* All Enrolled Courses */}
-        <div>
-          <h2 className="text-xl font-heading font-bold mb-4">My Courses</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockEnrolledCourses.map((course) => (
-              <CourseCard
-                key={course.id}
-                {...course}
-                onClick={() => console.log('Open course:', course.id)}
-              />
-            ))}
-          </div>
-        </div>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <BookOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-xl font-semibold mb-2">No enrolled courses</h3>
+                <p className="text-muted-foreground mb-4">
+                  Explore our course catalog and start learning today
+                </p>
+                <Link href="/">
+                  <Button>
+                    Browse Courses
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

@@ -1,188 +1,292 @@
-import { Navbar } from "@/components/Navbar";
-import { StatCard } from "@/components/StatCard";
-import { StudentProgressTable } from "@/components/StudentProgressTable";
-import { BookOpen, Users, MessageSquare, Award } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLocation, Link } from "wouter";
+import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-
-// Todo: Remove mock data
-const mockUser = {
-  name: "Dr. Ahmed Hassan",
-  role: "teacher" as const,
-};
-
-const mockStudents = [
-  {
-    id: 1,
-    name: "Ahmed Ali",
-    email: "ahmed@example.com",
-    lessonsCompleted: 18,
-    totalLessons: 24,
-    quizzesSubmitted: 4,
-    totalQuizzes: 6,
-    avgScore: 92,
-    lastActive: "2 hours ago",
-  },
-  {
-    id: 2,
-    name: "Fatima Hassan",
-    email: "fatima@example.com",
-    lessonsCompleted: 24,
-    totalLessons: 24,
-    quizzesSubmitted: 6,
-    totalQuizzes: 6,
-    avgScore: 98,
-    lastActive: "1 day ago",
-  },
-  {
-    id: 3,
-    name: "Mohammed Khalil",
-    email: "mohammed@example.com",
-    lessonsCompleted: 12,
-    totalLessons: 24,
-    quizzesSubmitted: 3,
-    totalQuizzes: 6,
-    avgScore: 85,
-    lastActive: "3 days ago",
-  },
-];
-
-const mockPendingQuestions = [
-  {
-    id: 1,
-    student: "Ahmed Ali",
-    lesson: "Functions and Closures",
-    question: "Can you explain the difference between call and apply methods?",
-    time: "2 hours ago",
-  },
-  {
-    id: 2,
-    student: "Sara Mohammed",
-    lesson: "Async/Await",
-    question: "How do I handle multiple promises in parallel?",
-    time: "5 hours ago",
-  },
-];
-
-const mockPendingQuizzes = [
-  {
-    id: 1,
-    student: "Fatima Hassan",
-    quiz: "Quiz 5: Advanced Functions",
-    submittedAt: "1 hour ago",
-  },
-  {
-    id: 2,
-    student: "Omar Khalid",
-    quiz: "Quiz 4: Async Programming",
-    submittedAt: "3 hours ago",
-  },
-];
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { BookOpen, Plus, Users, Edit } from "lucide-react";
+import type { Course } from "@shared/schema";
 
 export default function TeacherDashboard() {
+  const { user: currentUser } = useAuth();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [createCourseOpen, setCreateCourseOpen] = useState(false);
+  const [newCourse, setNewCourse] = useState({
+    title: "",
+    description: "",
+    whatYouWillLearn: "",
+    categoryId: "",
+    price: "",
+    isFree: false,
+  });
+
+  if (!currentUser || currentUser.role !== "teacher") {
+    setLocation("/");
+    return null;
+  }
+
+  const { data: courses } = useQuery<Course[]>({
+    queryKey: ["/api/my-courses"],
+  });
+
+  const { data: categories } = useQuery<{ id: number; name: string }[]>({
+    queryKey: ["/api/courses/categories"],
+  });
+
+  const createCourseMutation = useMutation({
+    mutationFn: async (data: typeof newCourse) => {
+      const res = await apiRequest("POST", "/api/courses", {
+        ...data,
+        categoryId: parseInt(data.categoryId),
+        price: data.isFree ? 0 : parseFloat(data.price),
+      });
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/my-courses"] });
+      toast({
+        title: "Course created successfully",
+        description: "You can now add lessons to your course",
+      });
+      setNewCourse({
+        title: "",
+        description: "",
+        whatYouWillLearn: "",
+        categoryId: "",
+        price: "",
+        isFree: false,
+      });
+      setCreateCourseOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to create course",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCreateCourse = () => {
+    if (!newCourse.title || !newCourse.description || !newCourse.categoryId) {
+      toast({
+        title: "Validation error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!newCourse.isFree && (!newCourse.price || parseFloat(newCourse.price) <= 0)) {
+      toast({
+        title: "Validation error",
+        description: "Please enter a valid price or mark the course as free",
+        variant: "destructive",
+      });
+      return;
+    }
+    createCourseMutation.mutate(newCourse);
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <Navbar user={mockUser} notificationCount={7} onLogout={() => console.log('Logout')} />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
+      <Navbar />
+      <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-heading font-bold mb-2">Teacher Dashboard</h1>
-          <p className="text-muted-foreground">Manage your courses and students</p>
+          <h1 className="text-3xl font-bold mb-2">Teacher Dashboard</h1>
+          <p className="text-muted-foreground">Manage your courses and lessons</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard
-            title="My Courses"
-            value="5"
-            icon={BookOpen}
-            gradient="from-primary to-chart-2"
-          />
-          <StatCard
-            title="Total Students"
-            value="342"
-            icon={Users}
-            trend={{ value: "12%", isPositive: true }}
-            gradient="from-chart-2 to-chart-3"
-          />
-          <StatCard
-            title="Pending Questions"
-            value="8"
-            icon={MessageSquare}
-            gradient="from-chart-3 to-chart-4"
-          />
-          <StatCard
-            title="Pending Quizzes"
-            value="12"
-            icon={Award}
-            gradient="from-chart-4 to-primary"
-          />
-        </div>
-
-        {/* Pending Items */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Pending Questions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Pending Questions</span>
-                <Badge>{mockPendingQuestions.length}</Badge>
-              </CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">My Courses</CardTitle>
+              <BookOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent className="space-y-3">
-              {mockPendingQuestions.map((item) => (
-                <div key={item.id} className="p-3 border rounded-lg hover-elevate active-elevate-2 cursor-pointer" data-testid={`question-${item.id}`}>
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <div className="font-medium text-sm">{item.student}</div>
-                      <div className="text-xs text-muted-foreground">{item.lesson}</div>
-                    </div>
-                    <span className="text-xs text-muted-foreground">{item.time}</span>
-                  </div>
-                  <p className="text-sm line-clamp-2">{item.question}</p>
-                  <Button size="sm" variant="outline" className="mt-2" data-testid={`button-answer-${item.id}`}>
-                    Answer
-                  </Button>
-                </div>
-              ))}
+            <CardContent>
+              <div className="text-2xl font-bold" data-testid="stat-courses">{courses?.length || 0}</div>
             </CardContent>
           </Card>
-
-          {/* Pending Quizzes */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Pending Quiz Reviews</span>
-                <Badge>{mockPendingQuizzes.length}</Badge>
-              </CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent className="space-y-3">
-              {mockPendingQuizzes.map((item) => (
-                <div key={item.id} className="p-3 border rounded-lg hover-elevate active-elevate-2 cursor-pointer" data-testid={`quiz-${item.id}`}>
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <div className="font-medium text-sm">{item.student}</div>
-                      <div className="text-xs text-muted-foreground">{item.quiz}</div>
-                    </div>
-                    <span className="text-xs text-muted-foreground">{item.submittedAt}</span>
-                  </div>
-                  <Button size="sm" variant="outline" className="mt-2" data-testid={`button-review-${item.id}`}>
-                    Review Submission
-                  </Button>
-                </div>
-              ))}
+            <CardContent>
+              <div className="text-2xl font-bold">0</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
+              <Edit className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">0</div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Student Progress Table */}
-        <StudentProgressTable
-          courseTitle="Advanced JavaScript Programming"
-          students={mockStudents}
-          onViewDetails={(id) => console.log('View student details:', id)}
-        />
+        {/* Course Management */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>My Courses</CardTitle>
+              <CardDescription>Manage your courses and lessons</CardDescription>
+            </div>
+            <Dialog open={createCourseOpen} onOpenChange={setCreateCourseOpen}>
+              <DialogTrigger asChild>
+                <Button data-testid="button-create-course">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Course
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Create New Course</DialogTitle>
+                  <DialogDescription>
+                    Fill in the details to create a new course
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div>
+                    <Label htmlFor="title">Course Title *</Label>
+                    <Input
+                      id="title"
+                      value={newCourse.title}
+                      onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
+                      placeholder="Introduction to Web Development"
+                      data-testid="input-course-title"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="category">Category *</Label>
+                    <Select
+                      value={newCourse.categoryId}
+                      onValueChange={(value) => setNewCourse({ ...newCourse, categoryId: value })}
+                    >
+                      <SelectTrigger data-testid="select-category">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories?.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id.toString()}>
+                            {cat.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="description">Description *</Label>
+                    <Textarea
+                      id="description"
+                      value={newCourse.description}
+                      onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })}
+                      placeholder="A comprehensive course that covers..."
+                      rows={3}
+                      data-testid="input-course-description"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="whatYouWillLearn">What You Will Learn</Label>
+                    <Textarea
+                      id="whatYouWillLearn"
+                      value={newCourse.whatYouWillLearn}
+                      onChange={(e) => setNewCourse({ ...newCourse, whatYouWillLearn: e.target.value })}
+                      placeholder="Build web applications\nUnderstand JavaScript\nWork with APIs"
+                      rows={3}
+                      data-testid="input-course-learn"
+                    />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="isFree"
+                        checked={newCourse.isFree}
+                        onChange={(e) => setNewCourse({ ...newCourse, isFree: e.target.checked })}
+                        data-testid="checkbox-is-free"
+                      />
+                      <Label htmlFor="isFree">Free Course</Label>
+                    </div>
+                    {!newCourse.isFree && (
+                      <div className="flex-1">
+                        <Label htmlFor="price">Price (USD) *</Label>
+                        <Input
+                          id="price"
+                          type="number"
+                          value={newCourse.price}
+                          onChange={(e) => setNewCourse({ ...newCourse, price: e.target.value })}
+                          placeholder="49.99"
+                          min="0"
+                          step="0.01"
+                          data-testid="input-course-price"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    onClick={handleCreateCourse}
+                    disabled={createCourseMutation.isPending}
+                    data-testid="button-submit-course"
+                  >
+                    {createCourseMutation.isPending ? "Creating..." : "Create Course"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </CardHeader>
+          <CardContent>
+            {courses && courses.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {courses.map((course) => (
+                  <Card key={course.id} data-testid={`card-course-${course.id}`} className="hover-elevate">
+                    <CardHeader>
+                      <CardTitle className="text-lg line-clamp-2">{course.title}</CardTitle>
+                      <CardDescription className="line-clamp-2">{course.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">
+                        {course.isFree ? "Free" : `$${course.price}`}
+                      </p>
+                    </CardContent>
+                    <CardFooter>
+                      <Link href={`/courses/${course.id}`} className="w-full" data-testid={`link-manage-${course.id}`}>
+                        <Button variant="outline" className="w-full">
+                          Manage Course
+                        </Button>
+                      </Link>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <BookOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-xl font-semibold mb-2">No courses yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  Create your first course to start teaching
+                </p>
+                <Button onClick={() => setCreateCourseOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Your First Course
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
