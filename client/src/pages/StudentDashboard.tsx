@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation, Link } from "wouter";
@@ -6,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, Award, Target, PlayCircle } from "lucide-react";
 
 interface EnrolledCourse {
@@ -19,11 +21,32 @@ interface EnrolledCourse {
 }
 
 export default function StudentDashboard() {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, isLoading } = useAuth();
   const [, setLocation] = useLocation();
 
+  useEffect(() => {
+    if (!isLoading && (!currentUser || currentUser.role !== "student")) {
+      setLocation("/");
+    }
+  }, [isLoading, currentUser, setLocation]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <Skeleton className="h-12 w-64 mb-8" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!currentUser || currentUser.role !== "student") {
-    setLocation("/");
     return null;
   }
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -16,15 +17,37 @@ import { Users, GraduationCap, BookOpen, UserCheck, Plus } from "lucide-react";
 import type { User } from "@shared/schema";
 
 export default function SuperAdminDashboard() {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [newTeacherEmail, setNewTeacherEmail] = useState("");
   const [newTeacherName, setNewTeacherName] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
+  useEffect(() => {
+    if (!isLoading && (!currentUser || currentUser.role !== "superadmin")) {
+      setLocation("/");
+    }
+  }, [isLoading, currentUser, setLocation]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <Skeleton className="h-12 w-64 mb-8" />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!currentUser || currentUser.role !== "superadmin") {
-    setLocation("/");
     return null;
   }
 

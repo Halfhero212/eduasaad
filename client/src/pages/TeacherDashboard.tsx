@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation, Link } from "wouter";
@@ -10,13 +10,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { BookOpen, Plus, Users, Edit } from "lucide-react";
 import type { Course } from "@shared/schema";
 
 export default function TeacherDashboard() {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [createCourseOpen, setCreateCourseOpen] = useState(false);
@@ -29,8 +30,25 @@ export default function TeacherDashboard() {
     isFree: false,
   });
 
+  useEffect(() => {
+    if (!isLoading && (!currentUser || currentUser.role !== "teacher")) {
+      setLocation("/");
+    }
+  }, [isLoading, currentUser, setLocation]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <Skeleton className="h-12 w-64 mb-8" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      </div>
+    );
+  }
+
   if (!currentUser || currentUser.role !== "teacher") {
-    setLocation("/");
     return null;
   }
 

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -19,7 +20,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const [, setLocation] = useLocation();
-  const { login, isAuthenticated, user } = useAuth();
+  const { login, isAuthenticated, isLoading, user } = useAuth();
   const { toast } = useToast();
 
   const form = useForm<LoginForm>({
@@ -30,16 +31,17 @@ export default function Login() {
     },
   });
 
-  if (isAuthenticated && user) {
-    if (user.role === "superadmin") {
-      setLocation("/dashboard/superadmin");
-    } else if (user.role === "teacher") {
-      setLocation("/dashboard/teacher");
-    } else {
-      setLocation("/dashboard/student");
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      if (user.role === "superadmin") {
+        setLocation("/dashboard/superadmin");
+      } else if (user.role === "teacher") {
+        setLocation("/dashboard/teacher");
+      } else {
+        setLocation("/dashboard/student");
+      }
     }
-    return null;
-  }
+  }, [isLoading, isAuthenticated, user, setLocation]);
 
   const onSubmit = async (data: LoginForm) => {
     try {

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,7 +25,7 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function Register() {
   const [, setLocation] = useLocation();
-  const { register: registerUser, isAuthenticated, user } = useAuth();
+  const { register: registerUser, isAuthenticated, isLoading, user } = useAuth();
   const { toast } = useToast();
 
   const form = useForm<RegisterForm>({
@@ -37,10 +38,11 @@ export default function Register() {
     },
   });
 
-  if (isAuthenticated && user) {
-    setLocation("/dashboard/student");
-    return null;
-  }
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      setLocation("/dashboard/student");
+    }
+  }, [isLoading, isAuthenticated, user, setLocation]);
 
   const onSubmit = async (data: RegisterForm) => {
     try {
