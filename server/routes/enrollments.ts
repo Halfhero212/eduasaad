@@ -44,9 +44,14 @@ export function registerEnrollmentRoutes(app: Express) {
   app.get("/api/enrollments/my-courses", requireAuth, requireRole("student"), async (req: AuthRequest, res) => {
     try {
       const enrollments = await storage.getStudentEnrollments(req.user!.id);
+      
+      // Filter to only show confirmed or free courses (exclude pending)
+      const accessibleEnrollments = enrollments.filter(
+        (e) => e.purchaseStatus === "confirmed" || e.purchaseStatus === "free"
+      );
 
       const enrichedEnrollments = await Promise.all(
-        enrollments.map(async (enrollment) => {
+        accessibleEnrollments.map(async (enrollment) => {
           const course = await storage.getCourse(enrollment.courseId);
           if (!course) return null;
 
@@ -112,6 +117,16 @@ export function registerEnrollmentRoutes(app: Express) {
 
       const course = await storage.getCourse(lesson.courseId);
       const allLessons = await storage.getCourseLessons(lesson.courseId);
+
+      // Verify enrollment access for students
+      if (req.user?.role === "student") {
+        const enrollment = await storage.getEnrollment(req.user.id, lesson.courseId);
+        
+        // Only allow access if enrollment is confirmed or free
+        if (!enrollment || (enrollment.purchaseStatus !== "confirmed" && enrollment.purchaseStatus !== "free")) {
+          return res.status(403).json({ error: "You must have a confirmed enrollment to access this lesson" });
+        }
+      }
 
       let progress = null;
       if (req.user?.role === "student") {
