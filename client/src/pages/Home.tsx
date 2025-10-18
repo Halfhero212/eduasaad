@@ -12,15 +12,17 @@ import type { Course } from "@shared/schema";
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  const { data: courses, isLoading: coursesLoading } = useQuery<Course[]>({
+  const { data: coursesData, isLoading: coursesLoading } = useQuery<{
+    courses: Course[];
+    categories: { id: number; name: string }[];
+  }>({
     queryKey: ["/api/courses"],
   });
 
-  const { data: categories } = useQuery<{ id: number; name: string }[]>({
-    queryKey: ["/api/courses/categories"],
-  });
+  const courses = coursesData?.courses || [];
+  const categories = coursesData?.categories || [];
 
-  const filteredCourses = courses?.filter((course) =>
+  const filteredCourses = courses.filter((course) =>
     selectedCategory === "all" || course.categoryId.toString() === selectedCategory
   );
 

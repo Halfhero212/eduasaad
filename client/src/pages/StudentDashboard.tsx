@@ -50,12 +50,13 @@ export default function StudentDashboard() {
     return null;
   }
 
-  const { data: enrolledCourses } = useQuery<EnrolledCourse[]>({
+  const { data: enrollmentData } = useQuery<{ courses: EnrolledCourse[] }>({
     queryKey: ["/api/enrollments/my-courses"],
   });
 
-  const completedCourses = enrolledCourses?.filter(c => c.progress === 100) || [];
-  const averageProgress = enrolledCourses && enrolledCourses.length > 0
+  const enrolledCourses = enrollmentData?.courses || [];
+  const completedCourses = enrolledCourses.filter(c => c.progress === 100);
+  const averageProgress = enrolledCourses.length > 0
     ? Math.round(enrolledCourses.reduce((acc, c) => acc + c.progress, 0) / enrolledCourses.length)
     : 0;
 

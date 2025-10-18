@@ -35,6 +35,17 @@ export function registerCourseRoutes(app: Express) {
     }
   });
 
+  // Get all categories (must be before /:id route to avoid matching "categories" as id)
+  app.get("/api/courses/categories", async (req, res) => {
+    try {
+      const categories = await storage.getAllCourseCategories();
+      res.json(categories);
+    } catch (error) {
+      console.error("Get categories error:", error);
+      res.status(500).json({ error: "Failed to get categories" });
+    }
+  });
+
   // Get course details
   app.get("/api/courses/:id", async (req, res) => {
     try {
