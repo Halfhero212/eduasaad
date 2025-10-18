@@ -24,6 +24,11 @@ export default function StudentDashboard() {
   const { user: currentUser, isLoading } = useAuth();
   const [, setLocation] = useLocation();
 
+  const { data: enrollmentData } = useQuery<{ courses: EnrolledCourse[] }>({
+    queryKey: ["/api/enrollments/my-courses"],
+    enabled: !!currentUser && currentUser.role === "student",
+  });
+
   useEffect(() => {
     if (!isLoading && (!currentUser || currentUser.role !== "student")) {
       setLocation("/");
@@ -49,10 +54,6 @@ export default function StudentDashboard() {
   if (!currentUser || currentUser.role !== "student") {
     return null;
   }
-
-  const { data: enrollmentData } = useQuery<{ courses: EnrolledCourse[] }>({
-    queryKey: ["/api/enrollments/my-courses"],
-  });
 
   const enrolledCourses = enrollmentData?.courses || [];
   const completedCourses = enrolledCourses.filter(c => c.progress === 100);

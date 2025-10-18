@@ -68,7 +68,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
+    localStorage.removeItem("token");
     setToken(null);
+    queryClient.setQueryData(["/api/auth/me"], null);
     queryClient.clear();
     window.location.href = "/";
   };
