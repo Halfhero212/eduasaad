@@ -94,6 +94,16 @@ export default function CourseDetail() {
   const { course, teacher, lessons, isEnrolled } = courseData;
   const whatYouWillLearnPoints = course.whatYouWillLearn?.split("\n").filter(Boolean) || [];
 
+  const getInitials = (name?: string) => {
+    if (!name) return "??";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -109,12 +119,12 @@ export default function CourseDetail() {
               <div className="flex items-center gap-4 mb-6">
                 <Avatar className="h-12 w-12">
                   <AvatarFallback className="bg-white text-primary">
-                    {teacher.fullName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
+                    {getInitials(teacher?.fullName)}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <div className="font-medium">Created by {teacher.fullName}</div>
-                  <div className="text-sm opacity-80">{teacher.email}</div>
+                  <div className="font-medium">Created by {teacher?.fullName || "Unknown"}</div>
+                  <div className="text-sm opacity-80">{teacher?.email || ""}</div>
                 </div>
               </div>
 
