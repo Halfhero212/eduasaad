@@ -275,12 +275,12 @@ export default function CourseDetail() {
                 <div className="flex items-center gap-4 mb-4">
                   <Avatar className="h-16 w-16">
                     <AvatarFallback className="bg-primary text-primary-foreground text-xl">
-                      {teacher.fullName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
+                      {getInitials(teacher?.fullName)}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-medium text-lg">{teacher.fullName}</div>
-                    <div className="text-sm text-muted-foreground">{teacher.email}</div>
+                    <div className="font-medium text-lg">{teacher?.fullName || "Unknown"}</div>
+                    <div className="text-sm text-muted-foreground">{teacher?.email || ""}</div>
                   </div>
                 </div>
               </CardContent>

@@ -34,7 +34,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginMutation = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
       const res = await apiRequest("POST", "/api/auth/login", { email, password });
-      return await res.json();
+      const data = await res.json();
+      // Store token immediately in localStorage so it's available for the next query
+      localStorage.setItem("token", data.token);
+      return data;
     },
     onSuccess: (data) => {
       setToken(data.token);
@@ -45,7 +48,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerMutation = useMutation({
     mutationFn: async ({ fullName, email, password }: { fullName: string; email: string; password: string }) => {
       const res = await apiRequest("POST", "/api/auth/register", { fullName, email, password });
-      return await res.json();
+      const data = await res.json();
+      // Store token immediately in localStorage so it's available for the next query
+      localStorage.setItem("token", data.token);
+      return data;
     },
     onSuccess: (data) => {
       setToken(data.token);

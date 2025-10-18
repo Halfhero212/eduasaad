@@ -30,34 +30,14 @@ export default function TeacherDashboard() {
     isFree: false,
   });
 
-  useEffect(() => {
-    if (!isLoading && (!currentUser || currentUser.role !== "teacher")) {
-      setLocation("/");
-    }
-  }, [isLoading, currentUser, setLocation]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8">
-          <Skeleton className="h-12 w-64 mb-8" />
-          <Skeleton className="h-64 w-full" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!currentUser || currentUser.role !== "teacher") {
-    return null;
-  }
-
   const { data: courses } = useQuery<Course[]>({
     queryKey: ["/api/my-courses"],
+    enabled: !isLoading && currentUser?.role === "teacher",
   });
 
   const { data: categories } = useQuery<{ id: number; name: string }[]>({
     queryKey: ["/api/courses/categories"],
+    enabled: !isLoading && currentUser?.role === "teacher",
   });
 
   const createCourseMutation = useMutation({
@@ -113,6 +93,28 @@ export default function TeacherDashboard() {
     }
     createCourseMutation.mutate(newCourse);
   };
+
+  useEffect(() => {
+    if (!isLoading && (!currentUser || currentUser.role !== "teacher")) {
+      setLocation("/");
+    }
+  }, [isLoading, currentUser, setLocation]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <Skeleton className="h-12 w-64 mb-8" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentUser || currentUser.role !== "teacher") {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">

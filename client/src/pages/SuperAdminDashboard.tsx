@@ -24,33 +24,6 @@ export default function SuperAdminDashboard() {
   const [newTeacherName, setNewTeacherName] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
-  useEffect(() => {
-    if (!isLoading && (!currentUser || currentUser.role !== "superadmin")) {
-      setLocation("/");
-    }
-  }, [isLoading, currentUser, setLocation]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8">
-          <Skeleton className="h-12 w-64 mb-8" />
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Skeleton className="h-32" />
-            <Skeleton className="h-32" />
-            <Skeleton className="h-32" />
-            <Skeleton className="h-32" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!currentUser || currentUser.role !== "superadmin") {
-    return null;
-  }
-
   const { data: stats } = useQuery<{
     teacherCount: number;
     studentCount: number;
@@ -58,14 +31,17 @@ export default function SuperAdminDashboard() {
     enrollmentCount: number;
   }>({
     queryKey: ["/api/admin/stats"],
+    enabled: !isLoading && currentUser?.role === "superadmin",
   });
 
   const { data: teachers } = useQuery<User[]>({
     queryKey: ["/api/admin/teachers"],
+    enabled: !isLoading && currentUser?.role === "superadmin",
   });
 
   const { data: students } = useQuery<User[]>({
     queryKey: ["/api/admin/students"],
+    enabled: !isLoading && currentUser?.role === "superadmin",
   });
 
   const createTeacherMutation = useMutation({
@@ -107,6 +83,33 @@ export default function SuperAdminDashboard() {
       email: newTeacherEmail,
     });
   };
+
+  useEffect(() => {
+    if (!isLoading && (!currentUser || currentUser.role !== "superadmin")) {
+      setLocation("/");
+    }
+  }, [isLoading, currentUser, setLocation]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <Skeleton className="h-12 w-64 mb-8" />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentUser || currentUser.role !== "superadmin") {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">

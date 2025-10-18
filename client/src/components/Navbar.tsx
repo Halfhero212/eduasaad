@@ -15,7 +15,7 @@ import { GraduationCap, LogOut, LayoutDashboard } from "lucide-react";
 
 export default function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
 
   const getDashboardLink = () => {
     if (!user) return "/";
@@ -100,13 +100,12 @@ export default function Navbar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href={getDashboardLink()} data-testid="link-dashboard">
-                    <div className="flex items-center gap-2 cursor-pointer w-full">
-                      <LayoutDashboard className="w-4 h-4" />
-                      <span>Dashboard</span>
-                    </div>
-                  </Link>
+                <DropdownMenuItem
+                  onClick={() => setLocation(getDashboardLink())}
+                  data-testid="link-dashboard"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span>Dashboard</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
