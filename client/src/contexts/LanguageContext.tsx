@@ -87,7 +87,11 @@ const translations: Record<Language, Record<string, string>> = {
     // Toast Messages
     "toast.enrollment_success": "نجح التسجيل",
     "toast.enrollment_success_desc": "يمكنك الآن الوصول إلى محتوى الدورة",
+    "toast.enrollment_pending": "تسجيل قيد الانتظار",
+    "toast.enrollment_pending_desc": "سيتم تأكيد تسجيلك بعد إتمام الدفع عبر واتساب",
     "toast.enrollment_failed": "فشل التسجيل",
+    "toast.popup_blocked": "تم حظر النافذة المنبثقة",
+    "toast.popup_blocked_desc": "يرجى السماح بالنوافذ المنبثقة لهذا الموقع والمحاولة مرة أخرى",
     "toast.lesson_added": "تمت إضافة الدرس",
     "toast.lesson_added_desc": "تم إضافة الدرس الجديد بنجاح",
     "toast.quiz_created": "تم إنشاء الاختبار",
@@ -324,7 +328,11 @@ const translations: Record<Language, Record<string, string>> = {
     // Toast Messages
     "toast.enrollment_success": "Enrollment successful",
     "toast.enrollment_success_desc": "You can now access the course content",
+    "toast.enrollment_pending": "Enrollment pending",
+    "toast.enrollment_pending_desc": "Your enrollment will be confirmed after payment via WhatsApp",
     "toast.enrollment_failed": "Enrollment failed",
+    "toast.popup_blocked": "Popup blocked",
+    "toast.popup_blocked_desc": "Please allow popups for this site and try again",
     "toast.lesson_added": "Lesson added",
     "toast.lesson_added_desc": "New lesson added successfully",
     "toast.quiz_created": "Quiz created",

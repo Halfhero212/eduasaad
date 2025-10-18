@@ -33,14 +33,24 @@ export default function CourseDetail() {
 
   const enrollMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", `/api/courses/${id}/enroll`, {});
+      const response = await apiRequest("POST", `/api/courses/${id}/enroll`, {});
+      return response;
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/courses", id] });
-      toast({
-        title: t("toast.enrollment_success"),
-        description: t("toast.enrollment_success_desc"),
-      });
+      
+      // Show different messages for free vs paid courses
+      if (data.purchaseStatus === "free") {
+        toast({
+          title: t("toast.enrollment_success"),
+          description: t("toast.enrollment_success_desc"),
+        });
+      } else {
+        toast({
+          title: t("toast.enrollment_pending"),
+          description: t("toast.enrollment_pending_desc"),
+        });
+      }
     },
     onError: (error) => {
       toast({
@@ -51,8 +61,10 @@ export default function CourseDetail() {
     },
   });
 
-  const handleWhatsAppEnroll = () => {
+  const handleWhatsAppEnroll = async () => {
     if (!courseData) return;
+    
+    // Prepare WhatsApp link
     const messageTemplate = t("courses.whatsapp_message");
     const message = encodeURIComponent(
       messageTemplate
@@ -60,7 +72,33 @@ export default function CourseDetail() {
         .replace("${price}", String(courseData.course.price))
     );
     const phone = whatsappNumber?.whatsappNumber || "9647801234567";
-    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+    const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
+    
+    // Open WhatsApp window immediately (before async operation) to avoid popup blocking
+    const whatsappWindow = window.open("about:blank", "_blank");
+    
+    // Check if popup was blocked
+    if (!whatsappWindow) {
+      toast({
+        title: t("toast.popup_blocked"),
+        description: t("toast.popup_blocked_desc"),
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Then create the enrollment with pending status
+    try {
+      await enrollMutation.mutateAsync();
+      
+      // Update the opened window to WhatsApp
+      whatsappWindow.location.href = whatsappUrl;
+    } catch (error) {
+      // Close the window if enrollment failed
+      whatsappWindow.close();
+      // Error already handled by mutation onError
+      console.error("Enrollment failed:", error);
+    }
   };
 
   const handleFreeEnroll = () => {
@@ -182,10 +220,11 @@ export default function CourseDetail() {
                           className="w-full bg-[#25D366] hover:bg-[#20BA5A]"
                           size="lg"
                           onClick={handleWhatsAppEnroll}
+                          disabled={enrollMutation.isPending || !isAuthenticated}
                           data-testid="button-whatsapp"
                         >
                           <MessageSquare className="h-5 w-5 mr-2" />
-                          {t("courses.buy_whatsapp")}
+                          {enrollMutation.isPending ? t("courses.enrolling") : t("courses.buy_whatsapp")}
                         </Button>
                       )}
                       {!isAuthenticated && (
