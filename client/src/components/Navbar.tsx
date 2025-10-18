@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,10 +12,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, LogOut, LayoutDashboard } from "lucide-react";
+import { GraduationCap, LogOut, LayoutDashboard, Languages } from "lucide-react";
 
 export default function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const [location, setLocation] = useLocation();
 
   const getDashboardLink = () => {
@@ -47,7 +49,7 @@ export default function Navbar() {
           <Link href="/" data-testid="link-home">
             <div className="flex items-center gap-2 cursor-pointer hover-elevate px-2 py-1 rounded-md">
               <GraduationCap className="w-6 h-6 text-primary" />
-              <span className="font-bold text-lg">EduPlatform</span>
+              <span className="font-bold text-lg">{t("app.name")}</span>
             </div>
           </Link>
           <div className="hidden md:flex items-center gap-1">
@@ -57,7 +59,7 @@ export default function Navbar() {
                 size="sm"
                 className="no-default-active-elevate"
               >
-                Browse Courses
+                {t("nav.browse")}
               </Button>
             </Link>
             {isAuthenticated && user?.role === "student" && (
@@ -67,14 +69,26 @@ export default function Navbar() {
                   size="sm"
                   className="no-default-active-elevate"
                 >
-                  My Learning
+                  {t("nav.my_learning")}
                 </Button>
               </Link>
             )}
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          {/* Language Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setLanguage(language === "ar" ? "en" : "ar")}
+            data-testid="button-language-toggle"
+            title={language === "ar" ? "Switch to English" : "التبديل إلى العربية"}
+          >
+            <Languages className="w-5 h-5" />
+            <span className="sr-only">Toggle language</span>
+          </Button>
+
           {isAuthenticated && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild data-testid="button-user-menu">
@@ -105,7 +119,7 @@ export default function Navbar() {
                   data-testid="link-dashboard"
                 >
                   <LayoutDashboard className="w-4 h-4" />
-                  <span>Dashboard</span>
+                  <span>{t("nav.dashboard")}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -114,7 +128,7 @@ export default function Navbar() {
                   data-testid="button-logout"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
-                  <span>Log out</span>
+                  <span>{t("nav.logout")}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -122,11 +136,11 @@ export default function Navbar() {
             <div className="flex items-center gap-2">
               <Link href="/login" data-testid="link-nav-login">
                 <Button variant="ghost" size="sm">
-                  Sign in
+                  {t("nav.sign_in")}
                 </Button>
               </Link>
               <Link href="/register" data-testid="link-nav-register">
-                <Button size="sm">Get started</Button>
+                <Button size="sm">{t("nav.get_started")}</Button>
               </Link>
             </div>
           )}
