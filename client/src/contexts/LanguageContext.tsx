@@ -68,6 +68,11 @@ const translations: Record<Language, Record<string, string>> = {
     "courses.your_instructor": "معلمك",
     "courses.unknown": "غير معروف",
     "courses.whatsapp_message": "مرحباً! أود التسجيل في \"{title}\" (${price})",
+    "courses.search_placeholder": "ابحث عن الدورات...",
+    "courses.course_found": "دورة",
+    "courses.courses_found": "دورات",
+    "courses.clear_search": "مسح البحث",
+    "courses.view_details": "عرض التفاصيل",
     
     // Lesson
     "lesson.not_found": "الدرس غير موجود",
@@ -332,6 +337,11 @@ const translations: Record<Language, Record<string, string>> = {
     "courses.your_instructor": "Your Instructor",
     "courses.unknown": "Unknown",
     "courses.whatsapp_message": "Hi! I would like to enroll in \"{title}\" (${price})",
+    "courses.search_placeholder": "Search for courses...",
+    "courses.course_found": "course",
+    "courses.courses_found": "courses",
+    "courses.clear_search": "Clear Search",
+    "courses.view_details": "View Details",
     
     // Lesson
     "lesson.not_found": "Lesson not found",

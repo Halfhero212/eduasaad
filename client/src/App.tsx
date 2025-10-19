@@ -9,6 +9,7 @@ import NotFound from "@/pages/not-found";
 
 // Import pages
 import Home from "@/pages/Home";
+import Courses from "@/pages/Courses";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import StudentDashboard from "@/pages/StudentDashboard";
@@ -22,6 +23,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/courses" component={Courses} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/dashboard/student" component={StudentDashboard} />

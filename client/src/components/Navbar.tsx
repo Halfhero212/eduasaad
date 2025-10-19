@@ -53,9 +53,9 @@ export default function Navbar() {
             </div>
           </Link>
           <div className="hidden md:flex items-center gap-1">
-            <Link href="/" data-testid="link-nav-home">
+            <Link href="/courses" data-testid="link-nav-courses">
               <Button
-                variant={location === "/" ? "default" : "ghost"}
+                variant={location === "/courses" ? "default" : "ghost"}
                 size="sm"
                 className="no-default-active-elevate"
               >

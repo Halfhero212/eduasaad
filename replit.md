@@ -180,8 +180,9 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 - **Categories**: Programming, Mathematics, Science, Languages, Business, Design
 - **WhatsApp Number**: 9647801234567 (configurable)
 
-## Frontend Structure (To Be Implemented)
-- `/` - Public home page with course catalog
+## Frontend Structure
+- `/` - Public home page with featured courses and "View All" button
+- `/courses` - **Dedicated courses listing page with search and category filters**
 - `/login` - Login page (all roles)
 - `/register` - Student registration
 - `/dashboard` - Role-based dashboard redirect

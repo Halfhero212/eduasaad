@@ -49,7 +49,7 @@ export default function Home() {
                   {t("home.get_started")}
                 </Button>
               </Link>
-              <Link href="#courses" data-testid="link-hero-courses">
+              <Link href="/courses" data-testid="link-hero-courses">
                 <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 backdrop-blur-md">
                   {t("home.browse_courses")}
                 </Button>
@@ -224,6 +224,15 @@ export default function Home() {
               </p>
             </div>
           )}
+
+          {/* View All Courses Button */}
+          <div className="text-center mt-12">
+            <Link href="/courses" data-testid="link-view-all-courses">
+              <Button size="lg" variant="outline">
+                {t("home.view_all")} →
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
     </div>
