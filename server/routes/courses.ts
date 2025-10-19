@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { storage } from "../storage";
-import { requireAuth, requireRole, type AuthRequest } from "../middleware/auth";
+import { requireAuth, requireRole, verifyToken, type AuthRequest } from "../middleware/auth";
 
 export function registerCourseRoutes(app: Express) {
   // Get all courses (public)
@@ -65,10 +65,11 @@ export function registerCourseRoutes(app: Express) {
       let isEnrolled = false;
       const token = req.headers.authorization?.replace("Bearer ", "");
       if (token) {
-        const user = (req as AuthRequest).user;
-        if (user?.role === "student") {
-          const enrollment = await storage.getEnrollment(user.id, courseId);
-          isEnrolled = !!enrollment;
+        const decoded = verifyToken(token);
+        if (decoded && decoded.role === "student") {
+          const enrollment = await storage.getEnrollment(decoded.id, courseId);
+          // Only consider enrolled if status is "confirmed" or "free"
+          isEnrolled = !!enrollment && (enrollment.purchaseStatus === "confirmed" || enrollment.purchaseStatus === "free");
         }
       }
 
