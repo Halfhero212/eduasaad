@@ -114,6 +114,9 @@ export default function LessonPlayer() {
   const nextLesson = currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null;
   const prevLesson = currentIndex > 0 ? lessons[currentIndex - 1] : null;
   
+  // Default progress for teachers or when progress is null
+  const lessonProgress = progress || { completed: false, lastPosition: 0 };
+  
   const videoId = lesson.youtubeUrl?.includes("v=") 
     ? lesson.youtubeUrl.split("v=")[1].split("&")[0]
     : lesson.youtubeUrl?.split("/").pop();
@@ -181,15 +184,17 @@ export default function LessonPlayer() {
                     </Link>
                   )}
                 </div>
-                <Button
-                  onClick={() => markCompleteMutation.mutate()}
-                  disabled={progress.completed || markCompleteMutation.isPending}
-                  variant={progress.completed ? "secondary" : "default"}
-                  data-testid="button-mark-complete"
-                >
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  {progress.completed ? t("dashboard.student.completed") : t("lesson.mark_complete")}
-                </Button>
+                {user?.role === "student" && (
+                  <Button
+                    onClick={() => markCompleteMutation.mutate()}
+                    disabled={lessonProgress.completed || markCompleteMutation.isPending}
+                    variant={lessonProgress.completed ? "secondary" : "default"}
+                    data-testid="button-mark-complete"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    {lessonProgress.completed ? t("dashboard.student.completed") : t("lesson.mark_complete")}
+                  </Button>
+                )}
               </CardContent>
             </Card>
 
