@@ -17,11 +17,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
 
-  const { data: user, isLoading } = useQuery<User | null>({
+  const { data: user, isLoading, error } = useQuery<User | null>({
     queryKey: ["/api/auth/me"],
     enabled: !!token,
     retry: false,
   });
+
+  // If auth fails (401), clear the token
+  useEffect(() => {
+    if (error && token) {
+      console.log("Auth failed, clearing token");
+      localStorage.removeItem("token");
+      setToken(null);
+    }
+  }, [error, token]);
 
   useEffect(() => {
     if (token) {

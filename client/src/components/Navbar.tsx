@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { GraduationCap, LogOut, LayoutDashboard, Languages } from "lucide-react";
 
 export default function Navbar() {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, isLoading } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const [location, setLocation] = useLocation();
 
@@ -89,7 +89,7 @@ export default function Navbar() {
             <span className="sr-only">Toggle language</span>
           </Button>
 
-          {isAuthenticated && user ? (
+          {!isLoading && isAuthenticated && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild data-testid="button-user-menu">
                 <Button variant="ghost" className="gap-2 hover-elevate">
