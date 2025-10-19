@@ -9,6 +9,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { GraduationCap, BookOpen, Users, Award } from "lucide-react";
 import type { Course } from "@shared/schema";
 import { useLanguage } from "@/contexts/LanguageContext";
+import heroImage from "@assets/stock_images/students_learning_on_40a689ec.jpg";
+import collaborativeImage from "@assets/stock_images/diverse_students_stu_fc2fa83f.jpg";
+import onlineCourseImage from "@assets/stock_images/online_course_video__aa2c456c.jpg";
+import achievementImage from "@assets/stock_images/achievement_success__a449349c.jpg";
 
 export default function Home() {
   const { t } = useLanguage();
@@ -33,8 +37,16 @@ export default function Home() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-primary to-accent text-primary-foreground py-20 md:py-32">
-        <div className="absolute inset-0 bg-black/10"></div>
+      <section className="relative bg-gradient-to-r from-primary to-accent text-primary-foreground py-20 md:py-32 overflow-hidden">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0">
+          <img 
+            src={heroImage} 
+            alt="Students learning" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-accent/90"></div>
+        </div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
@@ -83,34 +95,70 @@ export default function Home() {
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                <GraduationCap className="w-8 h-8 text-primary" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <Card className="overflow-hidden hover-elevate transition-all">
+              <div className="relative h-48 overflow-hidden">
+                <img 
+                  src={collaborativeImage} 
+                  alt="Browse courses" 
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <div className="absolute bottom-4 left-4 right-4">
+                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mb-2">
+                    <GraduationCap className="w-6 h-6 text-primary-foreground" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-white">Browse Courses</h3>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Browse Courses</h3>
-              <p className="text-muted-foreground">
-                Explore our catalog of courses across various categories
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                <BookOpen className="w-8 h-8 text-primary" />
+              <CardContent className="p-6">
+                <p className="text-muted-foreground">
+                  Explore our catalog of courses across various categories
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="overflow-hidden hover-elevate transition-all">
+              <div className="relative h-48 overflow-hidden">
+                <img 
+                  src={onlineCourseImage} 
+                  alt="Enroll and learn" 
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <div className="absolute bottom-4 left-4 right-4">
+                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mb-2">
+                    <BookOpen className="w-6 h-6 text-primary-foreground" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-white">Enroll & Learn</h3>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Enroll & Learn</h3>
-              <p className="text-muted-foreground">
-                Contact us via WhatsApp to enroll in paid courses or start learning immediately with free courses
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                <Award className="w-8 h-8 text-primary" />
+              <CardContent className="p-6">
+                <p className="text-muted-foreground">
+                  Contact us via WhatsApp to enroll in paid courses or start learning immediately with free courses
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="overflow-hidden hover-elevate transition-all">
+              <div className="relative h-48 overflow-hidden">
+                <img 
+                  src={achievementImage} 
+                  alt="Achieve goals" 
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <div className="absolute bottom-4 left-4 right-4">
+                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mb-2">
+                    <Award className="w-6 h-6 text-primary-foreground" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-white">Achieve Goals</h3>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Achieve Goals</h3>
-              <p className="text-muted-foreground">
-                Complete quizzes, track progress, and master new skills
-              </p>
-            </div>
+              <CardContent className="p-6">
+                <p className="text-muted-foreground">
+                  Complete quizzes, track progress, and master new skills
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
