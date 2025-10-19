@@ -66,10 +66,17 @@ export function registerCourseRoutes(app: Express) {
       const token = req.headers.authorization?.replace("Bearer ", "");
       if (token) {
         const decoded = verifyToken(token);
-        if (decoded && decoded.role === "student") {
-          const enrollment = await storage.getEnrollment(decoded.id, courseId);
-          // Only consider enrolled if status is "confirmed" or "free"
-          isEnrolled = !!enrollment && (enrollment.purchaseStatus === "confirmed" || enrollment.purchaseStatus === "free");
+        if (decoded) {
+          // Teachers who own the course can see the enrolled view
+          if (decoded.role === "teacher" && decoded.id === course.teacherId) {
+            isEnrolled = true;
+          } 
+          // Students with confirmed or free enrollment can see the enrolled view
+          else if (decoded.role === "student") {
+            const enrollment = await storage.getEnrollment(decoded.id, courseId);
+            // Only consider enrolled if status is "confirmed" or "free"
+            isEnrolled = !!enrollment && (enrollment.purchaseStatus === "confirmed" || enrollment.purchaseStatus === "free");
+          }
         }
       }
 
