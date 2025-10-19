@@ -109,7 +109,7 @@ export default function LessonPlayer() {
     );
   }
 
-  const { lesson, course, lessons, progress } = lessonData;
+  const { lesson, course, lessons = [], progress } = lessonData;
   const currentIndex = lessons.findIndex(l => l.id === lesson.id);
   const nextLesson = currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null;
   const prevLesson = currentIndex > 0 ? lessons[currentIndex - 1] : null;

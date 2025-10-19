@@ -144,7 +144,7 @@ export function registerEnrollmentRoutes(app: Express) {
         success: true,
         lesson,
         course,
-        allLessons,
+        lessons: allLessons,
         progress,
       });
     } catch (error) {
