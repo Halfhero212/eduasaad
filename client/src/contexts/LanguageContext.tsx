@@ -112,6 +112,19 @@ const translations: Record<Language, Record<string, string>> = {
     "toast.enrollment_confirmed": "تم تأكيد التسجيل",
     "toast.enrollment_confirmed_desc": "يمكن للطالب الآن الوصول إلى الدورة",
     "toast.enrollment_update_failed": "فشل تحديث التسجيل",
+    "toast.quiz_submitted": "تم إرسال الاختبار",
+    "toast.quiz_submitted_desc": "سيقوم معلمك بتقييم إجاباتك قريباً",
+    "toast.quiz_failed": "فشل إرسال الاختبار",
+    "toast.too_many_images": "عدد كبير جداً من الصور",
+    "toast.no_images": "لا توجد صور",
+    
+    // Quiz
+    "quiz.quizzes": "الاختبارات",
+    "quiz.upload_solution": "ارفع الحل (صور)",
+    "quiz.images_selected": "صور محددة",
+    "quiz.submit": "إرسال الحل",
+    "quiz.submitting": "جاري الإرسال...",
+    "quiz.no_quizzes": "لا توجد اختبارات لهذا الدرس",
     
     // Auth
     "auth.login": "تسجيل الدخول",
@@ -363,6 +376,19 @@ const translations: Record<Language, Record<string, string>> = {
     "toast.enrollment_confirmed": "Enrollment confirmed",
     "toast.enrollment_confirmed_desc": "Student can now access the course",
     "toast.enrollment_update_failed": "Failed to update enrollment",
+    "toast.quiz_submitted": "Quiz submitted",
+    "toast.quiz_submitted_desc": "Your teacher will grade your answers soon",
+    "toast.quiz_failed": "Failed to submit quiz",
+    "toast.too_many_images": "Too many images",
+    "toast.no_images": "No images",
+    
+    // Quiz
+    "quiz.quizzes": "Quizzes",
+    "quiz.upload_solution": "Upload Solution (Images)",
+    "quiz.images_selected": "images selected",
+    "quiz.submit": "Submit Solution",
+    "quiz.submitting": "Submitting...",
+    "quiz.no_quizzes": "No quizzes for this lesson",
     
     // Auth
     "auth.login": "Login",
