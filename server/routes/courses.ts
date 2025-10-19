@@ -76,7 +76,7 @@ export function registerCourseRoutes(app: Express) {
         success: true,
         course: {
           ...course,
-          teacher: teacher ? { id: teacher.id, fullName: teacher.fullName, email: teacher.email } : null,
+          teacher: teacher ? { id: teacher.id, fullName: teacher.fullName, email: teacher.email, whatsappNumber: teacher.whatsappNumber } : null,
           category: category || null,
           lessonCount: lessons.length,
           enrollmentCount: enrollments.length,

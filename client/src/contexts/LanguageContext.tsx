@@ -109,6 +109,9 @@ const translations: Record<Language, Record<string, string>> = {
     "toast.validation_error": "خطأ في التحقق",
     "toast.fill_required_fields": "يرجى ملء جميع الحقول المطلوبة",
     "toast.enter_valid_price": "يرجى إدخال سعر صالح أو تحديد الدورة كمجانية",
+    "toast.enrollment_confirmed": "تم تأكيد التسجيل",
+    "toast.enrollment_confirmed_desc": "يمكن للطالب الآن الوصول إلى الدورة",
+    "toast.enrollment_update_failed": "فشل تحديث التسجيل",
     
     // Auth
     "auth.login": "تسجيل الدخول",
@@ -150,6 +153,10 @@ const translations: Record<Language, Record<string, string>> = {
     "dashboard.teacher.manage_courses": "إدارة دوراتك",
     "dashboard.teacher.no_courses": "لم تنشئ أي دورات بعد",
     "dashboard.teacher.get_started": "ابدأ بإنشاء دورتك الأولى",
+    "dashboard.teacher.pending_enrollments": "التسجيلات قيد الانتظار",
+    "dashboard.teacher.pending_enrollments_desc": "تأكيد دفع الطلاب لفتح الوصول إلى الدورة",
+    "dashboard.teacher.pending": "قيد الانتظار",
+    "dashboard.teacher.course": "الدورة",
     
     // Dashboard - Student
     "dashboard.student.title": "لوحة تحكم الطالب",
@@ -209,6 +216,9 @@ const translations: Record<Language, Record<string, string>> = {
     "action.add_lesson": "إضافة درس",
     "action.add_quiz": "إضافة اختبار",
     "action.view_public": "عرض الصفحة العامة",
+    
+    // Button Labels
+    "button.confirm": "تأكيد",
     
     // Manage Course
     "manage.lessons_desc": "إدارة دروس الدورة وإضافة محتوى جديد",
@@ -350,6 +360,9 @@ const translations: Record<Language, Record<string, string>> = {
     "toast.validation_error": "Validation error",
     "toast.fill_required_fields": "Please fill in all required fields",
     "toast.enter_valid_price": "Please enter a valid price or mark the course as free",
+    "toast.enrollment_confirmed": "Enrollment confirmed",
+    "toast.enrollment_confirmed_desc": "Student can now access the course",
+    "toast.enrollment_update_failed": "Failed to update enrollment",
     
     // Auth
     "auth.login": "Login",
@@ -391,6 +404,10 @@ const translations: Record<Language, Record<string, string>> = {
     "dashboard.teacher.manage_courses": "Manage your courses",
     "dashboard.teacher.no_courses": "You haven't created any courses yet",
     "dashboard.teacher.get_started": "Get started by creating your first course",
+    "dashboard.teacher.pending_enrollments": "Pending Enrollments",
+    "dashboard.teacher.pending_enrollments_desc": "Confirm student payments to unlock course access",
+    "dashboard.teacher.pending": "pending",
+    "dashboard.teacher.course": "Course",
     
     // Dashboard - Student
     "dashboard.student.title": "Student Dashboard",
@@ -450,6 +467,9 @@ const translations: Record<Language, Record<string, string>> = {
     "action.add_lesson": "Add Lesson",
     "action.add_quiz": "Add Quiz",
     "action.view_public": "View Public Page",
+    
+    // Button Labels
+    "button.confirm": "Confirm",
     
     // Manage Course
     "manage.lessons_desc": "Manage your course lessons and add new content",

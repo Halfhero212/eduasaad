@@ -34,7 +34,7 @@ import {
   notifications,
   platformSettings,
 } from "@shared/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, inArray } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -250,6 +250,16 @@ export class PostgresStorage implements IStorage {
   async updateEnrollmentStatus(id: number, status: "pending" | "confirmed" | "free"): Promise<Enrollment | undefined> {
     const [updated] = await db.update(enrollments).set({ purchaseStatus: status }).where(eq(enrollments.id, id)).returning();
     return updated;
+  }
+
+  async getPendingEnrollmentsForCourses(courseIds: number[]): Promise<Enrollment[]> {
+    if (courseIds.length === 0) return [];
+    return db.select().from(enrollments)
+      .where(and(
+        inArray(enrollments.courseId, courseIds),
+        eq(enrollments.purchaseStatus, "pending")
+      ))
+      .orderBy(desc(enrollments.enrolledAt));
   }
 
   // Lesson Progress operations

@@ -14,25 +14,30 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 ### Superadmin
 - Creates teacher accounts with auto-generated passwords
 - Views platform statistics (teacher count, student count, courses, enrollments)
-- Manages platform settings (WhatsApp number for course purchases)
-- Approves/confirms student enrollments manually
+- Manages platform settings
+- Can approve/confirm any student enrollment (platform-wide access)
 
 ### Teachers
 - Creates courses with categories, pricing, thumbnails
+- Sets WhatsApp number for direct student contact (stored in users.whatsappNumber)
 - Uploads video lessons (YouTube URLs) with ordering
 - Creates quizzes for lessons with deadlines
 - Grades quiz submissions (uploads as images)
 - Replies to student questions on specific videos
 - Views course enrollments and student progress
+- **Receives payments via WhatsApp and confirms enrollments for their own courses**
+- Can preview/watch their own lesson videos without enrollment
 
 ### Students
 - Self-registers with email/password
 - Browses public course catalog filtered by category
-- Enrolls in courses (free or paid via WhatsApp)
+- Enrolls in courses (free or paid)
+- **For paid courses**: Clicks "Buy via WhatsApp" → contacts TEACHER directly → pays → teacher confirms
+- Enrollment statuses: pending (awaiting teacher confirmation) → confirmed (access granted) or free (immediate access)
 - Watches videos with automatic progress tracking (resumes from last position)
 - Submits quiz solutions as images (auto-deleted after 1 week)
 - Asks questions on specific videos (only course teacher can reply)
-- Receives notifications for grades, replies, new content
+- Receives notifications for grades, replies, new content, enrollment confirmation
 
 ## Key Features
 
@@ -50,8 +55,11 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 - Lesson duration tracking
 
 ### Enrollment & Progress
-- Students enroll in courses (pending → confirmed → access granted)
-- Paid courses require WhatsApp contact for payment confirmation
+- Students enroll in courses via "Enroll for Free" or "Buy via WhatsApp" button
+- Free courses: immediate enrollment with status "free"
+- Paid courses: status "pending" → student contacts teacher via WhatsApp → pays → teacher confirms → status "confirmed"
+- Teachers see pending enrollments in dashboard with "Confirm" button
+- Only confirmed/free enrollments grant course access (backend enforced)
 - Progress tracking per lesson (completed status, last video position)
 - Resume video from exact position on return
 - Course progress percentage calculation
@@ -81,8 +89,11 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 ### WhatsApp Integration
 - "Buy Course" button generates WhatsApp deep link
 - Pre-filled message with course details
-- Platform WhatsApp number configurable by superadmin
-- Default number: 9647801234567 (Iraqi format)
+- **Students contact TEACHERS directly** via their WhatsApp number
+- Teachers' WhatsApp numbers stored in `users.whatsappNumber` field
+- Creates pending enrollment when button clicked
+- Teacher confirms enrollment after payment received
+- Popup blocker detection with fallback error message
 
 ## Database Schema
 
@@ -196,6 +207,39 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 - Teacher accounts have random-generated 12-char passwords
 - Students can only see their own grades and comments
 - Teachers can only manage their own courses
+- Teachers can preview/watch their own course lessons without enrollment
+
+## Video Security Best Practices
+To prevent unauthorized downloading and sharing of course videos:
+
+### YouTube Privacy Settings (Recommended)
+1. **Use Unlisted Videos**: Upload videos as "Unlisted" in YouTube Studio
+   - Not discoverable via search
+   - Only accessible via direct link
+   - Perfect for paid course content
+
+2. **Enable Domain Restrictions** (YouTube Premium feature):
+   - Go to YouTube Studio → Video Settings → Advanced
+   - Add your domain to "Embed restrictions"
+   - Videos only play on your specified domain
+
+3. **Disable External Embedding**:
+   - YouTube Studio → Video Settings → Advanced
+   - Uncheck "Allow embedding"
+   - Forces viewing only on YouTube (more restrictive)
+
+### Additional Security Measures
+- **Watermark Videos**: Add visible watermarks with student email/ID
+- **Monitor Analytics**: Check YouTube Analytics for unusual viewing patterns
+- **Regular Link Rotation**: Update YouTube URLs periodically
+- **Legal Protection**: Include terms of service prohibiting redistribution
+
+### Implementation Notes
+- Backend verifies enrollment status before serving lesson pages
+- Students must have `confirmed` or `free` enrollment status
+- Teachers can access their own lessons for preview
+- Iframe embed security relies on YouTube's features
+- Browser inspect tools cannot bypass YouTube's DRM protections
 
 ## Development Workflow
 1. Backend changes in `server/` → auto-restart workflow

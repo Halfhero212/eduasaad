@@ -128,6 +128,13 @@ export function registerEnrollmentRoutes(app: Express) {
         }
       }
 
+      // Allow teachers to access their own course lessons
+      if (req.user?.role === "teacher") {
+        if (course?.teacherId !== req.user.id) {
+          return res.status(403).json({ error: "You can only access lessons from your own courses" });
+        }
+      }
+
       let progress = null;
       if (req.user?.role === "student") {
         progress = await storage.getLessonProgress(req.user.id, lessonId);
@@ -143,6 +150,89 @@ export function registerEnrollmentRoutes(app: Express) {
     } catch (error) {
       console.error("Get lesson error:", error);
       res.status(500).json({ error: "Failed to get lesson" });
+    }
+  });
+
+  // Get pending enrollments for teacher's courses
+  app.get("/api/enrollments/teacher/pending", requireAuth, requireRole("teacher"), async (req: AuthRequest, res) => {
+    try {
+      const teacherId = req.user!.id;
+      
+      // Get all courses by this teacher
+      const teacherCourses = await storage.getCoursesByTeacher(teacherId);
+      const courseIds = teacherCourses.map((c: any) => c.id);
+
+      // Get pending enrollments for these courses
+      const pendingEnrollments = await storage.getPendingEnrollmentsForCourses(courseIds);
+
+      // Enrich with student and course info
+      const enrichedEnrollments = await Promise.all(
+        pendingEnrollments.map(async (enrollment: any) => {
+          const student = await storage.getUser(enrollment.studentId);
+          const course = await storage.getCourse(enrollment.courseId);
+          
+          return {
+            id: enrollment.id,
+            enrolledAt: enrollment.enrolledAt,
+            purchaseStatus: enrollment.purchaseStatus,
+            student: student ? { id: student.id, fullName: student.fullName, email: student.email } : null,
+            course: course ? { id: course.id, title: course.title, price: course.price } : null,
+          };
+        })
+      );
+
+      res.json({ success: true, enrollments: enrichedEnrollments });
+    } catch (error) {
+      console.error("Get pending enrollments error:", error);
+      res.status(500).json({ error: "Failed to get pending enrollments" });
+    }
+  });
+
+  // Update enrollment status (teacher can confirm their own course enrollments)
+  app.put("/api/enrollments/:id/status", requireAuth, async (req: AuthRequest, res) => {
+    try {
+      const enrollmentId = parseInt(req.params.id);
+      const { status } = req.body;
+
+      if (!status || !["confirmed", "pending"].includes(status)) {
+        return res.status(400).json({ error: "Invalid status" });
+      }
+
+      const enrollment = await storage.getEnrollmentById(enrollmentId);
+      if (!enrollment) {
+        return res.status(404).json({ error: "Enrollment not found" });
+      }
+
+      const course = await storage.getCourse(enrollment.courseId);
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      // Check permissions: teacher can only confirm their own courses, superadmin can confirm any
+      if (req.user?.role === "teacher" && course.teacherId !== req.user.id) {
+        return res.status(403).json({ error: "You can only manage enrollments for your own courses" });
+      } else if (req.user?.role !== "teacher" && req.user?.role !== "superadmin") {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+
+      await storage.updateEnrollmentStatus(enrollmentId, status);
+
+      // Create notification for student
+      if (status === "confirmed") {
+        await storage.createNotification({
+          userId: enrollment.studentId,
+          type: "enrollment_confirmed",
+          title: "Enrollment Confirmed",
+          message: `Your enrollment in "${course.title}" has been confirmed. You can now access all lessons.`,
+          read: false,
+          relatedId: course.id,
+        });
+      }
+
+      res.json({ success: true, message: "Enrollment status updated" });
+    } catch (error) {
+      console.error("Update enrollment status error:", error);
+      res.status(500).json({ error: "Failed to update enrollment status" });
     }
   });
 }

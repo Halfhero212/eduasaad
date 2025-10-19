@@ -20,15 +20,11 @@ export default function CourseDetail() {
   const { toast } = useToast();
 
   const { data: courseData, isLoading } = useQuery<{
-    course: Course & { teacher: User | null };
+    course: Course & { teacher: (User & { whatsappNumber?: string | null }) | null };
     lessons: CourseLesson[];
     isEnrolled: boolean;
   }>({
     queryKey: ["/api/courses", id],
-  });
-
-  const { data: whatsappNumber } = useQuery<{ whatsappNumber: string }>({
-    queryKey: ["/api/whatsapp-number"],
   });
 
   const enrollMutation = useMutation({
@@ -64,14 +60,14 @@ export default function CourseDetail() {
   const handleWhatsAppEnroll = async () => {
     if (!courseData) return;
     
-    // Prepare WhatsApp link
+    // Prepare WhatsApp link using teacher's WhatsApp number
     const messageTemplate = t("courses.whatsapp_message");
     const message = encodeURIComponent(
       messageTemplate
         .replace("{title}", courseData.course.title)
         .replace("${price}", String(courseData.course.price))
     );
-    const phone = whatsappNumber?.whatsappNumber || "9647801234567";
+    const phone = courseData.course.teacher?.whatsappNumber || "9647801234567";
     const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
     
     // Open WhatsApp window immediately (before async operation) to avoid popup blocking

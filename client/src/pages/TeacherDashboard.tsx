@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { BookOpen, Plus, Users, TrendingUp } from "lucide-react";
+import { BookOpen, Plus, Users, TrendingUp, Clock, Check, X } from "lucide-react";
 import type { Course } from "@shared/schema";
 
 export default function TeacherDashboard() {
@@ -42,6 +42,42 @@ export default function TeacherDashboard() {
   const { data: categories } = useQuery<{ id: number; name: string }[]>({
     queryKey: ["/api/courses/categories"],
     enabled: !isLoading && currentUser?.role === "teacher",
+  });
+
+  const { data: pendingEnrollmentsData } = useQuery<{
+    enrollments: Array<{
+      id: number;
+      enrolledAt: Date;
+      purchaseStatus: string;
+      student: { id: number; fullName: string; email: string } | null;
+      course: { id: number; title: string; price: string } | null;
+    }>;
+  }>({
+    queryKey: ["/api/enrollments/teacher/pending"],
+    enabled: !isLoading && currentUser?.role === "teacher",
+  });
+
+  const pendingEnrollments = pendingEnrollmentsData?.enrollments || [];
+
+  const confirmEnrollmentMutation = useMutation({
+    mutationFn: async (enrollmentId: number) => {
+      await apiRequest("PUT", `/api/enrollments/${enrollmentId}/status`, { status: "confirmed" });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/enrollments/teacher/pending"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/my-courses"] });
+      toast({
+        title: t("toast.enrollment_confirmed"),
+        description: t("toast.enrollment_confirmed_desc"),
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: t("toast.enrollment_update_failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
+        variant: "destructive",
+      });
+    },
   });
 
   const createCourseMutation = useMutation({
@@ -159,6 +195,60 @@ export default function TeacherDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Pending Enrollments */}
+        {pendingEnrollments.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    {t("dashboard.teacher.pending_enrollments")}
+                  </CardTitle>
+                  <CardDescription>{t("dashboard.teacher.pending_enrollments_desc")}</CardDescription>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {pendingEnrollments.length} {t("dashboard.teacher.pending")}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {pendingEnrollments.map((enrollment) => (
+                  <div
+                    key={enrollment.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover-elevate"
+                    data-testid={`enrollment-pending-${enrollment.id}`}
+                  >
+                    <div className="flex-1">
+                      <h4 className="font-medium">{enrollment.student?.fullName || "Unknown Student"}</h4>
+                      <p className="text-sm text-muted-foreground">{enrollment.student?.email}</p>
+                      <p className="text-sm text-secondary mt-1">
+                        {t("dashboard.teacher.course")}: {enrollment.course?.title || "Unknown Course"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {t("label.price")}: ${enrollment.course?.price || "0"}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => confirmEnrollmentMutation.mutate(enrollment.id)}
+                        disabled={confirmEnrollmentMutation.isPending}
+                        data-testid={`button-confirm-${enrollment.id}`}
+                      >
+                        <Check className="h-4 w-4 mr-1" />
+                        {t("button.confirm")}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Course Management */}
         <Card>
