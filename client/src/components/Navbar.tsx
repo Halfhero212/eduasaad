@@ -89,7 +89,15 @@ export default function Navbar() {
             <span className="sr-only">Toggle language</span>
           </Button>
 
-          {!isLoading && isAuthenticated && user ? (
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-muted animate-pulse"></div>
+              <div className="hidden md:flex flex-col gap-1">
+                <div className="w-20 h-4 bg-muted rounded animate-pulse"></div>
+                <div className="w-12 h-3 bg-muted rounded animate-pulse"></div>
+              </div>
+            </div>
+          ) : isAuthenticated && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild data-testid="button-user-menu">
                 <Button variant="ghost" className="gap-2 hover-elevate">

@@ -15,13 +15,28 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
+  const [token, setToken] = useState<string | null>(() => {
+    const savedToken = localStorage.getItem("token");
+    console.log("AuthProvider: Initial token from localStorage:", savedToken ? "exists" : "null");
+    return savedToken;
+  });
 
   const { data: user, isLoading, error } = useQuery<User | null>({
     queryKey: ["/api/auth/me"],
     enabled: !!token,
     retry: false,
   });
+
+  // Debug logging
+  useEffect(() => {
+    console.log("Auth state:", { 
+      hasToken: !!token, 
+      hasUser: !!user, 
+      isLoading, 
+      hasError: !!error,
+      userName: user?.fullName 
+    });
+  }, [token, user, isLoading, error]);
 
   // If auth fails (401), clear the token
   useEffect(() => {
