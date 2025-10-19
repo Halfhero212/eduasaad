@@ -1,8 +1,72 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireRole, verifyToken, type AuthRequest } from "../middleware/auth";
+import multer from "multer";
+import { Client } from "@replit/object-storage";
+import { fileTypeFromBuffer } from "file-type";
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 export function registerCourseRoutes(app: Express) {
+  // Upload course thumbnail (teachers only)
+  app.post("/api/courses/upload-thumbnail", requireAuth, requireRole("teacher"), upload.single("thumbnail"), async (req: AuthRequest, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (req.file.size > maxSize) {
+        return res.status(400).json({ error: "File size must be less than 5MB" });
+      }
+
+      // Inspect actual file bytes to verify it's a real image (prevents MIME spoofing)
+      const fileType = await fileTypeFromBuffer(req.file.buffer);
+      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+      
+      if (!fileType || !allowedMimeTypes.includes(fileType.mime)) {
+        return res.status(400).json({ error: "Only image files (JPEG, PNG, WebP, GIF) are allowed" });
+      }
+
+      // Use detected extension from byte inspection (more secure than client-provided extension)
+      const extension = fileType.ext;
+
+      const client = new Client();
+      const publicPaths = process.env.PUBLIC_OBJECT_SEARCH_PATHS?.split(",") || [];
+      const publicDir = publicPaths[0] || "";
+      
+      // Generate unique filename
+      const timestamp = Date.now();
+      const randomString = Math.random().toString(36).substring(7);
+      const filename = `course-${timestamp}-${randomString}.${extension}`;
+      
+      // Build storage path - ensure proper structure
+      const storageSubPath = `thumbnails/${filename}`;
+      const filepath = publicDir ? `${publicDir}/${storageSubPath}` : storageSubPath;
+
+      // Upload to object storage with proper content type
+      // Type assertion needed due to incomplete type definitions in @replit/object-storage
+      // Runtime supports contentType per official docs: https://docs.replit.com/reference/object-storage-javascript-sdk
+      const result = await client.uploadFromBytes(filepath, req.file.buffer, {
+        contentType: fileType.mime
+      } as any);
+      
+      if (!result.ok) {
+        console.error("Upload failed:", result.error);
+        return res.status(500).json({ error: "Failed to upload file to storage" });
+      }
+
+      // Return the full storage filepath
+      // Replit Object Storage serves files from PUBLIC_OBJECT_SEARCH_PATHS directories
+      // The frontend will use this path to access the uploaded thumbnail
+      res.json({ success: true, url: filepath });
+    } catch (error) {
+      console.error("Upload thumbnail error:", error);
+      res.status(500).json({ error: "Failed to upload thumbnail" });
+    }
+  });
+
   // Get all courses (public)
   app.get("/api/courses", async (req, res) => {
     try {

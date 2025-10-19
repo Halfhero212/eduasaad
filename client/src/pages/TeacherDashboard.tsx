@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { BookOpen, Plus, Users, TrendingUp, Clock, Check, X } from "lucide-react";
+import { BookOpen, Plus, Users, TrendingUp, Clock, Check, X, Upload, ImageIcon } from "lucide-react";
 import type { Course } from "@shared/schema";
 
 export default function TeacherDashboard() {
@@ -23,6 +23,8 @@ export default function TeacherDashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [createCourseOpen, setCreateCourseOpen] = useState(false);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [newCourse, setNewCourse] = useState({
     title: "",
     description: "",
@@ -80,12 +82,56 @@ export default function TeacherDashboard() {
     },
   });
 
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: t("toast.validation_error"),
+          description: "Image size must be less than 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      setThumbnailFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setThumbnailPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const createCourseMutation = useMutation({
     mutationFn: async (data: typeof newCourse) => {
+      let thumbnailUrl = null;
+      
+      // Upload thumbnail if provided
+      if (thumbnailFile) {
+        const formData = new FormData();
+        formData.append("thumbnail", thumbnailFile);
+        
+        const uploadRes = await fetch("/api/courses/upload-thumbnail", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: formData,
+        });
+        
+        if (!uploadRes.ok) {
+          throw new Error("Failed to upload thumbnail");
+        }
+        
+        const uploadData = await uploadRes.json();
+        thumbnailUrl = uploadData.url;
+      }
+      
       const res = await apiRequest("POST", "/api/courses", {
         ...data,
         categoryId: parseInt(data.categoryId),
         price: data.isFree ? 0 : parseFloat(data.price),
+        thumbnailUrl,
       });
       return await res.json();
     },
@@ -103,6 +149,8 @@ export default function TeacherDashboard() {
         price: "",
         isFree: false,
       });
+      setThumbnailFile(null);
+      setThumbnailPreview(null);
       setCreateCourseOpen(false);
     },
     onError: (error) => {
@@ -321,6 +369,50 @@ export default function TeacherDashboard() {
                       rows={3}
                       data-testid="input-course-learn"
                     />
+                  </div>
+                  <div>
+                    <Label htmlFor="thumbnail">{t("label.course_thumbnail")}</Label>
+                    <div className="mt-2">
+                      {thumbnailPreview ? (
+                        <div className="relative">
+                          <img 
+                            src={thumbnailPreview} 
+                            alt="Thumbnail preview" 
+                            className="w-full h-48 object-cover rounded-md border"
+                          />
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="absolute top-2 right-2"
+                            onClick={() => {
+                              setThumbnailFile(null);
+                              setThumbnailPreview(null);
+                            }}
+                            data-testid="button-remove-thumbnail"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Label
+                          htmlFor="thumbnail"
+                          className="flex flex-col items-center justify-center h-48 border-2 border-dashed rounded-md cursor-pointer hover-elevate transition-all"
+                          data-testid="label-upload-thumbnail"
+                        >
+                          <Upload className="w-10 h-10 text-muted-foreground mb-2" />
+                          <p className="text-sm text-muted-foreground">Click to upload course thumbnail</p>
+                          <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 5MB</p>
+                        </Label>
+                      )}
+                      <Input
+                        id="thumbnail"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleThumbnailChange}
+                        className="hidden"
+                        data-testid="input-thumbnail"
+                      />
+                    </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">

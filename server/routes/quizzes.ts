@@ -91,13 +91,7 @@ export function registerQuizRoutes(app: Express) {
         const objectStorage = new Client();
         for (const file of files) {
           const fileName = `quiz-submissions/${quizId}/${req.user!.id}/${Date.now()}-${file.originalname}`;
-          await objectStorage.uploadFromBytes(fileName, file.buffer, {
-            metadata: {
-              uploadedBy: req.user!.id.toString(),
-              quizId: quizId.toString(),
-              uploadedAt: new Date().toISOString(),
-            },
-          });
+          await objectStorage.uploadFromBytes(fileName, file.buffer);
           imageUrls.push(fileName);
         }
       }

@@ -255,6 +255,7 @@ const translations: Record<Language, Record<string, string>> = {
     "label.category": "الفئة",
     "label.description": "الوصف",
     "label.price": "السعر",
+    "label.course_thumbnail": "صورة الدورة",
     
     // Placeholders
     "placeholder.lesson_title": "مثال: مقدمة في البرمجة",
@@ -524,6 +525,7 @@ const translations: Record<Language, Record<string, string>> = {
     "label.category": "Category",
     "label.description": "Description",
     "label.price": "Price",
+    "label.course_thumbnail": "Course Thumbnail",
     
     // Placeholders
     "placeholder.lesson_title": "e.g., Introduction to Programming",
