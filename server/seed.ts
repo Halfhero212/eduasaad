@@ -48,6 +48,26 @@ async function seed() {
       console.log(`⏭️  Superadmin account already exists`);
     }
 
+    // Create test teacher account for development/testing
+    const teacherEmail = "teacher1@example.com";
+    const [existingTeacher] = await db.select().from(users).where(eq(users.email, teacherEmail));
+
+    if (!existingTeacher) {
+      const hashedPassword = await bcrypt.hash("teacher123", 10);
+      await db.insert(users).values({
+        email: teacherEmail,
+        password: hashedPassword,
+        fullName: "Test Teacher",
+        role: "teacher",
+        whatsappNumber: "9647801111111",
+      });
+      console.log(`✅ Created test teacher account`);
+      console.log(`   Email: ${teacherEmail}`);
+      console.log(`   Password: teacher123`);
+    } else {
+      console.log(`⏭️  Test teacher account already exists`);
+    }
+
     // Set default WhatsApp number setting
     const whatsappKey = "whatsapp_number";
     const [existingSetting] = await db.select().from(platformSettings).where(eq(platformSettings.key, whatsappKey));
