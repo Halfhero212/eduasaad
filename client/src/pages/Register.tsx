@@ -51,7 +51,7 @@ export default function Register() {
       await registerUser(data.fullName, data.email, data.password);
       toast({
         title: "Registration successful",
-        description: "Welcome to EduPlatform!",
+        description: `${t('common.welcome')} ${t('app.name')}!`,
       });
     } catch (error) {
       toast({
@@ -71,9 +71,9 @@ export default function Register() {
               <GraduationCap className="w-8 h-8 text-primary" />
             </div>
           </div>
-          <CardTitle className="text-2xl">Create an account</CardTitle>
+          <CardTitle className="text-2xl">{t('auth.create_account')}</CardTitle>
           <CardDescription>
-            Join thousands of learners on EduPlatform
+            {t('register.subtitle')}
           </CardDescription>
         </CardHeader>
         <CardContent>

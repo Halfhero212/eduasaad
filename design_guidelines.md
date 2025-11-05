@@ -1,4 +1,4 @@
-# EduPlatform Design Guidelines
+# منصة الباشق العراقي (Iraqi Hawk Platform) Design Guidelines
 
 ## Design Approach
 

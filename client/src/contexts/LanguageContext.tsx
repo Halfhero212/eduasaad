@@ -15,9 +15,10 @@ const translations: Record<Language, Record<string, string>> = {
   ar: {
     // Common
     "common.loading": "جاري التحميل...",
-    "app.name": "منصة التعلم",
-    "app.tagline": "حوّل مستقبلك بدورات يقدمها خبراء",
-    "app.description": "تعلم من خبراء الصناعة وحقق أهدافك مع منصتنا التعليمية الشاملة",
+    "common.welcome": "مرحباً بك في",
+    "app.name": "منصة الباشق العراقي",
+    "app.tagline": "منصه للتعليم الاكتروني",
+    "app.description": "منصه للتعليم الاكتروني",
     
     // Navigation
     "nav.browse": "تصفح الدورات",
@@ -28,8 +29,8 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.logout": "تسجيل الخروج",
     
     // Home Page
-    "home.hero_title": "حوّل مستقبلك بدورات يقدمها خبراء",
-    "home.hero_subtitle": "تعلم من خبراء الصناعة وحقق أهدافك مع منصتنا التعليمية الشاملة",
+    "home.hero_title": "منصة الباشق العراقي",
+    "home.hero_subtitle": "منصه للتعليم الاكتروني",
     "home.get_started": "ابدأ مجاناً",
     "home.browse_courses": "تصفح الدورات",
     "home.stats.courses": "دورة",
@@ -151,6 +152,9 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.create_account": "إنشاء حساب",
     "auth.no_account": "ليس لديك حساب؟",
     "auth.have_account": "لديك حساب؟",
+    
+    // Register
+    "register.subtitle": "انضم إلى آلاف المتعلمين في منصة الباشق العراقي",
     
     // Dashboard - Superadmin
     "dashboard.superadmin.title": "لوحة تحكم المسؤول",
@@ -295,9 +299,10 @@ const translations: Record<Language, Record<string, string>> = {
   en: {
     // Common
     "common.loading": "Loading...",
-    "app.name": "EduPlatform",
-    "app.tagline": "Transform Your Future with Expert-Led Courses",
-    "app.description": "Learn from industry experts and achieve your goals with our comprehensive learning platform",
+    "common.welcome": "Welcome to",
+    "app.name": "Iraqi Hawk Platform",
+    "app.tagline": "Electronic Learning Platform",
+    "app.description": "Electronic Learning Platform",
     
     // Navigation
     "nav.browse": "Browse Courses",
@@ -308,8 +313,8 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.logout": "Log out",
     
     // Home Page
-    "home.hero_title": "Transform Your Future with Expert-Led Courses",
-    "home.hero_subtitle": "Learn from industry experts and achieve your goals with our comprehensive learning platform",
+    "home.hero_title": "Iraqi Hawk Platform",
+    "home.hero_subtitle": "Electronic Learning Platform",
     "home.get_started": "Get Started Free",
     "home.browse_courses": "Browse Courses",
     "home.stats.courses": "Courses",
@@ -431,6 +436,9 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.create_account": "Create Account",
     "auth.no_account": "Don't have an account?",
     "auth.have_account": "Already have an account?",
+    
+    // Register
+    "register.subtitle": "Join thousands of learners on Iraqi Hawk Platform",
     
     // Dashboard - Superadmin
     "dashboard.superadmin.title": "Superadmin Dashboard",

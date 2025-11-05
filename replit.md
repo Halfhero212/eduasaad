@@ -1,6 +1,8 @@
-# EduPlatform - Full-Stack Learning Management System
+# منصة الباشق العراقي (Iraqi Hawk Platform) - Full-Stack Learning Management System
 
 ## Project Overview
+**منصة الباشق العراقي** - منصه للتعليم الاكتروني
+
 A complete learning platform for course delivery with three-tier user hierarchy (superadmin, teachers, students). The platform enables teachers to upload video courses with quizzes, students to learn and track progress, and superadmin to manage the entire platform.
 
 ## Architecture
