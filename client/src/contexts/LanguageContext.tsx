@@ -38,6 +38,16 @@ const translations: Record<Language, Record<string, string>> = {
     "home.stats.rating": "تقييم متوسط",
     "home.featured_courses": "الدورات المميزة",
     "home.view_all": "عرض الكل",
+    "home.how_it_works": "كيف يعمل",
+    "home.step1.title": "تصفح الدورات",
+    "home.step1.description": "استكشف كتالوج دوراتنا عبر مختلف الفئات",
+    "home.step2.title": "سجّل وتعلم",
+    "home.step2.description": "تواصل معنا عبر واتساب للتسجيل في الدورات المدفوعة أو ابدأ التعلم فوراً مع الدورات المجانية",
+    "home.step3.title": "حقق الأهداف",
+    "home.step3.description": "أكمل الاختبارات، تتبع تقدمك، وأتقن مهارات جديدة",
+    "home.view_course": "عرض الدورة",
+    "home.no_courses_category": "لا توجد دورات في هذه الفئة. جرب فئة أخرى.",
+    "home.no_courses_available": "لا توجد دورات متاحة بعد. تحقق مرة أخرى قريباً!",
     
     // Courses
     "courses.title": "استكشف دوراتنا",
@@ -308,6 +318,16 @@ const translations: Record<Language, Record<string, string>> = {
     "home.stats.rating": "Average Rating",
     "home.featured_courses": "Featured Courses",
     "home.view_all": "View All",
+    "home.how_it_works": "How It Works",
+    "home.step1.title": "Browse Courses",
+    "home.step1.description": "Explore our catalog of courses across various categories",
+    "home.step2.title": "Enroll & Learn",
+    "home.step2.description": "Contact us via WhatsApp to enroll in paid courses or start learning immediately with free courses",
+    "home.step3.title": "Achieve Goals",
+    "home.step3.description": "Complete quizzes, track progress, and master new skills",
+    "home.view_course": "View Course",
+    "home.no_courses_category": "No courses in this category. Try another category.",
+    "home.no_courses_available": "No courses available yet. Check back soon!",
     
     // Courses
     "courses.title": "Explore Our Courses",

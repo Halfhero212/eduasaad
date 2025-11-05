@@ -6,8 +6,9 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 ## Architecture
 - **Frontend**: React + Vite + Wouter routing + TanStack Query + Shadcn UI
 - **Backend**: Express.js + PostgreSQL (Drizzle ORM) + JWT authentication
-- **Storage**: Replit Object Storage for quiz submission images
+- **Storage**: Replit Object Storage for quiz submission images and course thumbnails
 - **Deployment Target**: Vercel (both frontend and backend on same port 5000)
+- **Localization**: Full bilingual support (Arabic/English) with RTL layout and Cairo font for Arabic
 
 ## User Roles & Capabilities
 
@@ -50,6 +51,10 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 ### Course Management
 - Courses belong to categories (Programming, Math, Science, etc.)
 - Each course has title, description, what you'll learn, price, thumbnail
+- **Course thumbnails**: Teachers can upload custom thumbnails (JPEG/PNG/WebP/GIF, max 5MB)
+  - Stored in Replit Object Storage under public/thumbnails directory
+  - Server-side byte-level MIME validation with file-type package prevents spoofing
+  - Randomized filenames for security
 - Courses can be free or paid
 - Lessons ordered sequentially with YouTube video URLs
 - Lesson duration tracking

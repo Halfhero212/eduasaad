@@ -94,13 +94,13 @@ export default function Home() {
       {/* How It Works */}
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">{t("home.how_it_works")}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <Card className="overflow-hidden hover-elevate transition-all">
               <div className="relative h-48 overflow-hidden">
                 <img 
                   src={collaborativeImage} 
-                  alt="Browse courses" 
+                  alt={t("home.step1.title")} 
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -108,12 +108,12 @@ export default function Home() {
                   <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mb-2">
                     <GraduationCap className="w-6 h-6 text-primary-foreground" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white">Browse Courses</h3>
+                  <h3 className="text-xl font-semibold text-white">{t("home.step1.title")}</h3>
                 </div>
               </div>
               <CardContent className="p-6">
                 <p className="text-muted-foreground">
-                  Explore our catalog of courses across various categories
+                  {t("home.step1.description")}
                 </p>
               </CardContent>
             </Card>
@@ -121,7 +121,7 @@ export default function Home() {
               <div className="relative h-48 overflow-hidden">
                 <img 
                   src={onlineCourseImage} 
-                  alt="Enroll and learn" 
+                  alt={t("home.step2.title")} 
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -129,12 +129,12 @@ export default function Home() {
                   <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mb-2">
                     <BookOpen className="w-6 h-6 text-primary-foreground" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white">Enroll & Learn</h3>
+                  <h3 className="text-xl font-semibold text-white">{t("home.step2.title")}</h3>
                 </div>
               </div>
               <CardContent className="p-6">
                 <p className="text-muted-foreground">
-                  Contact us via WhatsApp to enroll in paid courses or start learning immediately with free courses
+                  {t("home.step2.description")}
                 </p>
               </CardContent>
             </Card>
@@ -142,7 +142,7 @@ export default function Home() {
               <div className="relative h-48 overflow-hidden">
                 <img 
                   src={achievementImage} 
-                  alt="Achieve goals" 
+                  alt={t("home.step3.title")} 
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -150,12 +150,12 @@ export default function Home() {
                   <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mb-2">
                     <Award className="w-6 h-6 text-primary-foreground" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white">Achieve Goals</h3>
+                  <h3 className="text-xl font-semibold text-white">{t("home.step3.title")}</h3>
                 </div>
               </div>
               <CardContent className="p-6">
                 <p className="text-muted-foreground">
-                  Complete quizzes, track progress, and master new skills
+                  {t("home.step3.description")}
                 </p>
               </CardContent>
             </Card>
@@ -254,7 +254,7 @@ export default function Home() {
                   <CardFooter className="p-4 pt-0">
                     <Link href={`/courses/${course.id}`} data-testid={`link-course-${course.id}`} className="w-full">
                       <Button variant="outline" className="w-full">
-                        View Course
+                        {t("home.view_course")}
                       </Button>
                     </Link>
                   </CardFooter>
@@ -267,8 +267,8 @@ export default function Home() {
               <h3 className="text-xl font-semibold mb-2">{t("courses.no_courses")}</h3>
               <p className="text-muted-foreground">
                 {selectedCategory === "all"
-                  ? "No courses available yet. Check back soon!"
-                  : "No courses in this category. Try another category."}
+                  ? t("home.no_courses_available")
+                  : t("home.no_courses_category")}
               </p>
             </div>
           )}
