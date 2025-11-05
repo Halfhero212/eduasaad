@@ -16,7 +16,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Common
     "common.loading": "جاري التحميل...",
     "common.welcome": "مرحباً بك في",
-    "app.name": "منصة الباشق العراقي",
+    "app.name": "الباشق العراقي",
     "app.tagline": "منصه للتعليم الاكتروني",
     "app.description": "منصه للتعليم الاكتروني",
     
@@ -29,7 +29,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.logout": "تسجيل الخروج",
     
     // Home Page
-    "home.hero_title": "منصة الباشق العراقي",
+    "home.hero_title": "الباشق العراقي",
     "home.hero_subtitle": "منصه للتعليم الاكتروني",
     "home.get_started": "ابدأ مجاناً",
     "home.browse_courses": "تصفح الدورات",
@@ -152,9 +152,34 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.create_account": "إنشاء حساب",
     "auth.no_account": "ليس لديك حساب؟",
     "auth.have_account": "لديك حساب؟",
+    "auth.welcome_back": "مرحباً بعودتك",
+    "auth.enter_credentials": "أدخل بياناتك للوصول إلى حسابك",
+    "auth.signing_in": "جاري تسجيل الدخول...",
+    "auth.back_to_home": "→ العودة للصفحة الرئيسية",
+    "auth.invalid_email": "عنوان البريد الإلكتروني غير صالح",
+    "auth.password_required": "كلمة المرور مطلوبة",
+    "auth.email_placeholder": "your.email@example.com",
+    "auth.password_placeholder": "أدخل كلمة المرور",
+    "auth.fullname_placeholder": "أحمد علي",
+    "auth.confirm_password": "تأكيد كلمة المرور",
+    "auth.confirm_password_placeholder": "أعد إدخال كلمة المرور",
+    "auth.passwords_must_match": "كلمات المرور يجب أن تتطابق",
+    "auth.password_min_length": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+    "auth.fullname_min_length": "الاسم يجب أن يكون حرفين على الأقل",
     
     // Register
-    "register.subtitle": "انضم إلى آلاف المتعلمين في منصة الباشق العراقي",
+    "register.subtitle": "انضم إلى آلاف المتعلمين في الباشق العراقي",
+    "register.creating_account": "جاري إنشاء الحساب...",
+    
+    // Login/Register Toast Messages
+    "toast.login_success": "تم تسجيل الدخول بنجاح",
+    "toast.login_success_desc": "مرحباً بعودتك!",
+    "toast.login_failed": "فشل تسجيل الدخول",
+    "toast.login_failed_desc": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "toast.register_success": "تم التسجيل بنجاح",
+    "toast.register_success_desc": "مرحباً بك في",
+    "toast.register_failed": "فشل التسجيل",
+    "toast.register_failed_desc": "حدث خطأ ما",
     
     // Dashboard - Superadmin
     "dashboard.superadmin.title": "لوحة تحكم المسؤول",
@@ -300,7 +325,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Common
     "common.loading": "Loading...",
     "common.welcome": "Welcome to",
-    "app.name": "Iraqi Hawk Platform",
+    "app.name": "Al-Bashiq Al-Iraqi",
     "app.tagline": "Electronic Learning Platform",
     "app.description": "Electronic Learning Platform",
     
@@ -313,7 +338,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.logout": "Log out",
     
     // Home Page
-    "home.hero_title": "Iraqi Hawk Platform",
+    "home.hero_title": "Al-Bashiq Al-Iraqi",
     "home.hero_subtitle": "Electronic Learning Platform",
     "home.get_started": "Get Started Free",
     "home.browse_courses": "Browse Courses",
@@ -436,9 +461,34 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.create_account": "Create Account",
     "auth.no_account": "Don't have an account?",
     "auth.have_account": "Already have an account?",
+    "auth.welcome_back": "Welcome back",
+    "auth.enter_credentials": "Enter your credentials to access your account",
+    "auth.signing_in": "Signing in...",
+    "auth.back_to_home": "← Back to home",
+    "auth.invalid_email": "Invalid email address",
+    "auth.password_required": "Password is required",
+    "auth.email_placeholder": "your.email@example.com",
+    "auth.password_placeholder": "Enter your password",
+    "auth.fullname_placeholder": "John Doe",
+    "auth.confirm_password": "Confirm Password",
+    "auth.confirm_password_placeholder": "Re-enter your password",
+    "auth.passwords_must_match": "Passwords must match",
+    "auth.password_min_length": "Password must be at least 6 characters",
+    "auth.fullname_min_length": "Name must be at least 2 characters",
     
     // Register
-    "register.subtitle": "Join thousands of learners on Iraqi Hawk Platform",
+    "register.subtitle": "Join thousands of learners on Al-Bashiq Al-Iraqi",
+    "register.creating_account": "Creating account...",
+    
+    // Login/Register Toast Messages
+    "toast.login_success": "Login successful",
+    "toast.login_success_desc": "Welcome back!",
+    "toast.login_failed": "Login failed",
+    "toast.login_failed_desc": "Invalid email or password",
+    "toast.register_success": "Registration successful",
+    "toast.register_success_desc": "Welcome to",
+    "toast.register_failed": "Registration failed",
+    "toast.register_failed_desc": "Something went wrong",
     
     // Dashboard - Superadmin
     "dashboard.superadmin.title": "Superadmin Dashboard",

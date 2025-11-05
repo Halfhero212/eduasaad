@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,18 +12,18 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { GraduationCap } from "lucide-react";
 
-const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
-});
-
-type LoginForm = z.infer<typeof loginSchema>;
-
 export default function Login() {
   const [, setLocation] = useLocation();
   const { login, isAuthenticated, isLoading, user } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
+
+  const loginSchema = useMemo(() => z.object({
+    email: z.string().email({ message: t('auth.invalid_email') }),
+    password: z.string().min(1, { message: t('auth.password_required') }),
+  }), [t]);
+
+  type LoginForm = z.infer<typeof loginSchema>;
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -49,13 +49,13 @@ export default function Login() {
     try {
       await login(data.email, data.password);
       toast({
-        title: "Login successful",
-        description: "Welcome back!",
+        title: t('toast.login_success'),
+        description: t('toast.login_success_desc'),
       });
     } catch (error) {
       toast({
-        title: "Login failed",
-        description: error instanceof Error ? error.message : "Invalid email or password",
+        title: t('toast.login_failed'),
+        description: error instanceof Error ? error.message : t('toast.login_failed_desc'),
         variant: "destructive",
       });
     }
@@ -70,9 +70,9 @@ export default function Login() {
               <GraduationCap className="w-8 h-8 text-primary" />
             </div>
           </div>
-          <CardTitle className="text-2xl">Welcome back</CardTitle>
+          <CardTitle className="text-2xl">{t('auth.welcome_back')}</CardTitle>
           <CardDescription>
-            Enter your credentials to access your account
+            {t('auth.enter_credentials')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -87,7 +87,7 @@ export default function Login() {
                     <FormControl>
                       <Input
                         type="email"
-                        placeholder="your.email@example.com"
+                        placeholder={t('auth.email_placeholder')}
                         data-testid="input-email"
                         {...field}
                       />
@@ -105,7 +105,7 @@ export default function Login() {
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Enter your password"
+                        placeholder={t('auth.password_placeholder')}
                         data-testid="input-password"
                         {...field}
                       />
@@ -120,7 +120,7 @@ export default function Login() {
                 disabled={form.formState.isSubmitting}
                 data-testid="button-login"
               >
-                {form.formState.isSubmitting ? "Signing in..." : t('auth.sign_in')}
+                {form.formState.isSubmitting ? t('auth.signing_in') : t('auth.sign_in')}
               </Button>
             </form>
           </Form>
@@ -137,7 +137,7 @@ export default function Login() {
           <div className="text-sm text-muted-foreground text-center">
             <Link href="/" data-testid="link-home">
               <span className="text-primary hover:underline cursor-pointer">
-                ← Back to home
+                {t('auth.back_to_home')}
               </span>
             </Link>
           </div>

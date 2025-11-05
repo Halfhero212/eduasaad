@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,23 +12,23 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { GraduationCap } from "lucide-react";
 
-const registerSchema = z.object({
-  fullName: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
-type RegisterForm = z.infer<typeof registerSchema>;
-
 export default function Register() {
   const [, setLocation] = useLocation();
   const { register: registerUser, isAuthenticated, isLoading, user } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
+
+  const registerSchema = useMemo(() => z.object({
+    fullName: z.string().min(2, { message: t('auth.fullname_min_length') }),
+    email: z.string().email({ message: t('auth.invalid_email') }),
+    password: z.string().min(6, { message: t('auth.password_min_length') }),
+    confirmPassword: z.string(),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t('auth.passwords_must_match'),
+    path: ["confirmPassword"],
+  }), [t]);
+
+  type RegisterForm = z.infer<typeof registerSchema>;
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -50,13 +50,13 @@ export default function Register() {
     try {
       await registerUser(data.fullName, data.email, data.password);
       toast({
-        title: "Registration successful",
-        description: `${t('common.welcome')} ${t('app.name')}!`,
+        title: t('toast.register_success'),
+        description: `${t('toast.register_success_desc')} ${t('app.name')}!`,
       });
     } catch (error) {
       toast({
-        title: "Registration failed",
-        description: error instanceof Error ? error.message : "Something went wrong",
+        title: t('toast.register_failed'),
+        description: error instanceof Error ? error.message : t('toast.register_failed_desc'),
         variant: "destructive",
       });
     }
@@ -87,7 +87,7 @@ export default function Register() {
                     <FormLabel>{t('auth.full_name')}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="John Doe"
+                        placeholder={t('auth.fullname_placeholder')}
                         data-testid="input-fullname"
                         {...field}
                       />
@@ -105,7 +105,7 @@ export default function Register() {
                     <FormControl>
                       <Input
                         type="email"
-                        placeholder="your.email@example.com"
+                        placeholder={t('auth.email_placeholder')}
                         data-testid="input-email"
                         {...field}
                       />
@@ -123,7 +123,7 @@ export default function Register() {
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Create a password (min 6 characters)"
+                        placeholder={t('auth.password_placeholder')}
                         data-testid="input-password"
                         {...field}
                       />
@@ -137,11 +137,11 @@ export default function Register() {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
+                    <FormLabel>{t('auth.confirm_password')}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Confirm your password"
+                        placeholder={t('auth.confirm_password_placeholder')}
                         data-testid="input-confirmpassword"
                         {...field}
                       />
@@ -156,7 +156,7 @@ export default function Register() {
                 disabled={form.formState.isSubmitting}
                 data-testid="button-register"
               >
-                {form.formState.isSubmitting ? "Creating account..." : t('auth.create_account')}
+                {form.formState.isSubmitting ? t('register.creating_account') : t('auth.create_account')}
               </Button>
             </form>
           </Form>
@@ -173,7 +173,7 @@ export default function Register() {
           <div className="text-sm text-muted-foreground text-center">
             <Link href="/" data-testid="link-home">
               <span className="text-primary hover:underline cursor-pointer">
-                ← Back to home
+                {t('auth.back_to_home')}
               </span>
             </Link>
           </div>
