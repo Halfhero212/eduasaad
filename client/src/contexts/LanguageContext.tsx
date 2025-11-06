@@ -166,6 +166,16 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.passwords_must_match": "كلمات المرور يجب أن تتطابق",
     "auth.password_min_length": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
     "auth.fullname_min_length": "الاسم يجب أن يكون حرفين على الأقل",
+    "auth.reset_password": "إعادة تعيين كلمة المرور",
+    "auth.reset_password_desc": "أدخل بريدك الإلكتروني لتلقي رابط إعادة تعيين كلمة المرور",
+    "auth.reset_email_sent_desc": "لقد أرسلنا لك رابط إعادة تعيين كلمة المرور",
+    "auth.check_email_instructions": "تحقق من بريدك الإلكتروني للحصول على تعليمات إعادة تعيين كلمة المرور",
+    "auth.enter_new_password": "أدخل كلمة المرور الجديدة",
+    "auth.invalid_reset_link": "رابط إعادة التعيين غير صالح",
+    "auth.invalid_reset_link_desc": "رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية",
+    "auth.password_reset_success": "تم إعادة تعيين كلمة المرور بنجاح",
+    "auth.password_reset_success_desc": "يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة",
+    "auth.forgot_password": "نسيت كلمة المرور؟",
     
     // Register
     "register.subtitle": "انضم إلى آلاف المتعلمين في الباشق العراقي",
@@ -180,6 +190,14 @@ const translations: Record<Language, Record<string, string>> = {
     "toast.register_success_desc": "مرحباً بك في",
     "toast.register_failed": "فشل التسجيل",
     "toast.register_failed_desc": "حدث خطأ ما",
+    "toast.reset_request_sent": "تم إرسال طلب إعادة التعيين",
+    "toast.reset_request_sent_desc": "تحقق من بريدك الإلكتروني للحصول على التعليمات",
+    "toast.reset_request_failed": "فشل طلب إعادة التعيين",
+    "toast.reset_request_failed_desc": "حدث خطأ أثناء معالجة طلبك",
+    "toast.password_reset_success": "تم إعادة تعيين كلمة المرور",
+    "toast.password_reset_success_desc": "يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة",
+    "toast.password_reset_failed": "فشل إعادة تعيين كلمة المرور",
+    "toast.password_reset_failed_desc": "رابط إعادة التعيين غير صالح أو منتهي الصلاحية",
     
     // Dashboard - Superadmin
     "dashboard.superadmin.title": "لوحة تحكم المسؤول",
@@ -276,6 +294,14 @@ const translations: Record<Language, Record<string, string>> = {
     "action.add_lesson": "إضافة درس",
     "action.add_quiz": "إضافة اختبار",
     "action.view_public": "عرض الصفحة العامة",
+    "action.confirm": "تأكيد",
+    "action.send_reset_link": "إرسال رابط إعادة التعيين",
+    "action.sending": "جاري الإرسال...",
+    "action.back_to_login": "العودة لتسجيل الدخول",
+    "action.reset_password": "إعادة تعيين كلمة المرور",
+    "action.resetting": "جاري إعادة التعيين...",
+    "action.request_new_link": "طلب رابط جديد",
+    "action.go_to_login": "الذهاب لتسجيل الدخول",
     
     // Button Labels
     "button.confirm": "تأكيد",
@@ -298,6 +324,14 @@ const translations: Record<Language, Record<string, string>> = {
     "label.description": "الوصف",
     "label.price": "السعر",
     "label.course_thumbnail": "صورة الدورة",
+    "label.email": "البريد الإلكتروني",
+    "label.new_password": "كلمة المرور الجديدة",
+    "label.confirm_password": "تأكيد كلمة المرور",
+    "label.student": "الطالب",
+    "label.course": "الدورة",
+    "label.teacher": "المعلم",
+    "label.enrolled_at": "تاريخ التسجيل",
+    "label.actions": "الإجراءات",
     
     // Placeholders
     "placeholder.lesson_title": "مثال: مقدمة في البرمجة",
@@ -478,6 +512,16 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.passwords_must_match": "Passwords must match",
     "auth.password_min_length": "Password must be at least 6 characters",
     "auth.fullname_min_length": "Name must be at least 2 characters",
+    "auth.reset_password": "Reset Password",
+    "auth.reset_password_desc": "Enter your email to receive a password reset link",
+    "auth.reset_email_sent_desc": "We've sent you a password reset link",
+    "auth.check_email_instructions": "Check your email for password reset instructions",
+    "auth.enter_new_password": "Enter your new password",
+    "auth.invalid_reset_link": "Invalid Reset Link",
+    "auth.invalid_reset_link_desc": "The password reset link is invalid or has expired",
+    "auth.password_reset_success": "Password Reset Successful",
+    "auth.password_reset_success_desc": "You can now login with your new password",
+    "auth.forgot_password": "Forgot password?",
     
     // Register
     "register.subtitle": "Join thousands of learners on Al-Bashiq Al-Iraqi",
@@ -492,6 +536,14 @@ const translations: Record<Language, Record<string, string>> = {
     "toast.register_success_desc": "Welcome to",
     "toast.register_failed": "Registration failed",
     "toast.register_failed_desc": "Something went wrong",
+    "toast.reset_request_sent": "Reset request sent",
+    "toast.reset_request_sent_desc": "Check your email for instructions",
+    "toast.reset_request_failed": "Reset request failed",
+    "toast.reset_request_failed_desc": "An error occurred while processing your request",
+    "toast.password_reset_success": "Password reset successful",
+    "toast.password_reset_success_desc": "You can now login with your new password",
+    "toast.password_reset_failed": "Password reset failed",
+    "toast.password_reset_failed_desc": "The reset link is invalid or has expired",
     
     // Dashboard - Superadmin
     "dashboard.superadmin.title": "Superadmin Dashboard",
@@ -588,6 +640,14 @@ const translations: Record<Language, Record<string, string>> = {
     "action.add_lesson": "Add Lesson",
     "action.add_quiz": "Add Quiz",
     "action.view_public": "View Public Page",
+    "action.confirm": "Confirm",
+    "action.send_reset_link": "Send Reset Link",
+    "action.sending": "Sending...",
+    "action.back_to_login": "Back to Login",
+    "action.reset_password": "Reset Password",
+    "action.resetting": "Resetting...",
+    "action.request_new_link": "Request New Link",
+    "action.go_to_login": "Go to Login",
     
     // Button Labels
     "button.confirm": "Confirm",
@@ -610,6 +670,14 @@ const translations: Record<Language, Record<string, string>> = {
     "label.description": "Description",
     "label.price": "Price",
     "label.course_thumbnail": "Course Thumbnail",
+    "label.email": "Email",
+    "label.new_password": "New Password",
+    "label.confirm_password": "Confirm Password",
+    "label.student": "Student",
+    "label.course": "Course",
+    "label.teacher": "Teacher",
+    "label.enrolled_at": "Enrolled At",
+    "label.actions": "Actions",
     
     // Placeholders
     "placeholder.lesson_title": "e.g., Introduction to Programming",

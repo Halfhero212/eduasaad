@@ -101,7 +101,14 @@ export default function Login() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('auth.password')}</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>{t('auth.password')}</FormLabel>
+                      <Link href="/request-reset">
+                        <span className="text-sm text-primary hover:underline cursor-pointer" data-testid="link-forgot-password">
+                          {t('auth.forgot_password')}
+                        </span>
+                      </Link>
+                    </div>
                     <FormControl>
                       <Input
                         type="password"

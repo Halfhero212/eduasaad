@@ -12,6 +12,8 @@ import Home from "@/pages/Home";
 import Courses from "@/pages/Courses";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+import RequestPasswordReset from "@/pages/RequestPasswordReset";
+import ResetPassword from "@/pages/ResetPassword";
 import StudentDashboard from "@/pages/StudentDashboard";
 import TeacherDashboard from "@/pages/TeacherDashboard";
 import SuperAdminDashboard from "@/pages/SuperAdminDashboard";
@@ -26,6 +28,8 @@ function Router() {
       <Route path="/courses" component={Courses} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/request-reset" component={RequestPasswordReset} />
+      <Route path="/reset-password" component={ResetPassword} />
       <Route path="/dashboard/student" component={StudentDashboard} />
       <Route path="/dashboard/teacher" component={TeacherDashboard} />
       <Route path="/dashboard/superadmin" component={SuperAdminDashboard} />

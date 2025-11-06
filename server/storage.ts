@@ -22,6 +22,8 @@ import {
   type InsertNotification,
   type PlatformSetting,
   type InsertPlatformSetting,
+  type PasswordResetToken,
+  type InsertPasswordResetToken,
   users,
   courses,
   courseLessons,
@@ -33,6 +35,7 @@ import {
   lessonComments,
   notifications,
   platformSettings,
+  passwordResetTokens,
 } from "@shared/schema";
 import { eq, and, desc, sql, inArray } from "drizzle-orm";
 
@@ -112,6 +115,12 @@ export interface IStorage {
   getAllPlatformSettings(): Promise<PlatformSetting[]>;
   setPlatformSetting(setting: InsertPlatformSetting): Promise<PlatformSetting>;
   updatePlatformSetting(key: string, value: string): Promise<PlatformSetting | undefined>;
+
+  // Password Reset Token operations
+  createPasswordResetToken(token: InsertPasswordResetToken): Promise<PasswordResetToken>;
+  getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
+  deletePasswordResetToken(token: string): Promise<void>;
+  deleteExpiredPasswordResetTokens(): Promise<void>;
 }
 
 export class PostgresStorage implements IStorage {
@@ -433,6 +442,27 @@ export class PostgresStorage implements IStorage {
       .where(eq(platformSettings.key, key))
       .returning();
     return updated;
+  }
+
+  // Password Reset Token operations
+  async createPasswordResetToken(token: InsertPasswordResetToken): Promise<PasswordResetToken> {
+    const [newToken] = await db.insert(passwordResetTokens).values(token).returning();
+    return newToken;
+  }
+
+  async getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined> {
+    const [resetToken] = await db.select().from(passwordResetTokens)
+      .where(eq(passwordResetTokens.token, token));
+    return resetToken;
+  }
+
+  async deletePasswordResetToken(token: string): Promise<void> {
+    await db.delete(passwordResetTokens).where(eq(passwordResetTokens.token, token));
+  }
+
+  async deleteExpiredPasswordResetTokens(): Promise<void> {
+    await db.delete(passwordResetTokens)
+      .where(sql`${passwordResetTokens.expiresAt} < NOW()`);
   }
 }
 
