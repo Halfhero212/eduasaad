@@ -55,8 +55,22 @@ export default function SuperAdminDashboard() {
     enabled: !isLoading && currentUser?.role === "superadmin",
   });
 
+  const { data: pendingEnrollmentsData } = useQuery<{
+    enrollments: Array<{
+      id: number;
+      student: { id: number; fullName: string; email: string } | null;
+      course: { id: number; title: string; price: string } | null;
+      teacher: { id: number; fullName: string; whatsappNumber: string | null } | null;
+      enrolledAt: Date;
+    }>;
+  }>({
+    queryKey: ["/api/admin/enrollments/pending"],
+    enabled: !isLoading && currentUser?.role === "superadmin",
+  });
+
   const teachers = teachersData?.teachers || [];
   const students = studentsData?.students || [];
+  const pendingEnrollments = pendingEnrollmentsData?.enrollments || [];
 
   const createTeacherMutation = useMutation({
     mutationFn: async (data: { fullName: string; email: string }) => {
@@ -118,6 +132,29 @@ export default function SuperAdminDashboard() {
     onError: (error) => {
       toast({
         title: t("dialog.delete.failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const confirmEnrollmentMutation = useMutation({
+    mutationFn: async (enrollmentId: number) => {
+      await apiRequest("PUT", `/api/admin/enrollments/${enrollmentId}/status`, {
+        status: "confirmed",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/enrollments/pending"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      toast({
+        title: t("toast.enrollment_confirmed"),
+        description: t("toast.enrollment_confirmed_desc"),
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: t("toast.failed"),
         description: error instanceof Error ? error.message : t("toast.error_generic"),
         variant: "destructive",
       });
@@ -263,6 +300,69 @@ export default function SuperAdminDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Pending Enrollments Management */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>{t("dashboard.superadmin.pending_enrollments")}</CardTitle>
+            <CardDescription>{t("dashboard.superadmin.pending_enrollments_desc")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {pendingEnrollments.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("label.student")}</TableHead>
+                    <TableHead>{t("label.course")}</TableHead>
+                    <TableHead>{t("label.teacher")}</TableHead>
+                    <TableHead>{t("label.price")}</TableHead>
+                    <TableHead>{t("label.enrolled_at")}</TableHead>
+                    <TableHead>{t("label.actions")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pendingEnrollments.map((enrollment) => (
+                    <TableRow key={enrollment.id}>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{enrollment.student?.fullName}</div>
+                          <div className="text-sm text-muted-foreground">{enrollment.student?.email}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{enrollment.course?.title}</TableCell>
+                      <TableCell>
+                        <div>
+                          <div>{enrollment.teacher?.fullName}</div>
+                          {enrollment.teacher?.whatsappNumber && (
+                            <div className="text-sm text-muted-foreground">
+                              {enrollment.teacher.whatsappNumber}
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>${enrollment.course?.price}</TableCell>
+                      <TableCell>{new Date(enrollment.enrolledAt).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          onClick={() => confirmEnrollmentMutation.mutate(enrollment.id)}
+                          disabled={confirmEnrollmentMutation.isPending}
+                          data-testid={`button-confirm-${enrollment.id}`}
+                        >
+                          {t("action.confirm")}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                {t("dashboard.superadmin.no_pending_enrollments")}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Teachers Management */}
         <Card className="mb-8">

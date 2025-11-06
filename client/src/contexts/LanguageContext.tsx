@@ -199,6 +199,9 @@ const translations: Record<Language, Record<string, string>> = {
     "dashboard.superadmin.active": "نشط",
     "dashboard.superadmin.no_teachers": "لم يتم العثور على معلمين",
     "dashboard.superadmin.no_students": "لم يتم العثور على طلاب",
+    "dashboard.superadmin.pending_enrollments": "التسجيلات المعلقة",
+    "dashboard.superadmin.pending_enrollments_desc": "إدارة طلبات التسجيل المعلقة للدورات المدفوعة",
+    "dashboard.superadmin.no_pending_enrollments": "لا توجد تسجيلات معلقة",
     
     // Dashboard - Teacher
     "dashboard.teacher.title": "لوحة تحكم المعلم",
@@ -508,6 +511,9 @@ const translations: Record<Language, Record<string, string>> = {
     "dashboard.superadmin.active": "Active",
     "dashboard.superadmin.no_teachers": "No teachers found",
     "dashboard.superadmin.no_students": "No students found",
+    "dashboard.superadmin.pending_enrollments": "Pending Enrollments",
+    "dashboard.superadmin.pending_enrollments_desc": "Manage pending enrollment requests for paid courses",
+    "dashboard.superadmin.no_pending_enrollments": "No pending enrollments",
     
     // Dashboard - Teacher
     "dashboard.teacher.title": "Teacher Dashboard",

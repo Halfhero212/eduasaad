@@ -154,8 +154,51 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // Update enrollment status (superadmin/teacher)
-  app.put("/api/admin/enrollments/:id/status", requireAuth, requireRole("superadmin", "teacher"), async (req: AuthRequest, res) => {
+  // Get all pending enrollments (superadmin only)
+  app.get("/api/admin/enrollments/pending", requireAuth, requireRole("superadmin"), async (req, res) => {
+    try {
+      const allCourses = await storage.getAllCourses();
+      const pendingEnrollments = [];
+
+      for (const course of allCourses) {
+        const enrollments = await storage.getCourseEnrollments(course.id);
+        const pending = enrollments.filter(e => e.purchaseStatus === "pending");
+        
+        for (const enrollment of pending) {
+          const student = await storage.getUserById(enrollment.studentId);
+          const teacher = await storage.getUserById(course.teacherId);
+          
+          pendingEnrollments.push({
+            id: enrollment.id,
+            student: student ? {
+              id: student.id,
+              fullName: student.fullName,
+              email: student.email,
+            } : null,
+            course: {
+              id: course.id,
+              title: course.title,
+              price: course.price,
+            },
+            teacher: teacher ? {
+              id: teacher.id,
+              fullName: teacher.fullName,
+              whatsappNumber: teacher.whatsappNumber,
+            } : null,
+            enrolledAt: enrollment.enrolledAt,
+          });
+        }
+      }
+
+      res.json({ success: true, enrollments: pendingEnrollments });
+    } catch (error) {
+      console.error("Get pending enrollments error:", error);
+      res.status(500).json({ error: "Failed to get pending enrollments" });
+    }
+  });
+
+  // Update enrollment status (superadmin only)
+  app.put("/api/admin/enrollments/:id/status", requireAuth, requireRole("superadmin"), async (req: AuthRequest, res) => {
     try {
       const enrollmentId = parseInt(req.params.id);
       const { status } = req.body;
@@ -167,14 +210,6 @@ export function registerAdminRoutes(app: Express) {
       const enrollment = await storage.getEnrollmentById(enrollmentId);
       if (!enrollment) {
         return res.status(404).json({ error: "Enrollment not found" });
-      }
-
-      // If teacher, verify it's their course
-      if (req.user!.role === "teacher") {
-        const course = await storage.getCourse(enrollment.courseId);
-        if (course && course.teacherId !== req.user!.id) {
-          return res.status(403).json({ error: "You can only update enrollments for your own courses" });
-        }
       }
 
       const updated = await storage.updateEnrollmentStatus(enrollmentId, status);
