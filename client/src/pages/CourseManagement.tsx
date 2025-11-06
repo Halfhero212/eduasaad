@@ -206,7 +206,7 @@ export default function CourseManagement() {
                   {t("action.add_lesson")}
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>{t("action.add_lesson")}</DialogTitle>
                 </DialogHeader>
@@ -300,7 +300,7 @@ export default function CourseManagement() {
 
         {/* Add Quiz Dialog */}
         <Dialog open={addQuizOpen} onOpenChange={setAddQuizOpen}>
-          <DialogContent>
+          <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{t("action.add_quiz")}</DialogTitle>
             </DialogHeader>
