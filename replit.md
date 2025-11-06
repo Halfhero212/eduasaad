@@ -28,19 +28,20 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 - Grades quiz submissions (uploads as images)
 - Replies to student questions on specific videos
 - Views course enrollments and student progress
-- **Receives payments via WhatsApp and confirms enrollments for their own courses**
+- **Receives payments via WhatsApp** (enrollment confirmation handled by superadmin)
 - Can preview/watch their own lesson videos without enrollment
 
 ### Students
 - Self-registers with email/password
 - Browses public course catalog filtered by category
 - Enrolls in courses (free or paid)
-- **For paid courses**: Clicks "Buy via WhatsApp" → contacts TEACHER directly → pays → teacher confirms
-- Enrollment statuses: pending (awaiting teacher confirmation) → confirmed (access granted) or free (immediate access)
+- **For paid courses**: Clicks "Buy via WhatsApp" → contacts TEACHER directly → pays → SUPERADMIN confirms enrollment
+- Enrollment statuses: pending (awaiting superadmin confirmation) → confirmed (access granted) or free (immediate access)
 - Watches videos with automatic progress tracking (resumes from last position)
 - Submits quiz solutions as images (auto-deleted after 1 week)
 - Asks questions on specific videos (only course teacher can reply)
 - Receives notifications for grades, replies, new content, enrollment confirmation
+- Can reset password via email link (requires external email service configuration)
 
 ## Key Features
 
@@ -49,6 +50,10 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 - Secure password hashing with bcrypt
 - Session management with 7-day token expiry
 - Protected routes with middleware (`requireAuth`, `requireRole`)
+- Password reset functionality with secure tokens (1-hour expiry)
+  - Infrastructure ready (requires external email service like Resend/SendGrid for production)
+  - Tokens stored in database with automatic cleanup
+  - Security features: no user enumeration, token expiry validation, one-time use
 
 ### Course Management
 - Courses belong to categories (Programming, Math, Science, etc.)
@@ -64,8 +69,8 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 ### Enrollment & Progress
 - Students enroll in courses via "Enroll for Free" or "Buy via WhatsApp" button
 - Free courses: immediate enrollment with status "free"
-- Paid courses: status "pending" → student contacts teacher via WhatsApp → pays → teacher confirms → status "confirmed"
-- Teachers see pending enrollments in dashboard with "Confirm" button
+- Paid courses: status "pending" → student contacts teacher via WhatsApp → pays → superadmin confirms → status "confirmed"
+- Superadmin sees all pending enrollments across all courses in their dashboard with comprehensive course, student, and teacher metadata
 - Only confirmed/free enrollments grant course access (backend enforced)
 - Progress tracking per lesson (completed status, last video position)
 - Resume video from exact position on return
@@ -99,13 +104,13 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 - **Students contact TEACHERS directly** via their WhatsApp number
 - Teachers' WhatsApp numbers stored in `users.whatsappNumber` field
 - Creates pending enrollment when button clicked
-- Teacher confirms enrollment after payment received
+- Superadmin confirms enrollment after teacher receives payment
 - Popup blocker detection with fallback error message
 
 ## Database Schema
 
 ### Core Tables
-- `users`: email, password (hashed), fullName, role (superadmin/teacher/student)
+- `users`: email, password (hashed), fullName, role (superadmin/teacher/student), whatsappNumber
 - `course_categories`: name, description
 - `courses`: teacherId, categoryId, title, description, whatYouWillLearn, price, isFree, thumbnailUrl
 - `course_lessons`: courseId, title, youtubeUrl, lessonOrder, durationMinutes
@@ -116,6 +121,7 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 - `lesson_comments`: lessonId, userId, content, parentCommentId (for replies)
 - `notifications`: userId, type, title, message, read, relatedId
 - `platform_settings`: key-value pairs (e.g., whatsapp_number)
+- `password_reset_tokens`: userId, token, expiresAt, createdAt
 
 ## API Routes
 
@@ -124,6 +130,8 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 - `POST /login` - User login (all roles)
 - `GET /me` - Get current user info
 - `POST /create-teacher` - Superadmin creates teacher account
+- `POST /request-reset` - Request password reset (generates token, stores in DB)
+- `POST /reset-password` - Reset password with token
 
 ### Courses (`/api/courses/`)
 - `GET /` - List all courses (public, with category filter)
@@ -163,7 +171,8 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 - `GET /stats` - Platform statistics (superadmin)
 - `GET /settings` - Get platform settings (superadmin)
 - `PUT /settings/:key` - Update platform setting (superadmin)
-- `PUT /enrollments/:id/status` - Update enrollment status (superadmin/teacher)
+- `GET /enrollments/pending` - Get all pending enrollments with student, course, and teacher metadata (superadmin)
+- `PUT /enrollments/:id/status` - Update enrollment status (superadmin only)
 
 ### Utility
 - `GET /api/whatsapp-number` - Get platform WhatsApp number
@@ -192,6 +201,8 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 - `/courses` - **Dedicated courses listing page with search and category filters**
 - `/login` - Login page (all roles)
 - `/register` - Student registration
+- `/request-reset` - Request password reset page
+- `/reset-password` - Reset password page (with token from URL)
 - `/dashboard` - Role-based dashboard redirect
   - `/dashboard/superadmin` - Platform management
   - `/dashboard/teacher` - Course/lesson management
