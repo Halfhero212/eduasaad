@@ -127,6 +127,13 @@ const translations: Record<Language, Record<string, string>> = {
     "toast.enter_valid_price": "يرجى إدخال سعر صالح أو تحديد الدورة كمجانية",
     "toast.enrollment_confirmed": "تم تأكيد التسجيل",
     "toast.enrollment_confirmed_desc": "يمكن للطالب الآن الوصول إلى الدورة",
+    "toast.category_created": "تم إنشاء الفئة بنجاح",
+    "toast.category_created_desc": "يمكن الآن استخدام الفئة الجديدة في الدورات",
+    "toast.category_updated": "تم تحديث الفئة بنجاح",
+    "toast.category_updated_desc": "تم حفظ التغييرات على الفئة",
+    "toast.category_deleted": "تم حذف الفئة بنجاح",
+    "toast.category_deleted_desc": "تمت إزالة الفئة من المنصة",
+    "toast.category_name_required": "اسم الفئة مطلوب",
     "toast.enrollment_update_failed": "فشل تحديث التسجيل",
     "toast.quiz_submitted": "تم إرسال الاختبار",
     "toast.quiz_submitted_desc": "سيقوم معلمك بتقييم إجاباتك قريباً",
@@ -220,6 +227,10 @@ const translations: Record<Language, Record<string, string>> = {
     "dashboard.superadmin.pending_enrollments": "التسجيلات المعلقة",
     "dashboard.superadmin.pending_enrollments_desc": "إدارة طلبات التسجيل المعلقة للدورات المدفوعة",
     "dashboard.superadmin.no_pending_enrollments": "لا توجد تسجيلات معلقة",
+    "dashboard.superadmin.categories": "الفئات",
+    "dashboard.superadmin.manage_categories": "إدارة فئات الدورات",
+    "dashboard.superadmin.create_category": "إنشاء فئة",
+    "dashboard.superadmin.no_categories": "لم يتم العثور على فئات",
     
     // Dashboard - Teacher
     "dashboard.teacher.title": "لوحة تحكم المعلم",
@@ -272,6 +283,7 @@ const translations: Record<Language, Record<string, string>> = {
     "dialog.delete.title": "تأكيد الحذف",
     "dialog.delete.teacher_message": "هل أنت متأكد من حذف هذا المعلم؟ هذا الإجراء لا يمكن التراجع عنه.",
     "dialog.delete.student_message": "هل أنت متأكد من حذف هذا الطالب؟ هذا الإجراء لا يمكن التراجع عنه.",
+    "dialog.delete.category_message": "هل أنت متأكد من حذف هذه الفئة؟ لا يمكن حذف الفئات التي تحتوي على دورات.",
     "dialog.delete.confirm": "نعم، احذف",
     "dialog.delete.cancel": "إلغاء",
     "dialog.delete.deleting": "جاري الحذف...",
@@ -280,6 +292,19 @@ const translations: Record<Language, Record<string, string>> = {
     "dialog.delete.student_success": "تم حذف الطالب بنجاح",
     "dialog.delete.student_success_desc": "تم حذف حساب الطالب من المنصة",
     "dialog.delete.failed": "فشل الحذف",
+    
+    // Category Dialog
+    "dialog.category.create_title": "إنشاء فئة جديدة",
+    "dialog.category.create_description": "أنشئ فئة جديدة لتنظيم الدورات",
+    "dialog.category.edit_title": "تعديل الفئة",
+    "dialog.category.edit_description": "تحديث معلومات الفئة",
+    "dialog.category.name": "اسم الفئة",
+    "dialog.category.name_placeholder": "مثال: البرمجة، الرياضيات، العلوم",
+    "dialog.category.description": "الوصف",
+    "dialog.category.description_placeholder": "وصف قصير للفئة (اختياري)",
+    "dialog.category.create": "إنشاء",
+    "dialog.category.update": "تحديث",
+    "dialog.category.saving": "جاري الحفظ...",
     
     // Common Actions
     "action.view": "عرض",
@@ -332,6 +357,7 @@ const translations: Record<Language, Record<string, string>> = {
     "label.teacher": "المعلم",
     "label.enrolled_at": "تاريخ التسجيل",
     "label.actions": "الإجراءات",
+    "label.no_description": "لا يوجد وصف",
     
     // Placeholders
     "placeholder.lesson_title": "مثال: مقدمة في البرمجة",
@@ -473,6 +499,13 @@ const translations: Record<Language, Record<string, string>> = {
     "toast.enter_valid_price": "Please enter a valid price or mark the course as free",
     "toast.enrollment_confirmed": "Enrollment confirmed",
     "toast.enrollment_confirmed_desc": "Student can now access the course",
+    "toast.category_created": "Category created successfully",
+    "toast.category_created_desc": "The new category can now be used for courses",
+    "toast.category_updated": "Category updated successfully",
+    "toast.category_updated_desc": "Category changes have been saved",
+    "toast.category_deleted": "Category deleted successfully",
+    "toast.category_deleted_desc": "The category has been removed from the platform",
+    "toast.category_name_required": "Category name is required",
     "toast.enrollment_update_failed": "Failed to update enrollment",
     "toast.quiz_submitted": "Quiz submitted",
     "toast.quiz_submitted_desc": "Your teacher will grade your answers soon",
@@ -566,6 +599,10 @@ const translations: Record<Language, Record<string, string>> = {
     "dashboard.superadmin.pending_enrollments": "Pending Enrollments",
     "dashboard.superadmin.pending_enrollments_desc": "Manage pending enrollment requests for paid courses",
     "dashboard.superadmin.no_pending_enrollments": "No pending enrollments",
+    "dashboard.superadmin.categories": "Categories",
+    "dashboard.superadmin.manage_categories": "Manage course categories",
+    "dashboard.superadmin.create_category": "Create Category",
+    "dashboard.superadmin.no_categories": "No categories found",
     
     // Dashboard - Teacher
     "dashboard.teacher.title": "Teacher Dashboard",
@@ -618,6 +655,7 @@ const translations: Record<Language, Record<string, string>> = {
     "dialog.delete.title": "Confirm Deletion",
     "dialog.delete.teacher_message": "Are you sure you want to delete this teacher? This action cannot be undone.",
     "dialog.delete.student_message": "Are you sure you want to delete this student? This action cannot be undone.",
+    "dialog.delete.category_message": "Are you sure you want to delete this category? Categories with existing courses cannot be deleted.",
     "dialog.delete.confirm": "Yes, Delete",
     "dialog.delete.cancel": "Cancel",
     "dialog.delete.deleting": "Deleting...",
@@ -626,6 +664,19 @@ const translations: Record<Language, Record<string, string>> = {
     "dialog.delete.student_success": "Student deleted successfully",
     "dialog.delete.student_success_desc": "The student account has been removed from the platform",
     "dialog.delete.failed": "Delete failed",
+    
+    // Category Dialog
+    "dialog.category.create_title": "Create New Category",
+    "dialog.category.create_description": "Create a new category to organize courses",
+    "dialog.category.edit_title": "Edit Category",
+    "dialog.category.edit_description": "Update category information",
+    "dialog.category.name": "Category Name",
+    "dialog.category.name_placeholder": "e.g., Programming, Mathematics, Science",
+    "dialog.category.description": "Description",
+    "dialog.category.description_placeholder": "Brief description of the category (optional)",
+    "dialog.category.create": "Create",
+    "dialog.category.update": "Update",
+    "dialog.category.saving": "Saving...",
     
     // Common Actions
     "action.view": "View",
@@ -678,6 +729,7 @@ const translations: Record<Language, Record<string, string>> = {
     "label.teacher": "Teacher",
     "label.enrolled_at": "Enrolled At",
     "label.actions": "Actions",
+    "label.no_description": "No description",
     
     // Placeholders
     "placeholder.lesson_title": "e.g., Introduction to Programming",
