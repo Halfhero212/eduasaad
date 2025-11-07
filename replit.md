@@ -253,12 +253,28 @@ To prevent unauthorized downloading and sharing of course videos:
 - **Regular Link Rotation**: Update YouTube URLs periodically
 - **Legal Protection**: Include terms of service prohibiting redistribution
 
+### Current DOM-Level Protection
+The platform implements basic client-side protection measures:
+- Right-click context menu disabled on video container
+- Text selection disabled to prevent URL copying from page source view
+- Keyboard controls disabled on iframe (`disablekb=1` parameter)
+
+**Limitations**: These measures provide protection against casual users but cannot prevent determined users from accessing URLs via:
+- Browser DevTools (inspecting iframe src attribute)
+- View page source (Ctrl+U or Command+U)
+- Browser extensions or network monitoring
+
+**For stronger protection**, implement:
+- YouTube Player API with server-proxied video IDs (hides raw YouTube URLs from DOM)
+- Server-side video ID mapping (database stores YouTube IDs separately, frontend requests via API)
+- This prevents iframe src from exposing direct YouTube links
+
 ### Implementation Notes
 - Backend verifies enrollment status before serving lesson pages
 - Students must have `confirmed` or `free` enrollment status
 - Teachers can access their own lessons for preview
-- Iframe embed security relies on YouTube's features
-- Browser inspect tools cannot bypass YouTube's DRM protections
+- Primary security relies on YouTube's privacy settings (unlisted/domain-restricted videos)
+- Browser inspect tools cannot bypass YouTube's DRM, but can reveal embed URLs
 
 ## Development Workflow
 1. Backend changes in `server/` → auto-restart workflow
