@@ -23,6 +23,7 @@ export default function CourseDetail() {
     course: Course & { teacher: (User & { whatsappNumber?: string | null }) | null };
     lessons: CourseLesson[];
     isEnrolled: boolean;
+    enrollmentStatus: string | null;
   }>({
     queryKey: ["/api/courses", id],
   });
@@ -129,7 +130,7 @@ export default function CourseDetail() {
     );
   }
 
-  const { course, lessons, isEnrolled } = courseData;
+  const { course, lessons, isEnrolled, enrollmentStatus } = courseData;
   const teacher = course.teacher;
   const whatYouWillLearnPoints = course.whatYouWillLearn?.split("\n").filter(Boolean) || [];
 
@@ -199,6 +200,17 @@ export default function CourseDetail() {
                         {t("courses.continue_learning")}
                       </Button>
                     </Link>
+                  ) : enrollmentStatus === "pending" ? (
+                    <Button
+                      className="w-full"
+                      size="lg"
+                      disabled
+                      variant="secondary"
+                      data-testid="button-already-applied"
+                    >
+                      <CheckCircle className="h-5 w-5 mr-2" />
+                      {t("courses.already_applied")}
+                    </Button>
                   ) : (
                     <>
                       {course.isFree ? (

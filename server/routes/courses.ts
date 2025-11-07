@@ -127,6 +127,7 @@ export function registerCourseRoutes(app: Express) {
 
       // Check if current user is enrolled (if authenticated)
       let isEnrolled = false;
+      let enrollmentStatus: string | null = null;
       const token = req.headers.authorization?.replace("Bearer ", "");
       if (token) {
         const decoded = verifyToken(token);
@@ -138,8 +139,11 @@ export function registerCourseRoutes(app: Express) {
           // Students with confirmed or free enrollment can see the enrolled view
           else if (decoded.role === "student") {
             const enrollment = await storage.getEnrollment(decoded.id, courseId);
-            // Only consider enrolled if status is "confirmed" or "free"
-            isEnrolled = !!enrollment && (enrollment.purchaseStatus === "confirmed" || enrollment.purchaseStatus === "free");
+            if (enrollment) {
+              enrollmentStatus = enrollment.purchaseStatus;
+              // Only consider enrolled if status is "confirmed" or "free"
+              isEnrolled = enrollment.purchaseStatus === "confirmed" || enrollment.purchaseStatus === "free";
+            }
           }
         }
       }
@@ -158,6 +162,7 @@ export function registerCourseRoutes(app: Express) {
           free: false, // Could add a free preview field later
         })),
         isEnrolled,
+        enrollmentStatus,
       });
     } catch (error) {
       console.error("Get course error:", error);

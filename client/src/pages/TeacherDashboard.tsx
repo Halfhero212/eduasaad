@@ -14,8 +14,12 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { BookOpen, Plus, Users, TrendingUp, Clock, Check, X, Upload, ImageIcon } from "lucide-react";
+import { BookOpen, Plus, Users, TrendingUp, Clock, Check, X, Upload, ImageIcon, Filter } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import type { Course } from "@shared/schema";
+
+type EnrollmentStatus = "all" | "confirmed" | "pending" | "free";
 
 export default function TeacherDashboard() {
   const { user: currentUser, isLoading } = useAuth();
@@ -25,6 +29,7 @@ export default function TeacherDashboard() {
   const [createCourseOpen, setCreateCourseOpen] = useState(false);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [enrollmentFilter, setEnrollmentFilter] = useState<EnrollmentStatus>("all");
   const [newCourse, setNewCourse] = useState({
     title: "",
     description: "",
@@ -61,12 +66,33 @@ export default function TeacherDashboard() {
 
   const pendingEnrollments = pendingEnrollmentsData?.enrollments || [];
 
+  const { data: allEnrollmentsData } = useQuery<{
+    enrollments: Array<{
+      id: number;
+      enrolledAt: Date;
+      purchaseStatus: string;
+      student: { id: number; fullName: string; email: string; whatsappNumber: string | null } | null;
+      course: { id: number; title: string; price: string } | null;
+    }>;
+  }>({
+    queryKey: ["/api/enrollments/teacher/all"],
+    enabled: !isLoading && currentUser?.role === "teacher",
+  });
+
+  const allEnrollments = allEnrollmentsData?.enrollments || [];
+  
+  // Filter enrollments based on selected filter
+  const filteredEnrollments = enrollmentFilter === "all" 
+    ? allEnrollments 
+    : allEnrollments.filter(e => e.purchaseStatus === enrollmentFilter);
+
   const confirmEnrollmentMutation = useMutation({
     mutationFn: async (enrollmentId: number) => {
       await apiRequest("PUT", `/api/enrollments/${enrollmentId}/status`, { status: "confirmed" });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/enrollments/teacher/pending"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/enrollments/teacher/all"] });
       queryClient.invalidateQueries({ queryKey: ["/api/my-courses"] });
       toast({
         title: t("toast.enrollment_confirmed"),
@@ -297,6 +323,105 @@ export default function TeacherDashboard() {
             </CardContent>
           </Card>
         )}
+
+        {/* All Enrollments with Filtering */}
+        <Card className="mb-8">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  {t("dashboard.teacher.all_enrollments")}
+                </CardTitle>
+                <CardDescription>{t("dashboard.teacher.all_enrollments_desc")}</CardDescription>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {allEnrollments.length} {t("dashboard.teacher.students")}
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {/* Filter Tabs */}
+            <Tabs value={enrollmentFilter} onValueChange={(value) => setEnrollmentFilter(value as EnrollmentStatus)} className="mb-4">
+              <TabsList data-testid="enrollment-filter-tabs">
+                <TabsTrigger value="all" data-testid="filter-all">
+                  {t("dashboard.teacher.filter_all")} ({allEnrollments.length})
+                </TabsTrigger>
+                <TabsTrigger value="confirmed" data-testid="filter-confirmed">
+                  {t("dashboard.teacher.filter_confirmed")} ({allEnrollments.filter(e => e.purchaseStatus === "confirmed").length})
+                </TabsTrigger>
+                <TabsTrigger value="pending" data-testid="filter-pending">
+                  {t("dashboard.teacher.filter_pending")} ({allEnrollments.filter(e => e.purchaseStatus === "pending").length})
+                </TabsTrigger>
+                <TabsTrigger value="free" data-testid="filter-free">
+                  {t("dashboard.teacher.filter_free")} ({allEnrollments.filter(e => e.purchaseStatus === "free").length})
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {/* Enrollments List */}
+            {filteredEnrollments.length === 0 ? (
+              <div className="text-center py-8">
+                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                <h3 className="text-lg font-medium mb-1">{t("dashboard.teacher.no_enrollments")}</h3>
+                <p className="text-sm text-muted-foreground">{t("dashboard.teacher.no_enrollments_desc")}</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredEnrollments.map((enrollment) => (
+                  <div
+                    key={enrollment.id}
+                    className="flex items-start gap-4 p-4 border rounded-lg hover-elevate"
+                    data-testid={`enrollment-${enrollment.id}`}
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium">{enrollment.student?.fullName || "Unknown Student"}</h4>
+                        <Badge 
+                          variant={
+                            enrollment.purchaseStatus === "confirmed" ? "default" : 
+                            enrollment.purchaseStatus === "pending" ? "secondary" : 
+                            "outline"
+                          }
+                          data-testid={`badge-status-${enrollment.id}`}
+                        >
+                          {enrollment.purchaseStatus}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{enrollment.student?.email}</p>
+                      {enrollment.student?.whatsappNumber && (
+                        <p className="text-sm text-muted-foreground">
+                          {t("dashboard.teacher.student_phone")}: {enrollment.student.whatsappNumber}
+                        </p>
+                      )}
+                      <p className="text-sm text-secondary mt-2">
+                        {t("dashboard.teacher.course")}: {enrollment.course?.title || "Unknown Course"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {t("label.price")}: ${enrollment.course?.price || "0"}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(enrollment.enrolledAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    {enrollment.purchaseStatus === "pending" && (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => confirmEnrollmentMutation.mutate(enrollment.id)}
+                        disabled={confirmEnrollmentMutation.isPending}
+                        data-testid={`button-confirm-enrollment-${enrollment.id}`}
+                      >
+                        <Check className="h-4 w-4 mr-1" />
+                        {t("button.confirm")}
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Course Management */}
         <Card>

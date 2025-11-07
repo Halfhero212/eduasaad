@@ -21,6 +21,7 @@ export default function Register() {
   const registerSchema = useMemo(() => z.object({
     fullName: z.string().min(2, { message: t('auth.fullname_min_length') }),
     email: z.string().email({ message: t('auth.invalid_email') }),
+    whatsappNumber: z.string().min(10, { message: t('auth.phone_min_length') }),
     password: z.string().min(6, { message: t('auth.password_min_length') }),
     confirmPassword: z.string(),
   }).refine((data) => data.password === data.confirmPassword, {
@@ -35,6 +36,7 @@ export default function Register() {
     defaultValues: {
       fullName: "",
       email: "",
+      whatsappNumber: "",
       password: "",
       confirmPassword: "",
     },
@@ -48,15 +50,19 @@ export default function Register() {
 
   const onSubmit = async (data: RegisterForm) => {
     try {
-      await registerUser(data.fullName, data.email, data.password);
+      await registerUser(data.fullName, data.email, data.whatsappNumber, data.password);
       toast({
         title: t('toast.register_success'),
         description: `${t('toast.register_success_desc')} ${t('app.name')}!`,
       });
     } catch (error) {
+      // Check if error has a translation code
+      const errorCode = error && typeof error === 'object' && 'code' in error ? (error as any).code : null;
+      const errorMessage = errorCode ? t(errorCode) : (error instanceof Error ? error.message : t('toast.register_failed_desc'));
+      
       toast({
         title: t('toast.register_failed'),
-        description: error instanceof Error ? error.message : t('toast.register_failed_desc'),
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -107,6 +113,24 @@ export default function Register() {
                         type="email"
                         placeholder={t('auth.email_placeholder')}
                         data-testid="input-email"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="whatsappNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('auth.whatsapp_number')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="tel"
+                        placeholder={t('auth.whatsapp_placeholder')}
+                        data-testid="input-whatsapp"
                         {...field}
                       />
                     </FormControl>

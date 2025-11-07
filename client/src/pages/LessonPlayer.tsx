@@ -225,15 +225,20 @@ export default function LessonPlayer() {
             <Card>
               <CardContent className="p-0">
                 {videoId ? (
-                  <div className="aspect-video">
+                  <div 
+                    className="aspect-video relative select-none"
+                    onContextMenu={(e) => e.preventDefault()}
+                    style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+                  >
                     <iframe
                       width="100%"
                       height="100%"
-                      src={`https://www.youtube.com/embed/${videoId}`}
+                      src={`https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0&disablekb=1`}
                       title={lesson.title}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                       className="rounded-lg"
+                      style={{ border: 'none', pointerEvents: 'auto' }}
                     ></iframe>
                   </div>
                 ) : (

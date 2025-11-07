@@ -16,7 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Users, GraduationCap, BookOpen, UserCheck, Plus, Trash, Copy, Edit, FolderOpen } from "lucide-react";
+import { Users, GraduationCap, BookOpen, UserCheck, Plus, Trash, Copy, Edit, FolderOpen, Key } from "lucide-react";
 import type { User, CourseCategory } from "@shared/schema";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -31,6 +31,9 @@ export default function SuperAdminDashboard() {
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
   const [deleteTeacherId, setDeleteTeacherId] = useState<number | null>(null);
   const [deleteStudentId, setDeleteStudentId] = useState<number | null>(null);
+  const [resetPasswordTeacherId, setResetPasswordTeacherId] = useState<number | null>(null);
+  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
+  const [resetPassword, setResetPassword] = useState<string | null>(null);
   
   // Category management state
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
@@ -245,6 +248,45 @@ export default function SuperAdminDashboard() {
       });
     },
   });
+
+  const resetTeacherPasswordMutation = useMutation({
+    mutationFn: async (teacherId: number) => {
+      const res = await apiRequest("POST", `/api/admin/teachers/${teacherId}/reset-password`);
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      setResetPassword(data.password);
+      setResetPasswordDialogOpen(true);
+      setResetPasswordTeacherId(null);
+      toast({
+        title: t("toast.password_reset_success"),
+        description: t("toast.password_reset_teacher_desc"),
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: t("toast.failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
+        variant: "destructive",
+      });
+      setResetPasswordTeacherId(null);
+    },
+  });
+
+  const handleResetTeacherPassword = (teacherId: number) => {
+    setResetPasswordTeacherId(teacherId);
+    resetTeacherPasswordMutation.mutate(teacherId);
+  };
+
+  const handleCopyResetPassword = () => {
+    if (resetPassword) {
+      navigator.clipboard.writeText(resetPassword);
+      toast({
+        title: t("dialog.create_teacher.password_copied"),
+        description: t("dialog.create_teacher.password_copied_desc"),
+      });
+    }
+  };
 
   const handleCreateTeacher = () => {
     if (!newTeacherName || !newTeacherEmail) {
@@ -675,14 +717,26 @@ export default function SuperAdminDashboard() {
                         <Badge variant="secondary">{t("dashboard.superadmin.active")}</Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteTeacherId(teacher.id)}
-                          data-testid={`button-delete-teacher-${teacher.id}`}
-                        >
-                          <Trash className="h-4 w-4 text-destructive" />
-                        </Button>
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleResetTeacherPassword(teacher.id)}
+                            disabled={resetTeacherPasswordMutation.isPending && resetPasswordTeacherId === teacher.id}
+                            data-testid={`button-reset-password-${teacher.id}`}
+                            title={t("action.reset_password")}
+                          >
+                            <Key className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeleteTeacherId(teacher.id)}
+                            data-testid={`button-delete-teacher-${teacher.id}`}
+                          >
+                            <Trash className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -821,6 +875,45 @@ export default function SuperAdminDashboard() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Reset Password Success Dialog */}
+        <Dialog open={resetPasswordDialogOpen} onOpenChange={setResetPasswordDialogOpen}>
+          <DialogContent data-testid="dialog-reset-password-success">
+            <DialogHeader>
+              <DialogTitle>{t("dialog.reset_password.title")}</DialogTitle>
+              <DialogDescription>
+                {t("dialog.reset_password.description")}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Alert>
+                <AlertDescription>
+                  <div className="flex items-center justify-between">
+                    <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                      {resetPassword}
+                    </code>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleCopyResetPassword}
+                      data-testid="button-copy-reset-password"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
+              <p className="text-sm text-muted-foreground">
+                {t("dialog.reset_password.note")}
+              </p>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setResetPasswordDialogOpen(false)} data-testid="button-close-reset-password">
+                {t("action.close")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

@@ -8,10 +8,16 @@ export function registerAuthRoutes(app: Express) {
   // Student registration
   app.post("/api/auth/register", async (req, res) => {
     try {
-      const { email, password, fullName } = req.body;
+      const { email, password, fullName, whatsappNumber } = req.body;
 
-      if (!email || !password || !fullName) {
+      if (!email || !password || !fullName || !whatsappNumber) {
         return res.status(400).json({ error: "All fields are required" });
+      }
+
+      // Validate WhatsApp number length (minimum 10 digits)
+      const digitsOnly = whatsappNumber.replace(/\D/g, '');
+      if (digitsOnly.length < 10) {
+        return res.status(400).json({ error: "WhatsApp number must be at least 10 digits", code: "auth.phone_min_length" });
       }
 
       // Check if user already exists
@@ -29,6 +35,7 @@ export function registerAuthRoutes(app: Express) {
         password: hashedPassword,
         fullName,
         role: "student",
+        whatsappNumber,
       });
 
       const token = generateToken(user);

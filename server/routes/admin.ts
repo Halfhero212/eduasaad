@@ -3,6 +3,7 @@ import { storage } from "../storage";
 import { requireAuth, requireRole, type AuthRequest } from "../middleware/auth";
 import { insertCourseCategorySchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
+import bcrypt from "bcrypt";
 
 export function registerAdminRoutes(app: Express) {
   // Get all teachers (superadmin only)
@@ -304,6 +305,36 @@ export function registerAdminRoutes(app: Express) {
     } catch (error) {
       console.error("Delete category error:", error);
       res.status(500).json({ error: "Failed to delete category" });
+    }
+  });
+
+  // Reset teacher password (superadmin only)
+  app.post("/api/admin/teachers/:id/reset-password", requireAuth, requireRole("superadmin"), async (req, res) => {
+    try {
+      const teacherId = parseInt(req.params.id);
+      
+      // Verify the user is a teacher
+      const teacher = await storage.getUserById(teacherId);
+      if (!teacher || teacher.role !== "teacher") {
+        return res.status(404).json({ error: "Teacher not found" });
+      }
+
+      // Generate a new random password
+      const newPassword = Array.from({ length: 12 }, () => 
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*'
+          .charAt(Math.floor(Math.random() * 70))
+      ).join('');
+
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update teacher password
+      await storage.updateUser(teacherId, { password: hashedPassword });
+
+      res.json({ success: true, password: newPassword });
+    } catch (error) {
+      console.error("Reset teacher password error:", error);
+      res.status(500).json({ error: "Failed to reset teacher password" });
     }
   });
 }

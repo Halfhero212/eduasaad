@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (fullName: string, email: string, password: string) => Promise<void>;
+  register: (fullName: string, email: string, whatsappNumber: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
@@ -70,8 +70,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const registerMutation = useMutation({
-    mutationFn: async ({ fullName, email, password }: { fullName: string; email: string; password: string }) => {
-      const res = await apiRequest("POST", "/api/auth/register", { fullName, email, password });
+    mutationFn: async ({ fullName, email, whatsappNumber, password }: { fullName: string; email: string; whatsappNumber: string; password: string }) => {
+      const res = await apiRequest("POST", "/api/auth/register", { fullName, email, whatsappNumber, password });
       const data = await res.json();
       // Store token immediately in localStorage so it's available for the next query
       localStorage.setItem("token", data.token);
@@ -87,8 +87,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await loginMutation.mutateAsync({ email, password });
   };
 
-  const register = async (fullName: string, email: string, password: string) => {
-    await registerMutation.mutateAsync({ fullName, email, password });
+  const register = async (fullName: string, email: string, whatsappNumber: string, password: string) => {
+    await registerMutation.mutateAsync({ fullName, email, whatsappNumber, password });
   };
 
   const logout = async () => {

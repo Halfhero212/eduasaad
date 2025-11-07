@@ -188,6 +188,50 @@ export function registerEnrollmentRoutes(app: Express) {
     }
   });
 
+  // Get all enrollments for teacher's courses (both pending and confirmed)
+  app.get("/api/enrollments/teacher/all", requireAuth, requireRole("teacher"), async (req: AuthRequest, res) => {
+    try {
+      const teacherId = req.user!.id;
+      
+      // Get all courses by this teacher
+      const teacherCourses = await storage.getCoursesByTeacher(teacherId);
+      const courseIds = teacherCourses.map((c: any) => c.id);
+
+      // Get all enrollments for these courses
+      const allEnrollmentsData = await Promise.all(
+        courseIds.map(async (courseId) => {
+          return storage.getCourseEnrollments(courseId);
+        })
+      );
+      
+      const allEnrollments = allEnrollmentsData.flat();
+
+      // Enrich with student and course info
+      const enrichedEnrollments = await Promise.all(
+        allEnrollments.map(async (enrollment: any) => {
+          const student = await storage.getUser(enrollment.studentId);
+          const course = await storage.getCourse(enrollment.courseId);
+          
+          return {
+            id: enrollment.id,
+            enrolledAt: enrollment.enrolledAt,
+            purchaseStatus: enrollment.purchaseStatus,
+            student: student ? { id: student.id, fullName: student.fullName, email: student.email, whatsappNumber: student.whatsappNumber } : null,
+            course: course ? { id: course.id, title: course.title, price: course.price } : null,
+          };
+        })
+      );
+
+      // Sort by enrollment date (newest first)
+      enrichedEnrollments.sort((a, b) => new Date(b.enrolledAt).getTime() - new Date(a.enrolledAt).getTime());
+
+      res.json({ success: true, enrollments: enrichedEnrollments });
+    } catch (error) {
+      console.error("Get all enrollments error:", error);
+      res.status(500).json({ error: "Failed to get enrollments" });
+    }
+  });
+
   // Update enrollment status (teacher can confirm their own course enrollments)
   app.put("/api/enrollments/:id/status", requireAuth, async (req: AuthRequest, res) => {
     try {
