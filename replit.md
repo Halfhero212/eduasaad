@@ -217,6 +217,7 @@ A complete learning platform for course delivery with three-tier user hierarchy 
 - Video player with custom controls
 - Comment threads with teacher/student distinction
 - Notification bell with unread count
+- Platform footer with navigation links, social media, contact info, and copyright (bilingual)
 
 ## Technical Notes
 - All times in UTC, converted to local in frontend

@@ -398,6 +398,24 @@ const translations: Record<Language, Record<string, string>> = {
     "status.confirmed": "مؤكد",
     "status.active": "نشط",
     "status.inactive": "غير نشط",
+    
+    // Footer
+    "footer.tagline": "حوّل مستقبلك مع دورات الخبراء عبر الإنترنت",
+    "footer.platform": "المنصة",
+    "footer.about": "من نحن",
+    "footer.how_it_works": "كيف يعمل",
+    "footer.careers": "الوظائف",
+    "footer.blog": "المدونة",
+    "footer.courses": "الدورات",
+    "footer.browse_courses": "تصفح الدورات",
+    "footer.become_teacher": "كن معلماً",
+    "footer.pricing": "الأسعار",
+    "footer.support": "الدعم",
+    "footer.help_center": "مركز المساعدة",
+    "footer.contact_us": "اتصل بنا",
+    "footer.privacy": "سياسة الخصوصية",
+    "footer.terms": "شروط الخدمة",
+    "footer.copyright": "© جميع الحقوق محفوظة.",
   },
   en: {
     // Common
@@ -791,6 +809,24 @@ const translations: Record<Language, Record<string, string>> = {
     "status.confirmed": "Confirmed",
     "status.active": "Active",
     "status.inactive": "Inactive",
+    
+    // Footer
+    "footer.tagline": "Transform your future with expert-led online courses",
+    "footer.platform": "Platform",
+    "footer.about": "About Us",
+    "footer.how_it_works": "How It Works",
+    "footer.careers": "Careers",
+    "footer.blog": "Blog",
+    "footer.courses": "Courses",
+    "footer.browse_courses": "Browse Courses",
+    "footer.become_teacher": "Become a Teacher",
+    "footer.pricing": "Pricing",
+    "footer.support": "Support",
+    "footer.help_center": "Help Center",
+    "footer.contact_us": "Contact Us",
+    "footer.privacy": "Privacy Policy",
+    "footer.terms": "Terms of Service",
+    "footer.copyright": "© All rights reserved.",
   },
 };
 
