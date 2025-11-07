@@ -237,7 +237,7 @@ export function registerAdminRoutes(app: Express) {
   // Get all categories (superadmin only)
   app.get("/api/admin/categories", requireAuth, requireRole("superadmin"), async (req, res) => {
     try {
-      const categories = await storage.getAllCategories();
+      const categories = await storage.getAllCourseCategories();
       res.json({ success: true, categories });
     } catch (error) {
       console.error("Get categories error:", error);
@@ -253,7 +253,7 @@ export function registerAdminRoutes(app: Express) {
         return res.status(400).json({ error: fromZodError(result.error).message });
       }
 
-      const category = await storage.createCategory(result.data);
+      const category = await storage.createCourseCategory(result.data);
       res.json({ success: true, category });
     } catch (error: any) {
       console.error("Create category error:", error);
@@ -273,7 +273,7 @@ export function registerAdminRoutes(app: Express) {
         return res.status(400).json({ error: fromZodError(result.error).message });
       }
 
-      const category = await storage.updateCategory(categoryId, result.data);
+      const category = await storage.updateCourseCategory(categoryId, result.data);
       if (!category) {
         return res.status(404).json({ error: "Category not found" });
       }
@@ -294,12 +294,12 @@ export function registerAdminRoutes(app: Express) {
       const categoryId = parseInt(req.params.id);
 
       // Check if category has courses
-      const courses = await storage.getCoursesByCategory(categoryId);
+      const courses = await storage.getAllCourses(categoryId);
       if (courses.length > 0) {
         return res.status(400).json({ error: "Cannot delete category with existing courses" });
       }
 
-      await storage.deleteCategory(categoryId);
+      await storage.deleteCourseCategory(categoryId);
       res.json({ success: true, message: "Category deleted successfully" });
     } catch (error) {
       console.error("Delete category error:", error);

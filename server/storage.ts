@@ -54,6 +54,8 @@ export interface IStorage {
   getCourseCategory(id: number): Promise<CourseCategory | undefined>;
   getAllCourseCategories(): Promise<CourseCategory[]>;
   createCourseCategory(category: InsertCourseCategory): Promise<CourseCategory>;
+  updateCourseCategory(id: number, updates: Partial<InsertCourseCategory>): Promise<CourseCategory | undefined>;
+  deleteCourseCategory(id: number): Promise<void>;
 
   // Course operations
   getCourse(id: number): Promise<Course | undefined>;
@@ -174,6 +176,15 @@ export class PostgresStorage implements IStorage {
   async createCourseCategory(category: InsertCourseCategory): Promise<CourseCategory> {
     const [newCategory] = await db.insert(courseCategories).values(category).returning();
     return newCategory;
+  }
+
+  async updateCourseCategory(id: number, updates: Partial<InsertCourseCategory>): Promise<CourseCategory | undefined> {
+    const [updated] = await db.update(courseCategories).set(updates).where(eq(courseCategories.id, id)).returning();
+    return updated;
+  }
+
+  async deleteCourseCategory(id: number): Promise<void> {
+    await db.delete(courseCategories).where(eq(courseCategories.id, id));
   }
 
   // Course operations
