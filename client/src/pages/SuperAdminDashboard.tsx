@@ -16,8 +16,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Users, GraduationCap, BookOpen, UserCheck, Plus, Trash, Copy } from "lucide-react";
-import type { User } from "@shared/schema";
+import { Users, GraduationCap, BookOpen, UserCheck, Plus, Trash, Copy, Edit, FolderOpen } from "lucide-react";
+import type { User, CourseCategory } from "@shared/schema";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function SuperAdminDashboard() {
   const { user: currentUser, isLoading } = useAuth();
@@ -30,6 +31,13 @@ export default function SuperAdminDashboard() {
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
   const [deleteTeacherId, setDeleteTeacherId] = useState<number | null>(null);
   const [deleteStudentId, setDeleteStudentId] = useState<number | null>(null);
+  
+  // Category management state
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<CourseCategory | null>(null);
+  const [categoryName, setCategoryName] = useState("");
+  const [categoryDescription, setCategoryDescription] = useState("");
+  const [deleteCategoryId, setDeleteCategoryId] = useState<number | null>(null);
 
   const { data: statsData } = useQuery<{
     stats: {
@@ -68,9 +76,15 @@ export default function SuperAdminDashboard() {
     enabled: !isLoading && currentUser?.role === "superadmin",
   });
 
+  const { data: categoriesData } = useQuery<{ categories: CourseCategory[] }>({
+    queryKey: ["/api/admin/categories"],
+    enabled: !isLoading && currentUser?.role === "superadmin",
+  });
+
   const teachers = teachersData?.teachers || [];
   const students = studentsData?.students || [];
   const pendingEnrollments = pendingEnrollmentsData?.enrollments || [];
+  const categories = categoriesData?.categories || [];
 
   const createTeacherMutation = useMutation({
     mutationFn: async (data: { fullName: string; email: string }) => {
@@ -161,6 +175,77 @@ export default function SuperAdminDashboard() {
     },
   });
 
+  const createCategoryMutation = useMutation({
+    mutationFn: async (data: { name: string; description?: string }) => {
+      await apiRequest("POST", "/api/admin/categories", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      setCategoryDialogOpen(false);
+      setCategoryName("");
+      setCategoryDescription("");
+      setEditingCategory(null);
+      toast({
+        title: t("toast.category_created"),
+        description: t("toast.category_created_desc"),
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: t("toast.failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateCategoryMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: { name: string; description?: string } }) => {
+      await apiRequest("PUT", `/api/admin/categories/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
+      setCategoryDialogOpen(false);
+      setCategoryName("");
+      setCategoryDescription("");
+      setEditingCategory(null);
+      toast({
+        title: t("toast.category_updated"),
+        description: t("toast.category_updated_desc"),
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: t("toast.failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/admin/categories/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/categories"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      setDeleteCategoryId(null);
+      toast({
+        title: t("toast.category_deleted"),
+        description: t("toast.category_deleted_desc"),
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: t("toast.failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleCreateTeacher = () => {
     if (!newTeacherName || !newTeacherEmail) {
       toast({
@@ -182,6 +267,45 @@ export default function SuperAdminDashboard() {
       toast({
         title: t("dialog.create_teacher.password_copied"),
         description: t("dialog.create_teacher.password_copied_desc"),
+      });
+    }
+  };
+
+  const handleOpenCategoryDialog = (category?: CourseCategory) => {
+    if (category) {
+      setEditingCategory(category);
+      setCategoryName(category.name);
+      setCategoryDescription(category.description || "");
+    } else {
+      setEditingCategory(null);
+      setCategoryName("");
+      setCategoryDescription("");
+    }
+    setCategoryDialogOpen(true);
+  };
+
+  const handleSaveCategory = () => {
+    if (!categoryName.trim()) {
+      toast({
+        title: t("toast.validation_error"),
+        description: t("toast.category_name_required"),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (editingCategory) {
+      updateCategoryMutation.mutate({
+        id: editingCategory.id,
+        data: {
+          name: categoryName.trim(),
+          description: categoryDescription.trim() || undefined,
+        },
+      });
+    } else {
+      createCategoryMutation.mutate({
+        name: categoryName.trim(),
+        description: categoryDescription.trim() || undefined,
       });
     }
   };
@@ -359,6 +483,117 @@ export default function SuperAdminDashboard() {
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 {t("dashboard.superadmin.no_pending_enrollments")}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Category Management */}
+        <Card className="mb-8">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>{t("dashboard.superadmin.categories")}</CardTitle>
+              <CardDescription>{t("dashboard.superadmin.manage_categories")}</CardDescription>
+            </div>
+            <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => handleOpenCategoryDialog()} data-testid="button-create-category">
+                  <Plus className="w-4 h-4 mr-2" />
+                  {t("dashboard.superadmin.create_category")}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingCategory ? t("dialog.category.edit_title") : t("dialog.category.create_title")}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {editingCategory ? t("dialog.category.edit_description") : t("dialog.category.create_description")}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div>
+                    <Label htmlFor="category-name">{t("dialog.category.name")}</Label>
+                    <Input
+                      id="category-name"
+                      value={categoryName}
+                      onChange={(e) => setCategoryName(e.target.value)}
+                      placeholder={t("dialog.category.name_placeholder")}
+                      data-testid="input-category-name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="category-description">{t("dialog.category.description")}</Label>
+                    <Textarea
+                      id="category-description"
+                      value={categoryDescription}
+                      onChange={(e) => setCategoryDescription(e.target.value)}
+                      placeholder={t("dialog.category.description_placeholder")}
+                      rows={3}
+                      data-testid="input-category-description"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    onClick={handleSaveCategory}
+                    disabled={createCategoryMutation.isPending || updateCategoryMutation.isPending}
+                    data-testid="button-submit-category"
+                  >
+                    {createCategoryMutation.isPending || updateCategoryMutation.isPending
+                      ? t("dialog.category.saving")
+                      : editingCategory
+                        ? t("dialog.category.update")
+                        : t("dialog.category.create")}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </CardHeader>
+          <CardContent>
+            {categories.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("dialog.category.name")}</TableHead>
+                    <TableHead>{t("dialog.category.description")}</TableHead>
+                    <TableHead className="text-right">{t("label.actions")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {categories.map((category) => (
+                    <TableRow key={category.id} data-testid={`row-category-${category.id}`}>
+                      <TableCell className="font-medium">{category.name}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {category.description || <span className="italic">{t("label.no_description")}</span>}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleOpenCategoryDialog(category)}
+                            data-testid={`button-edit-category-${category.id}`}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeleteCategoryId(category.id)}
+                            data-testid={`button-delete-category-${category.id}`}
+                          >
+                            <Trash className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                {t("dashboard.superadmin.no_categories")}
               </div>
             )}
           </CardContent>
@@ -557,6 +792,31 @@ export default function SuperAdminDashboard() {
                 data-testid="button-confirm-delete-student"
               >
                 {deleteStudentMutation.isPending ? t("dialog.delete.deleting") : t("dialog.delete.confirm")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Delete Category Confirmation Dialog */}
+        <AlertDialog open={deleteCategoryId !== null} onOpenChange={(open) => !open && setDeleteCategoryId(null)}>
+          <AlertDialogContent data-testid="dialog-delete-category">
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("dialog.delete.title")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("dialog.delete.category_message")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel data-testid="button-cancel-delete-category">
+                {t("dialog.delete.cancel")}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteCategoryId && deleteCategoryMutation.mutate(deleteCategoryId)}
+                disabled={deleteCategoryMutation.isPending}
+                className="bg-destructive hover:bg-destructive/90"
+                data-testid="button-confirm-delete-category"
+              >
+                {deleteCategoryMutation.isPending ? t("dialog.delete.deleting") : t("dialog.delete.confirm")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
