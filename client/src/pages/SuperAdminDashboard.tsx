@@ -84,10 +84,54 @@ export default function SuperAdminDashboard() {
     enabled: !isLoading && currentUser?.role === "superadmin",
   });
 
+  const { data: courseStatsData } = useQuery<{
+    courses: Array<{
+      id: number;
+      title: string;
+      teacher: { id: number; fullName: string; email: string } | null;
+      categoryId: number;
+      isFree: boolean;
+      price: string;
+      lessonCount: number;
+      totalStudents: number;
+      confirmedStudents: number;
+      pendingStudents: number;
+      freeStudents: number;
+    }>;
+  }>({
+    queryKey: ["/api/admin/courses/stats"],
+    enabled: !isLoading && currentUser?.role === "superadmin",
+  });
+
+  const { data: teacherStatsData } = useQuery<{
+    teachers: Array<{
+      id: number;
+      fullName: string;
+      email: string;
+      whatsappNumber: string | null;
+      courseCount: number;
+      totalStudents: number;
+      totalLessons: number;
+      courses: Array<{
+        id: number;
+        title: string;
+        lessonCount: number;
+        studentCount: number;
+        isFree: boolean;
+        price: string;
+      }>;
+    }>;
+  }>({
+    queryKey: ["/api/admin/teachers/stats"],
+    enabled: !isLoading && currentUser?.role === "superadmin",
+  });
+
   const teachers = teachersData?.teachers || [];
   const students = studentsData?.students || [];
   const pendingEnrollments = pendingEnrollmentsData?.enrollments || [];
   const categories = categoriesData?.categories || [];
+  const courseStats = courseStatsData?.courses || [];
+  const teacherStats = teacherStatsData?.teachers || [];
 
   const createTeacherMutation = useMutation({
     mutationFn: async (data: { fullName: string; email: string }) => {
@@ -466,6 +510,148 @@ export default function SuperAdminDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Course Statistics */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>{t("dashboard.superadmin.course_stats")}</CardTitle>
+            <CardDescription>{t("dashboard.superadmin.course_stats_desc")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {courseStats.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("label.course")}</TableHead>
+                    <TableHead>{t("label.teacher")}</TableHead>
+                    <TableHead className="text-center">{t("label.lessons")}</TableHead>
+                    <TableHead className="text-center">{t("label.total_students")}</TableHead>
+                    <TableHead className="text-center">{t("label.confirmed")}</TableHead>
+                    <TableHead className="text-center">{t("label.pending")}</TableHead>
+                    <TableHead className="text-center">{t("label.free")}</TableHead>
+                    <TableHead className="text-right">{t("label.price")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {courseStats.map((course) => (
+                    <TableRow key={course.id} data-testid={`row-course-stats-${course.id}`}>
+                      <TableCell className="font-medium">{course.title}</TableCell>
+                      <TableCell>
+                        <div>
+                          <div>{course.teacher?.fullName}</div>
+                          <div className="text-sm text-muted-foreground">{course.teacher?.email}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">{course.lessonCount}</TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="secondary" data-testid={`badge-total-students-${course.id}`}>
+                          {course.totalStudents}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="default" data-testid={`badge-confirmed-${course.id}`}>
+                          {course.confirmedStudents}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="outline" data-testid={`badge-pending-${course.id}`}>
+                          {course.pendingStudents}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="secondary" data-testid={`badge-free-${course.id}`}>
+                          {course.freeStudents}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {course.isFree ? (
+                          <Badge variant="secondary">{t("courses.free")}</Badge>
+                        ) : (
+                          `$${course.price}`
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                {t("dashboard.superadmin.no_courses")}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Teacher Statistics */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>{t("dashboard.superadmin.teacher_stats")}</CardTitle>
+            <CardDescription>{t("dashboard.superadmin.teacher_stats_desc")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {teacherStats.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("label.teacher")}</TableHead>
+                    <TableHead className="text-center">{t("label.courses")}</TableHead>
+                    <TableHead className="text-center">{t("label.total_students")}</TableHead>
+                    <TableHead className="text-center">{t("label.total_lessons")}</TableHead>
+                    <TableHead>{t("label.whatsapp")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {teacherStats.map((teacher) => (
+                    <TableRow key={teacher.id} data-testid={`row-teacher-stats-${teacher.id}`}>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{teacher.fullName}</div>
+                          <div className="text-sm text-muted-foreground">{teacher.email}</div>
+                          {teacher.courses.length > 0 && (
+                            <div className="mt-2 space-y-1">
+                              <div className="text-xs font-semibold text-muted-foreground">{t("label.course_details")}:</div>
+                              {teacher.courses.map((course) => (
+                                <div key={course.id} className="text-xs text-muted-foreground ml-2">
+                                  • {course.title} ({course.lessonCount} {t("label.lessons")}, {course.studentCount} {t("label.students")})
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="default" data-testid={`badge-courses-${teacher.id}`}>
+                          {teacher.courseCount}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="secondary" data-testid={`badge-total-students-${teacher.id}`}>
+                          {teacher.totalStudents}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="outline" data-testid={`badge-total-lessons-${teacher.id}`}>
+                          {teacher.totalLessons}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {teacher.whatsappNumber ? (
+                          <span className="text-sm">{teacher.whatsappNumber}</span>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                {t("dashboard.superadmin.no_teachers")}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Pending Enrollments Management */}
         <Card className="mb-8">

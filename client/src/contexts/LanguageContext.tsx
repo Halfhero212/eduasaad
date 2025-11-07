@@ -235,6 +235,11 @@ const translations: Record<Language, Record<string, string>> = {
     "dashboard.superadmin.manage_categories": "إدارة فئات الدورات",
     "dashboard.superadmin.create_category": "إنشاء فئة",
     "dashboard.superadmin.no_categories": "لم يتم العثور على فئات",
+    "dashboard.superadmin.course_stats": "إحصائيات الدورات",
+    "dashboard.superadmin.course_stats_desc": "عرض تفصيلي لجميع الدورات وعدد الطلاب",
+    "dashboard.superadmin.no_courses": "لم يتم العثور على دورات",
+    "dashboard.superadmin.teacher_stats": "إحصائيات المعلمين",
+    "dashboard.superadmin.teacher_stats_desc": "عرض تفصيلي لجميع المعلمين ودوراتهم وطلابهم",
     
     // Dashboard - Teacher
     "dashboard.teacher.title": "لوحة تحكم المعلم",
@@ -373,6 +378,16 @@ const translations: Record<Language, Record<string, string>> = {
     "label.enrolled_at": "تاريخ التسجيل",
     "label.actions": "الإجراءات",
     "label.no_description": "لا يوجد وصف",
+    "label.lessons": "الدروس",
+    "label.total_students": "إجمالي الطلاب",
+    "label.total_lessons": "إجمالي الدروس",
+    "label.confirmed": "مؤكد",
+    "label.pending": "قيد الانتظار",
+    "label.free": "مجاني",
+    "label.courses": "الدورات",
+    "label.whatsapp": "واتساب",
+    "label.course_details": "تفاصيل الدورات",
+    "label.students": "الطلاب",
     
     // Placeholders
     "placeholder.lesson_title": "مثال: مقدمة في البرمجة",
@@ -641,6 +656,11 @@ const translations: Record<Language, Record<string, string>> = {
     "dashboard.superadmin.manage_categories": "Manage course categories",
     "dashboard.superadmin.create_category": "Create Category",
     "dashboard.superadmin.no_categories": "No categories found",
+    "dashboard.superadmin.course_stats": "Course Statistics",
+    "dashboard.superadmin.course_stats_desc": "Detailed view of all courses and student counts",
+    "dashboard.superadmin.no_courses": "No courses found",
+    "dashboard.superadmin.teacher_stats": "Teacher Statistics",
+    "dashboard.superadmin.teacher_stats_desc": "Detailed view of all teachers with their courses and students",
     
     // Dashboard - Teacher
     "dashboard.teacher.title": "Teacher Dashboard",
@@ -784,6 +804,16 @@ const translations: Record<Language, Record<string, string>> = {
     "label.enrolled_at": "Enrolled At",
     "label.actions": "Actions",
     "label.no_description": "No description",
+    "label.lessons": "Lessons",
+    "label.total_students": "Total Students",
+    "label.total_lessons": "Total Lessons",
+    "label.confirmed": "Confirmed",
+    "label.pending": "Pending",
+    "label.free": "Free",
+    "label.courses": "Courses",
+    "label.whatsapp": "WhatsApp",
+    "label.course_details": "Course Details",
+    "label.students": "Students",
     
     // Placeholders
     "placeholder.lesson_title": "e.g., Introduction to Programming",
