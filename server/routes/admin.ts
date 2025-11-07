@@ -1,6 +1,8 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireRole, type AuthRequest } from "../middleware/auth";
+import { insertCourseCategorySchema } from "@shared/schema";
+import { fromZodError } from "zod-validation-error";
 
 export function registerAdminRoutes(app: Express) {
   // Get all teachers (superadmin only)
@@ -229,6 +231,79 @@ export function registerAdminRoutes(app: Express) {
     } catch (error) {
       console.error("Update enrollment status error:", error);
       res.status(500).json({ error: "Failed to update enrollment status" });
+    }
+  });
+
+  // Get all categories (superadmin only)
+  app.get("/api/admin/categories", requireAuth, requireRole("superadmin"), async (req, res) => {
+    try {
+      const categories = await storage.getAllCategories();
+      res.json({ success: true, categories });
+    } catch (error) {
+      console.error("Get categories error:", error);
+      res.status(500).json({ error: "Failed to get categories" });
+    }
+  });
+
+  // Create category (superadmin only)
+  app.post("/api/admin/categories", requireAuth, requireRole("superadmin"), async (req, res) => {
+    try {
+      const result = insertCourseCategorySchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: fromZodError(result.error).message });
+      }
+
+      const category = await storage.createCategory(result.data);
+      res.json({ success: true, category });
+    } catch (error: any) {
+      console.error("Create category error:", error);
+      if (error.message?.includes("unique")) {
+        return res.status(400).json({ error: "Category name already exists" });
+      }
+      res.status(500).json({ error: "Failed to create category" });
+    }
+  });
+
+  // Update category (superadmin only)
+  app.put("/api/admin/categories/:id", requireAuth, requireRole("superadmin"), async (req, res) => {
+    try {
+      const categoryId = parseInt(req.params.id);
+      const result = insertCourseCategorySchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: fromZodError(result.error).message });
+      }
+
+      const category = await storage.updateCategory(categoryId, result.data);
+      if (!category) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+
+      res.json({ success: true, category });
+    } catch (error: any) {
+      console.error("Update category error:", error);
+      if (error.message?.includes("unique")) {
+        return res.status(400).json({ error: "Category name already exists" });
+      }
+      res.status(500).json({ error: "Failed to update category" });
+    }
+  });
+
+  // Delete category (superadmin only)
+  app.delete("/api/admin/categories/:id", requireAuth, requireRole("superadmin"), async (req, res) => {
+    try {
+      const categoryId = parseInt(req.params.id);
+
+      // Check if category has courses
+      const courses = await storage.getCoursesByCategory(categoryId);
+      if (courses.length > 0) {
+        return res.status(400).json({ error: "Cannot delete category with existing courses" });
+      }
+
+      await storage.deleteCategory(categoryId);
+      res.json({ success: true, message: "Category deleted successfully" });
+    } catch (error) {
+      console.error("Delete category error:", error);
+      res.status(500).json({ error: "Failed to delete category" });
     }
   });
 }
