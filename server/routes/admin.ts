@@ -337,4 +337,99 @@ export function registerAdminRoutes(app: Express) {
       res.status(500).json({ error: "Failed to reset teacher password" });
     }
   });
+
+  // Get detailed course statistics (superadmin only)
+  app.get("/api/admin/courses/stats", requireAuth, requireRole("superadmin"), async (req, res) => {
+    try {
+      const courses = await storage.getAllCourses();
+      
+      const courseStats = await Promise.all(
+        courses.map(async (course) => {
+          const teacher = await storage.getUserById(course.teacherId);
+          const lessons = await storage.getCourseLessons(course.id);
+          const enrollments = await storage.getCourseEnrollments(course.id);
+          
+          // Count by status
+          const confirmedCount = enrollments.filter(e => e.purchaseStatus === "confirmed").length;
+          const pendingCount = enrollments.filter(e => e.purchaseStatus === "pending").length;
+          const freeCount = enrollments.filter(e => e.purchaseStatus === "free").length;
+          
+          return {
+            id: course.id,
+            title: course.title,
+            teacher: teacher ? {
+              id: teacher.id,
+              fullName: teacher.fullName,
+              email: teacher.email,
+            } : null,
+            categoryId: course.categoryId,
+            isFree: course.isFree,
+            price: course.price,
+            lessonCount: lessons.length,
+            totalStudents: enrollments.length,
+            confirmedStudents: confirmedCount,
+            pendingStudents: pendingCount,
+            freeStudents: freeCount,
+          };
+        })
+      );
+
+      res.json({ success: true, courses: courseStats });
+    } catch (error) {
+      console.error("Get course stats error:", error);
+      res.status(500).json({ error: "Failed to get course statistics" });
+    }
+  });
+
+  // Get detailed teacher statistics (superadmin only)
+  app.get("/api/admin/teachers/stats", requireAuth, requireRole("superadmin"), async (req, res) => {
+    try {
+      const teachers = await storage.getAllTeachers();
+      
+      const teacherStats = await Promise.all(
+        teachers.map(async (teacher) => {
+          const courses = await storage.getCoursesByTeacher(teacher.id);
+          
+          // Calculate total students and lessons across all courses
+          let totalStudents = 0;
+          let totalLessons = 0;
+          
+          const coursesWithDetails = await Promise.all(
+            courses.map(async (course) => {
+              const lessons = await storage.getCourseLessons(course.id);
+              const enrollments = await storage.getCourseEnrollments(course.id);
+              
+              totalStudents += enrollments.length;
+              totalLessons += lessons.length;
+              
+              return {
+                id: course.id,
+                title: course.title,
+                lessonCount: lessons.length,
+                studentCount: enrollments.length,
+                isFree: course.isFree,
+                price: course.price,
+              };
+            })
+          );
+          
+          return {
+            id: teacher.id,
+            fullName: teacher.fullName,
+            email: teacher.email,
+            whatsappNumber: teacher.whatsappNumber,
+            courseCount: courses.length,
+            totalStudents,
+            totalLessons,
+            courses: coursesWithDetails,
+          };
+        })
+      );
+
+      res.json({ success: true, teachers: teacherStats });
+    } catch (error) {
+      console.error("Get teacher stats error:", error);
+      res.status(500).json({ error: "Failed to get teacher statistics" });
+    }
+  });
 }
