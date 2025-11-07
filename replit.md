@@ -1,301 +1,60 @@
 # الباشق العراقي (Al-Bashiq Al-Iraqi) - Full-Stack Learning Management System
 
-## Project Overview
-**الباشق العراقي** - منصه للتعليم الاكتروني
+## Overview
+**الباشق العراقي** is a comprehensive e-learning platform designed for course delivery with a three-tier user hierarchy: superadmin, teachers, and students. Its core purpose is to enable teachers to create and deliver video-based courses with quizzes, allow students to learn and track their progress, and provide superadmins with full platform management capabilities. The platform aims to offer a robust and user-friendly experience for online education, supporting bilingual (Arabic/English) content and a streamlined enrollment process for both free and paid courses, integrating WhatsApp for payment coordination.
 
-A complete learning platform for course delivery with three-tier user hierarchy (superadmin, teachers, students). The platform enables teachers to upload video courses with quizzes, students to learn and track progress, and superadmin to manage the entire platform.
+## User Preferences
+I prefer simple language and clear explanations. I want iterative development with frequent check-ins. Ask before making major architectural changes or adding new external dependencies. Do not make changes to files related to authentication without explicit approval.
 
-## Architecture
-- **Frontend**: React + Vite + Wouter routing + TanStack Query + Shadcn UI
-- **Backend**: Express.js + PostgreSQL (Drizzle ORM) + JWT authentication
-- **Storage**: Replit Object Storage for quiz submission images and course thumbnails
-- **Deployment Target**: Vercel (both frontend and backend on same port 5000)
-- **Localization**: Full bilingual support (Arabic/English) with RTL layout and Cairo font for Arabic
+## System Architecture
+The platform is a full-stack application utilizing a modern JAMstack-inspired architecture.
 
-## User Roles & Capabilities
+### UI/UX Decisions
+- **Frontend Framework**: React with Vite for fast development and build times.
+- **Routing**: Wouter for lightweight client-side routing.
+- **State Management**: TanStack Query for data fetching, caching, and synchronization.
+- **Component Library**: Shadcn UI for a consistent, accessible, and customizable UI.
+- **Localization**: Full bilingual support (Arabic/English) with RTL layout enabled for Arabic, using the Cairo font.
+- **Design Aesthetic**: Modern, clean, and responsive design for optimal viewing on both mobile and desktop devices. Features include course cards with thumbnails, custom video player controls, threaded comments, and a notification system.
 
-### Superadmin
-- Creates teacher accounts with auto-generated passwords
-- Views platform statistics (teacher count, student count, courses, enrollments)
-- Manages platform settings
-- Can approve/confirm any student enrollment (platform-wide access)
+### Technical Implementations
+- **Backend Framework**: Express.js for a robust and scalable API layer.
+- **Database**: PostgreSQL managed with Drizzle ORM for type-safe and efficient database interactions.
+- **Authentication**: JWT-based authentication with role-based access control (superadmin, teacher, student). Secure password hashing using bcrypt (10 rounds). Password reset functionality is implemented with secure tokens.
+- **File Storage**: Replit Object Storage is used for storing course thumbnails and quiz submission images. Server-side MIME type validation and randomized filenames enhance security.
+- **Video Content**: YouTube URLs are used for video lessons, with client-side features for progress tracking and resume playback. Basic DOM-level protections are implemented against casual video downloading, with recommendations for stronger YouTube privacy settings (Unlisted, Domain Restrictions).
+- **Payment Workflow**: Integrates WhatsApp for direct student-teacher communication regarding payments for paid courses, with superadmin confirmation for enrollment activation.
+- **Notifications**: Real-time, in-app notification system for various user activities (quiz submissions, grades, replies, new content, enrollment confirmation).
+- **Cron Jobs**: A daily cron job is configured to clean up quiz submission images older than 7 days from object storage to manage resources.
+- **Deployment**: Designed for deployment on Vercel, with both frontend and backend served from the same port.
 
-### Teachers
-- Creates courses with categories, pricing, thumbnails
-- Sets WhatsApp number for direct student contact (stored in users.whatsappNumber)
-- Uploads video lessons (YouTube URLs) with ordering
-- Creates quizzes for lessons with deadlines
-- Grades quiz submissions (uploads as images)
-- Replies to student questions on specific videos
-- Views course enrollments and student progress
-- **Receives payments via WhatsApp** (enrollment confirmation handled by superadmin)
-- Can preview/watch their own lesson videos without enrollment
+### Feature Specifications
+- **User Management**: Superadmins can create teacher accounts. Students can self-register.
+- **Course Management**: Teachers can create courses with categories, pricing, descriptions, and upload custom thumbnails. Lessons are video-based (YouTube URLs) with sequential ordering.
+- **Enrollment System**: Supports both free (immediate access) and paid courses (pending status until superadmin confirmation after WhatsApp payment). Superadmin dashboard provides comprehensive oversight of all enrollments.
+- **Quiz System**: Teachers can create quizzes for lessons. Students submit image-based solutions, which teachers grade with feedback.
+- **Q&A System**: Students can ask questions on specific video lessons, and only the course teacher can reply, forming threaded discussions.
+- **Progress Tracking**: Automatic tracking of video progress, allowing students to resume lessons from their last watched position.
+- **Platform Settings**: Superadmin can manage global platform settings.
+- **Platform Analytics**: Superadmin dashboard displays detailed statistics including course analytics (student counts per course, lesson counts, enrollment status breakdown) and teacher analytics (course count, total students, total lessons, detailed course breakdown).
 
-### Students
-- Self-registers with email/password
-- Browses public course catalog filtered by category
-- Enrolls in courses (free or paid)
-- **For paid courses**: Clicks "Buy via WhatsApp" → contacts TEACHER directly → pays → SUPERADMIN confirms enrollment
-- Enrollment statuses: pending (awaiting superadmin confirmation) → confirmed (access granted) or free (immediate access)
-- Watches videos with automatic progress tracking (resumes from last position)
-- Submits quiz solutions as images (auto-deleted after 1 week)
-- Asks questions on specific videos (only course teacher can reply)
-- Receives notifications for grades, replies, new content, enrollment confirmation
-- Can reset password via email link (requires external email service configuration)
+### System Design Choices
+- **Role-Based Access Control**: Strict middleware enforces access based on user roles for all sensitive API routes.
+- **Input Validation**: Zod schemas are used for robust input validation on both frontend and backend.
+- **Security**: Focus on preventing SQL injection (Drizzle ORM), secure password handling, and token-based authentication. File uploads are validated to mitigate common vulnerabilities.
 
-## Key Features
-
-### Authentication & Authorization
-- JWT-based authentication with role-based access control
-- Secure password hashing with bcrypt
-- Session management with 7-day token expiry
-- Protected routes with middleware (`requireAuth`, `requireRole`)
-- Password reset functionality with secure tokens (1-hour expiry)
-  - Infrastructure ready (requires external email service like Resend/SendGrid for production)
-  - Tokens stored in database with automatic cleanup
-  - Security features: no user enumeration, token expiry validation, one-time use
-
-### Course Management
-- Courses belong to categories (Programming, Math, Science, etc.)
-- Each course has title, description, what you'll learn, price, thumbnail
-- **Course thumbnails**: Teachers can upload custom thumbnails (JPEG/PNG/WebP/GIF, max 5MB)
-  - Stored in Replit Object Storage under public/thumbnails directory
-  - Server-side byte-level MIME validation with file-type package prevents spoofing
-  - Randomized filenames for security
-- Courses can be free or paid
-- Lessons ordered sequentially with YouTube video URLs
-- Lesson duration tracking
-
-### Enrollment & Progress
-- Students enroll in courses via "Enroll for Free" or "Buy via WhatsApp" button
-- Free courses: immediate enrollment with status "free"
-- Paid courses: status "pending" → student contacts teacher via WhatsApp → pays → superadmin confirms → status "confirmed"
-- Superadmin sees all pending enrollments across all courses in their dashboard with comprehensive course, student, and teacher metadata
-- Only confirmed/free enrollments grant course access (backend enforced)
-- Progress tracking per lesson (completed status, last video position)
-- Resume video from exact position on return
-- Course progress percentage calculation
-
-### Quiz System
-- Teachers create quizzes attached to lessons
-- Students submit solutions as image files (up to 5 images)
-- Images uploaded to Replit Object Storage
-- Teachers grade submissions with score and feedback
-- **Automatic cleanup**: Images deleted after 1 week via cron job (runs daily at 2 AM)
-
-### Q&A System
-- Students ask questions on specific video lessons
-- Only the course teacher can reply
-- Threaded replies with parent-child relationship
-- Notifications sent for new questions and replies
-
-### Notifications
-- Real-time notification system for:
-  - New quiz submissions
-  - Quiz grades received
-  - Teacher replies to questions
-  - New content added to enrolled courses
-  - Enrollment confirmation
-- Mark as read functionality
-
-### WhatsApp Integration
-- "Buy Course" button generates WhatsApp deep link
-- Pre-filled message with course details
-- **Students contact TEACHERS directly** via their WhatsApp number
-- Teachers' WhatsApp numbers stored in `users.whatsappNumber` field
-- Creates pending enrollment when button clicked
-- Superadmin confirms enrollment after teacher receives payment
-- Popup blocker detection with fallback error message
-
-## Database Schema
-
-### Core Tables
-- `users`: email, password (hashed), fullName, role (superadmin/teacher/student), whatsappNumber
-- `course_categories`: name, description
-- `courses`: teacherId, categoryId, title, description, whatYouWillLearn, price, isFree, thumbnailUrl
-- `course_lessons`: courseId, title, youtubeUrl, lessonOrder, durationMinutes
-- `enrollments`: studentId, courseId, purchaseStatus (pending/confirmed/free), enrolledAt
-- `lesson_progress`: studentId, lessonId, completed, lastPosition, completedAt
-- `quizzes`: lessonId, title, description, deadline
-- `quiz_submissions`: quizId, studentId, imageUrls (array), score, feedback, gradedAt
-- `lesson_comments`: lessonId, userId, content, parentCommentId (for replies)
-- `notifications`: userId, type, title, message, read, relatedId
-- `platform_settings`: key-value pairs (e.g., whatsapp_number)
-- `password_reset_tokens`: userId, token, expiresAt, createdAt
-
-## API Routes
-
-### Authentication (`/api/auth/`)
-- `POST /register` - Student self-registration
-- `POST /login` - User login (all roles)
-- `GET /me` - Get current user info
-- `POST /create-teacher` - Superadmin creates teacher account
-- `POST /request-reset` - Request password reset (generates token, stores in DB)
-- `POST /reset-password` - Reset password with token
-
-### Courses (`/api/courses/`)
-- `GET /` - List all courses (public, with category filter)
-- `GET /:id` - Get course details with lessons
-- `POST /` - Teacher creates course
-- `PUT /:id` - Teacher updates own course
-- `GET /api/my-courses` - Teacher's courses list
-- `POST /:id/lessons` - Teacher adds lesson to course
-- `GET /:courseId/lessons` - Get course lessons
-
-### Enrollments (`/api/courses/`, `/api/enrollments/`)
-- `POST /courses/:id/enroll` - Student enrolls in course
-- `GET /enrollments/my-courses` - Student's enrolled courses
-- `POST /lessons/:lessonId/progress` - Update lesson progress
-- `GET /lessons/:lessonId` - Get lesson details with progress
-
-### Quizzes (`/api/quizzes/`)
-- `POST /` - Teacher creates quiz
-- `GET /lessons/:lessonId/quizzes` - Get quizzes for lesson
-- `POST /:quizId/submit` - Student submits quiz (with image upload)
-- `GET /:quizId/submissions` - Get submissions (teacher: all, student: own)
-- `PUT /submissions/:submissionId/grade` - Teacher grades submission
-
-### Comments (`/api/lessons/`)
-- `GET /:lessonId/comments` - Get comments for lesson
-- `POST /:lessonId/comments` - Student posts question
-- `POST /api/comments/:commentId/reply` - Teacher replies to question
-
-### Notifications (`/api/notifications/`)
-- `GET /` - Get user's notifications
-- `PUT /:id/read` - Mark notification as read
-- `PUT /read-all` - Mark all as read
-
-### Admin (`/api/admin/`)
-- `GET /teachers` - List all teachers (superadmin)
-- `GET /students` - List all students (superadmin)
-- `GET /stats` - Platform statistics (superadmin)
-- `GET /settings` - Get platform settings (superadmin)
-- `PUT /settings/:key` - Update platform setting (superadmin)
-- `GET /enrollments/pending` - Get all pending enrollments with student, course, and teacher metadata (superadmin)
-- `PUT /enrollments/:id/status` - Update enrollment status (superadmin only)
-
-### Utility
-- `GET /api/whatsapp-number` - Get platform WhatsApp number
-
-## Cron Jobs
-- **Daily at 2 AM**: Cleanup quiz submission images older than 7 days
-  - Finds submissions > 1 week old
-  - Deletes images from object storage
-  - Updates database to remove image URLs
-  - Prevents storage overflow
-
-## Environment Variables
-- `DATABASE_URL` - PostgreSQL connection string
-- `SESSION_SECRET` - JWT signing secret
-- `DEFAULT_OBJECT_STORAGE_BUCKET_ID` - Replit object storage bucket
-- `PRIVATE_OBJECT_DIR` - Private object storage directory
-- `PUBLIC_OBJECT_SEARCH_PATHS` - Public object paths
-
-## Initial Seed Data
-- **Superadmin**: admin@eduplatform.com / admin123 ⚠️ Change in production!
-- **Categories**: Programming, Mathematics, Science, Languages, Business, Design
-- **WhatsApp Number**: 9647801234567 (configurable)
-
-## Frontend Structure
-- `/` - Public home page with featured courses and "View All" button
-- `/courses` - **Dedicated courses listing page with search and category filters**
-- `/login` - Login page (all roles)
-- `/register` - Student registration
-- `/request-reset` - Request password reset page
-- `/reset-password` - Reset password page (with token from URL)
-- `/dashboard` - Role-based dashboard redirect
-  - `/dashboard/superadmin` - Platform management
-  - `/dashboard/teacher` - Course/lesson management
-  - `/dashboard/student` - My enrolled courses
-- `/courses/:id` - Course detail page
-- `/courses/:courseId/lessons/:lessonId` - Video player with Q&A and quizzes
-
-## Design Guidelines
-- Modern, clean learning platform aesthetic
-- Responsive design for mobile and desktop
-- Course cards with thumbnails and progress indicators
-- Video player with custom controls
-- Comment threads with teacher/student distinction
-- Notification bell with unread count
-- Platform footer with navigation links, social media, contact info, and copyright (bilingual)
-
-## Technical Notes
-- All times in UTC, converted to local in frontend
-- YouTube videos embedded via iframe
-- Progress auto-saved every 10 seconds during playback
-- Quiz images max 5 per submission
-- Teacher accounts have random-generated 12-char passwords
-- Students can only see their own grades and comments
-- Teachers can only manage their own courses
-- Teachers can preview/watch their own course lessons without enrollment
-
-## Video Security Best Practices
-To prevent unauthorized downloading and sharing of course videos:
-
-### YouTube Privacy Settings (Recommended)
-1. **Use Unlisted Videos**: Upload videos as "Unlisted" in YouTube Studio
-   - Not discoverable via search
-   - Only accessible via direct link
-   - Perfect for paid course content
-
-2. **Enable Domain Restrictions** (YouTube Premium feature):
-   - Go to YouTube Studio → Video Settings → Advanced
-   - Add your domain to "Embed restrictions"
-   - Videos only play on your specified domain
-
-3. **Disable External Embedding**:
-   - YouTube Studio → Video Settings → Advanced
-   - Uncheck "Allow embedding"
-   - Forces viewing only on YouTube (more restrictive)
-
-### Additional Security Measures
-- **Watermark Videos**: Add visible watermarks with student email/ID
-- **Monitor Analytics**: Check YouTube Analytics for unusual viewing patterns
-- **Regular Link Rotation**: Update YouTube URLs periodically
-- **Legal Protection**: Include terms of service prohibiting redistribution
-
-### Current DOM-Level Protection
-The platform implements basic client-side protection measures:
-- Right-click context menu disabled on video container
-- Text selection disabled to prevent URL copying from page source view
-- Keyboard controls disabled on iframe (`disablekb=1` parameter)
-
-**Limitations**: These measures provide protection against casual users but cannot prevent determined users from accessing URLs via:
-- Browser DevTools (inspecting iframe src attribute)
-- View page source (Ctrl+U or Command+U)
-- Browser extensions or network monitoring
-
-**For stronger protection**, implement:
-- YouTube Player API with server-proxied video IDs (hides raw YouTube URLs from DOM)
-- Server-side video ID mapping (database stores YouTube IDs separately, frontend requests via API)
-- This prevents iframe src from exposing direct YouTube links
-
-### Implementation Notes
-- Backend verifies enrollment status before serving lesson pages
-- Students must have `confirmed` or `free` enrollment status
-- Teachers can access their own lessons for preview
-- Primary security relies on YouTube's privacy settings (unlisted/domain-restricted videos)
-- Browser inspect tools cannot bypass YouTube's DRM, but can reveal embed URLs
-
-## Development Workflow
-1. Backend changes in `server/` → auto-restart workflow
-2. Frontend changes in `client/` → hot module reload
-3. Schema changes → `npm run db:push` to sync database
-4. Manual test via browser at port 5000
-
-## Security Considerations
-- Passwords hashed with bcrypt (salt rounds: 10)
-- JWT tokens in Authorization header
-- Role-based access control on all sensitive routes
-- Input validation with Zod schemas
-- SQL injection protection via Drizzle ORM
-- File upload validation (max 5 images, multer memory storage)
-
-## Known Limitations
-- YouTube-only video hosting (no direct uploads)
-- Images deleted after 1 week (not configurable)
-- Single WhatsApp number for all courses
-- No email notifications (only in-app)
-- No course preview/demo lessons
-- No student-to-student communication
-- No course ratings/reviews
+## External Dependencies
+- **PostgreSQL**: Primary database for all application data.
+- **Replit Object Storage**: Used for storing course thumbnails and quiz submission images.
+- **YouTube**: Used for hosting and embedding all course video content.
+- **WhatsApp**: Integrated for facilitating communication between students and teachers for paid course enrollments.
+- **bcrypt**: Library for secure password hashing.
+- **JWT (JSON Web Tokens)**: Used for user authentication and authorization.
+- **Vite**: Frontend build tool.
+- **Wouter**: Client-side routing library.
+- **TanStack Query**: Data fetching and state management library.
+- **Shadcn UI**: UI component library.
+- **Express.js**: Backend web framework.
+- **Drizzle ORM**: Object-Relational Mapper for PostgreSQL.
+- **Zod**: Schema validation library.
+- **Multer**: Middleware for handling `multipart/form-data`, primarily for file uploads.
