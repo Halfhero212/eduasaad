@@ -54,13 +54,13 @@ export function registerCommentRoutes(app: Express) {
         parentCommentId: null,
       });
 
-      // Create notification for teacher with courseId and lessonId in message
+      // Create notification for teacher with lessonId for direct navigation
       await storage.createNotification({
         userId: course.teacherId,
         type: "new_question",
         title: "New Question",
-        message: `${req.user!.fullName} asked a question on "${lesson.title}" (Click to view)`,
-        relatedId: course.id, // Store course ID for navigation
+        message: `${req.user!.fullName} asked a question on "${lesson.title}"`,
+        relatedId: lessonId, // Store lesson ID for direct navigation
       });
 
       res.json({ success: true, commentId: comment.id, message: "Question posted successfully" });
@@ -103,13 +103,12 @@ export function registerCommentRoutes(app: Express) {
       });
 
       // Create notification for student who asked the question
-      const notifCourse = await storage.getCourse(lesson.courseId);
       await storage.createNotification({
         userId: parentComment.userId,
         type: "reply",
         title: "Teacher Replied",
         message: `${req.user!.fullName} replied to your question on "${lesson.title}"`,
-        relatedId: notifCourse?.id || lesson.courseId, // Store course ID for navigation
+        relatedId: parentComment.lessonId, // Store lesson ID for direct navigation
       });
 
       res.json({ success: true, replyId: reply.id, message: "Reply posted successfully" });

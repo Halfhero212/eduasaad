@@ -36,9 +36,7 @@ export default function Navbar() {
   // Mark notification as read
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationId: number) => {
-      return apiRequest(`/api/notifications/${notificationId}/read`, {
-        method: "PUT",
-      });
+      return apiRequest("PUT", `/api/notifications/${notificationId}/read`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
@@ -50,8 +48,8 @@ export default function Navbar() {
     switch (notification.type) {
       case "new_question":
       case "reply":
-        // For comments, relatedId is the course ID
-        return `/courses/${notification.relatedId}`;
+        // For comments, relatedId is the lesson ID
+        return `/lessons/${notification.relatedId}`;
       case "quiz_submission":
         // For teachers: navigate to teacher dashboard to grade
         return "/dashboard/teacher";
