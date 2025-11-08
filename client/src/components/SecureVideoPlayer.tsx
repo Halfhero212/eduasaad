@@ -29,53 +29,74 @@ export default function SecureVideoPlayer({
   const playerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
+  const timeTrackingIntervalRef = useRef<NodeJS.Timeout>();
+  const lastReportedTimeRef = useRef<number>(0);
 
   // Initialize YouTube Player API
   useEffect(() => {
-    // Load YouTube IFrame API
-    const tag = document.createElement("script");
-    tag.src = "https://www.youtube.com/iframe_api";
-    const firstScriptTag = document.getElementsByTagName("script")[0];
-    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-
-    // Create player when API is ready
-    (window as any).onYouTubeIframeAPIReady = () => {
-      playerRef.current = new (window as any).YT.Player(`youtube-player-${videoId}`, {
-        videoId: videoId,
-        playerVars: {
-          modestbranding: 1,
-          rel: 0,
-          disablekb: 1,
-          controls: 0, // Hide YouTube controls
-          showinfo: 0,
-          iv_load_policy: 3,
-          fs: 0,
-          enablejsapi: 1,
-          origin: window.location.origin,
-        },
-        events: {
-          onReady: (event: any) => {
-            setDuration(event.target.getDuration());
-            if (initialTime > 0) {
-              event.target.seekTo(initialTime, true);
-            }
-            setVolume(event.target.getVolume());
+    const initPlayer = () => {
+      if (!playerRef.current) {
+        playerRef.current = new (window as any).YT.Player(`youtube-player-${videoId}`, {
+          videoId: videoId,
+          playerVars: {
+            modestbranding: 1,
+            rel: 0,
+            disablekb: 1,
+            controls: 0, // Hide YouTube controls
+            showinfo: 0,
+            iv_load_policy: 3,
+            fs: 0,
+            enablejsapi: 1,
+            origin: window.location.origin,
           },
-          onStateChange: (event: any) => {
-            if (event.data === (window as any).YT.PlayerState.PLAYING) {
-              setIsPlaying(true);
-              startTimeTracking();
-            } else if (event.data === (window as any).YT.PlayerState.PAUSED) {
-              setIsPlaying(false);
-            }
+          events: {
+            onReady: (event: any) => {
+              setDuration(event.target.getDuration());
+              if (initialTime > 0) {
+                event.target.seekTo(initialTime, true);
+              }
+              setVolume(event.target.getVolume());
+            },
+            onStateChange: (event: any) => {
+              if (event.data === (window as any).YT.PlayerState.PLAYING) {
+                setIsPlaying(true);
+                startTimeTracking();
+              } else if (event.data === (window as any).YT.PlayerState.PAUSED) {
+                setIsPlaying(false);
+                stopTimeTracking();
+              } else if (event.data === (window as any).YT.PlayerState.ENDED) {
+                setIsPlaying(false);
+                stopTimeTracking();
+              }
+            },
           },
-        },
-      });
+        });
+      }
     };
 
+    // Check if YouTube API is already loaded
+    if ((window as any).YT && (window as any).YT.Player) {
+      initPlayer();
+    } else {
+      // Load YouTube IFrame API if not already loaded
+      if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+        const tag = document.createElement("script");
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName("script")[0];
+        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+      }
+
+      // Set up the callback
+      (window as any).onYouTubeIframeAPIReady = () => {
+        initPlayer();
+      };
+    }
+
     return () => {
-      if (playerRef.current) {
+      stopTimeTracking();
+      if (playerRef.current && playerRef.current.destroy) {
         playerRef.current.destroy();
+        playerRef.current = null;
       }
       if (controlsTimeoutRef.current) {
         clearTimeout(controlsTimeoutRef.current);
@@ -83,17 +104,32 @@ export default function SecureVideoPlayer({
     };
   }, [videoId, initialTime]);
 
-  // Track time and update parent
+  // Start time tracking - only one interval at a time
   const startTimeTracking = () => {
-    const interval = setInterval(() => {
+    // Clear any existing interval first
+    stopTimeTracking();
+
+    timeTrackingIntervalRef.current = setInterval(() => {
       if (playerRef.current && playerRef.current.getCurrentTime) {
         const time = playerRef.current.getCurrentTime();
         setCurrentTime(time);
-        onTimeUpdate?.(time);
+
+        // Throttle updates: only report every 5 seconds
+        const flooredTime = Math.floor(time);
+        if (flooredTime % 5 === 0 && flooredTime !== lastReportedTimeRef.current) {
+          lastReportedTimeRef.current = flooredTime;
+          onTimeUpdate?.(time);
+        }
       }
     }, 1000);
+  };
 
-    return () => clearInterval(interval);
+  // Stop time tracking
+  const stopTimeTracking = () => {
+    if (timeTrackingIntervalRef.current) {
+      clearInterval(timeTrackingIntervalRef.current);
+      timeTrackingIntervalRef.current = undefined;
+    }
   };
 
   const togglePlay = () => {
@@ -110,6 +146,7 @@ export default function SecureVideoPlayer({
     const newTime = value[0];
     playerRef.current.seekTo(newTime, true);
     setCurrentTime(newTime);
+    lastReportedTimeRef.current = -1; // Reset to allow immediate update after seek
   };
 
   const handleVolumeChange = (value: number[]) => {

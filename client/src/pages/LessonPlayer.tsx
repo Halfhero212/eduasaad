@@ -233,13 +233,11 @@ export default function LessonPlayer() {
                     studentEmail={user?.email}
                     initialTime={lessonProgress.lastPosition}
                     onTimeUpdate={(currentTime) => {
-                      // Auto-save progress every 5 seconds
-                      if (Math.floor(currentTime) % 5 === 0) {
-                        apiRequest("POST", `/api/lessons/${lessonId}/progress`, {
-                          completed: false,
-                          lastPosition: currentTime,
-                        }).catch(() => {});
-                      }
+                      // Auto-save progress (throttled to every 5 seconds inside player)
+                      apiRequest("POST", `/api/lessons/${lessonId}/progress`, {
+                        completed: false,
+                        lastPosition: currentTime,
+                      }).catch(() => {});
                     }}
                   />
                 ) : (
