@@ -233,10 +233,9 @@ export default function LessonPlayer() {
                     <iframe
                       width="100%"
                       height="100%"
-                      src={`https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0&disablekb=1`}
+                      src={`https://www.youtube-nocookie.com/embed/${videoId}?modestbranding=1&rel=0&disablekb=1&controls=1&showinfo=0&iv_load_policy=3&fs=0`}
                       title={lesson.title}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
+                      allow="accelerometer; autoplay; encrypted-media; gyroscope"
                       className="rounded-lg"
                       style={{ border: 'none', pointerEvents: 'auto' }}
                     ></iframe>

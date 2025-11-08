@@ -29,6 +29,23 @@ export function registerEnrollmentRoutes(app: Express) {
         purchaseStatus,
       });
 
+      // Notify teacher about new enrollment
+      const notificationTitle = purchaseStatus === "free" 
+        ? "New Student Enrolled" 
+        : "New Enrollment Request";
+      const notificationMessage = purchaseStatus === "free"
+        ? `${req.user!.fullName} enrolled in your course "${course.title}"`
+        : `${req.user!.fullName} requested to enroll in "${course.title}". Please check WhatsApp for payment confirmation.`;
+
+      await storage.createNotification({
+        userId: course.teacherId,
+        type: purchaseStatus === "free" ? "new_enrollment" : "enrollment_request",
+        title: notificationTitle,
+        message: notificationMessage,
+        read: false,
+        relatedId: courseId,
+      });
+
       res.json({
         success: true,
         message: purchaseStatus === "free" ? "Enrolled successfully" : "Enrollment pending - please contact via WhatsApp to complete payment",

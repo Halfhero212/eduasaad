@@ -22,9 +22,9 @@ The platform is a full-stack application utilizing a modern JAMstack-inspired ar
 - **Database**: PostgreSQL managed with Drizzle ORM for type-safe and efficient database interactions.
 - **Authentication**: JWT-based authentication with role-based access control (superadmin, teacher, student). Secure password hashing using bcrypt (10 rounds). Password reset functionality is implemented with secure tokens.
 - **File Storage**: Replit Object Storage is used for storing course thumbnails and quiz submission images. Server-side MIME type validation and randomized filenames enhance security.
-- **Video Content**: YouTube URLs are used for video lessons, with client-side features for progress tracking and resume playback. Basic DOM-level protections are implemented against casual video downloading, with recommendations for stronger YouTube privacy settings (Unlisted, Domain Restrictions).
+- **Video Content**: YouTube URLs are used for video lessons, with client-side features for progress tracking and resume playback. Enhanced download protection includes: privacy-enhanced YouTube player (youtube-nocookie.com), disabled fullscreen, hidden video info, disabled keyboard shortcuts, and right-click prevention. For maximum security, teachers should use YouTube's privacy settings (Unlisted videos, Domain Restrictions).
 - **Payment Workflow**: Integrates WhatsApp for direct student-teacher communication regarding payments for paid courses, with superadmin confirmation for enrollment activation.
-- **Notifications**: Real-time, in-app notification system for various user activities (quiz submissions, grades, replies, new content, enrollment confirmation).
+- **Notifications**: Real-time, in-app notification system for various user activities (quiz submissions, grades, replies, new content, enrollment confirmation, teacher enrollment alerts for both free and paid enrollments).
 - **Cron Jobs**: A daily cron job is configured to clean up quiz submission images older than 7 days from object storage to manage resources.
 - **Deployment**: Designed for deployment on Vercel, with both frontend and backend served from the same port.
 
