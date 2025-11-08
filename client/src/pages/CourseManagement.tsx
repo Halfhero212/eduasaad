@@ -304,7 +304,7 @@ export default function CourseManagement() {
     setEditQuiz({
       title: quiz.title,
       description: quiz.description,
-      deadline: quiz.deadline || "",
+      deadline: quiz.deadline ? (typeof quiz.deadline === 'string' ? quiz.deadline : new Date(quiz.deadline).toISOString().slice(0, 16)) : "",
     });
     setEditQuizOpen(true);
   };
