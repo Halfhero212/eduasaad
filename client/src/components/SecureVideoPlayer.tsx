@@ -26,6 +26,7 @@ export default function SecureVideoPlayer({
   const [volume, setVolume] = useState(100);
   const [isMuted, setIsMuted] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [playerError, setPlayerError] = useState<string | null>(null);
   const playerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
@@ -36,41 +37,51 @@ export default function SecureVideoPlayer({
   useEffect(() => {
     const initPlayer = () => {
       if (!playerRef.current) {
-        playerRef.current = new (window as any).YT.Player(`youtube-player-${videoId}`, {
-          videoId: videoId,
-          playerVars: {
-            modestbranding: 1,
-            rel: 0,
-            disablekb: 1,
-            controls: 0, // Hide YouTube controls
-            showinfo: 0,
-            iv_load_policy: 3,
-            fs: 0,
-            enablejsapi: 1,
-            origin: window.location.origin,
-          },
-          events: {
-            onReady: (event: any) => {
-              setDuration(event.target.getDuration());
-              if (initialTime > 0) {
-                event.target.seekTo(initialTime, true);
-              }
-              setVolume(event.target.getVolume());
+        try {
+          playerRef.current = new (window as any).YT.Player(`youtube-player-${videoId}`, {
+            videoId: videoId,
+            playerVars: {
+              modestbranding: 1,
+              rel: 0,
+              disablekb: 1,
+              controls: 0, // Hide YouTube controls
+              showinfo: 0,
+              iv_load_policy: 3,
+              fs: 0,
+              enablejsapi: 1,
+              origin: window.location.origin,
             },
-            onStateChange: (event: any) => {
-              if (event.data === (window as any).YT.PlayerState.PLAYING) {
-                setIsPlaying(true);
-                startTimeTracking();
-              } else if (event.data === (window as any).YT.PlayerState.PAUSED) {
-                setIsPlaying(false);
-                stopTimeTracking();
-              } else if (event.data === (window as any).YT.PlayerState.ENDED) {
-                setIsPlaying(false);
-                stopTimeTracking();
-              }
+            events: {
+              onReady: (event: any) => {
+                setDuration(event.target.getDuration());
+                if (initialTime > 0) {
+                  event.target.seekTo(initialTime, true);
+                }
+                setVolume(event.target.getVolume());
+                setPlayerError(null);
+              },
+              onStateChange: (event: any) => {
+                if (event.data === (window as any).YT.PlayerState.PLAYING) {
+                  setIsPlaying(true);
+                  startTimeTracking();
+                } else if (event.data === (window as any).YT.PlayerState.PAUSED) {
+                  setIsPlaying(false);
+                  stopTimeTracking();
+                } else if (event.data === (window as any).YT.PlayerState.ENDED) {
+                  setIsPlaying(false);
+                  stopTimeTracking();
+                }
+              },
+              onError: (event: any) => {
+                setPlayerError("Video unavailable or invalid");
+                console.error("YouTube player error:", event.data);
+              },
             },
-          },
-        });
+          });
+        } catch (error) {
+          setPlayerError("Invalid video ID or URL");
+          console.error("Failed to initialize YouTube player:", error);
+        }
       }
     };
 
@@ -214,8 +225,19 @@ export default function SecureVideoPlayer({
       {/* Blocking overlay - prevents clicking through to YouTube */}
       <div className="absolute inset-0 w-full h-full" style={{ pointerEvents: "auto" }} />
 
+      {/* Error overlay */}
+      {playerError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/80 pointer-events-none">
+          <div className="text-center text-white px-6">
+            <p className="text-lg font-medium mb-2">⚠️ Video Error</p>
+            <p className="text-sm opacity-75">{playerError}</p>
+            <p className="text-xs opacity-50 mt-2">Please contact the teacher to update the video URL</p>
+          </div>
+        </div>
+      )}
+
       {/* Watermark - student info overlay */}
-      {(studentName || studentEmail) && (
+      {!playerError && (studentName || studentEmail) && (
         <div className="absolute top-4 right-4 bg-black/30 text-white text-xs px-3 py-1 rounded backdrop-blur-sm pointer-events-none">
           <p className="font-medium">{studentName}</p>
           {studentEmail && <p className="opacity-75">{studentEmail}</p>}

@@ -202,9 +202,17 @@ export default function LessonPlayer() {
   // Default progress for teachers or when progress is null
   const lessonProgress = progress || { completed: false, lastPosition: 0 };
   
-  const videoId = lesson.youtubeUrl?.includes("v=") 
-    ? lesson.youtubeUrl.split("v=")[1].split("&")[0]
-    : lesson.youtubeUrl?.split("/").pop();
+  // Extract and validate YouTube video ID
+  let videoId = "";
+  if (lesson.youtubeUrl) {
+    if (lesson.youtubeUrl.includes("v=")) {
+      videoId = lesson.youtubeUrl.split("v=")[1]?.split("&")[0] || "";
+    } else {
+      videoId = lesson.youtubeUrl.split("/").pop() || "";
+    }
+  }
+  // Ensure videoId is valid (non-empty and doesn't contain URL artifacts)
+  const isValidVideoId = videoId && videoId.length > 5 && !videoId.includes("/") && !videoId.includes("?");
 
   return (
     <div className="min-h-screen bg-background">
@@ -225,7 +233,7 @@ export default function LessonPlayer() {
             {/* Video Player */}
             <Card>
               <CardContent className="p-0">
-                {videoId ? (
+                {isValidVideoId ? (
                   <SecureVideoPlayer
                     videoId={videoId}
                     title={lesson.title}
