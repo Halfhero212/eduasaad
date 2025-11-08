@@ -331,8 +331,8 @@ export function registerCourseRoutes(app: Express) {
 
       const { title, youtubeUrl, durationMinutes } = req.body;
       const updates: any = {};
-      if (title) updates.title = title;
-      if (youtubeUrl) updates.youtubeUrl = youtubeUrl;
+      if (title !== undefined) updates.title = title;
+      if (youtubeUrl !== undefined) updates.youtubeUrl = youtubeUrl;
       if (durationMinutes !== undefined) updates.durationMinutes = durationMinutes ? parseInt(durationMinutes) : null;
 
       await storage.updateCourseLesson(lessonId, updates);
