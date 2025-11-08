@@ -36,52 +36,56 @@ export default function SecureVideoPlayer({
   // Initialize YouTube Player API
   useEffect(() => {
     const initPlayer = () => {
-      if (!playerRef.current) {
-        try {
-          playerRef.current = new (window as any).YT.Player(`youtube-player-${videoId}`, {
-            videoId: videoId,
-            playerVars: {
-              modestbranding: 1,
-              rel: 0,
-              disablekb: 1,
-              controls: 0, // Hide YouTube controls
-              showinfo: 0,
-              iv_load_policy: 3,
-              fs: 0,
-              enablejsapi: 1,
-              origin: window.location.origin,
+      // Destroy existing player before creating new one
+      if (playerRef.current && playerRef.current.destroy) {
+        playerRef.current.destroy();
+        playerRef.current = null;
+      }
+
+      try {
+        playerRef.current = new (window as any).YT.Player(`youtube-player-container`, {
+          videoId: videoId,
+          playerVars: {
+            modestbranding: 1,
+            rel: 0,
+            disablekb: 1,
+            controls: 0, // Hide YouTube controls
+            showinfo: 0,
+            iv_load_policy: 3,
+            fs: 0,
+            enablejsapi: 1,
+            origin: window.location.origin,
+          },
+          events: {
+            onReady: (event: any) => {
+              setDuration(event.target.getDuration());
+              if (initialTime > 0) {
+                event.target.seekTo(initialTime, true);
+              }
+              setVolume(event.target.getVolume());
+              setPlayerError(null);
             },
-            events: {
-              onReady: (event: any) => {
-                setDuration(event.target.getDuration());
-                if (initialTime > 0) {
-                  event.target.seekTo(initialTime, true);
-                }
-                setVolume(event.target.getVolume());
-                setPlayerError(null);
-              },
-              onStateChange: (event: any) => {
-                if (event.data === (window as any).YT.PlayerState.PLAYING) {
-                  setIsPlaying(true);
-                  startTimeTracking();
-                } else if (event.data === (window as any).YT.PlayerState.PAUSED) {
-                  setIsPlaying(false);
-                  stopTimeTracking();
-                } else if (event.data === (window as any).YT.PlayerState.ENDED) {
-                  setIsPlaying(false);
-                  stopTimeTracking();
-                }
-              },
-              onError: (event: any) => {
-                setPlayerError("Video unavailable or invalid");
-                console.error("YouTube player error:", event.data);
-              },
+            onStateChange: (event: any) => {
+              if (event.data === (window as any).YT.PlayerState.PLAYING) {
+                setIsPlaying(true);
+                startTimeTracking();
+              } else if (event.data === (window as any).YT.PlayerState.PAUSED) {
+                setIsPlaying(false);
+                stopTimeTracking();
+              } else if (event.data === (window as any).YT.PlayerState.ENDED) {
+                setIsPlaying(false);
+                stopTimeTracking();
+              }
             },
-          });
-        } catch (error) {
-          setPlayerError("Invalid video ID or URL");
-          console.error("Failed to initialize YouTube player:", error);
-        }
+            onError: (event: any) => {
+              setPlayerError("Video unavailable or invalid");
+              console.error("YouTube player error:", event.data);
+            },
+          },
+        });
+      } catch (error) {
+        setPlayerError("Invalid video ID or URL");
+        console.error("Failed to initialize YouTube player:", error);
       }
     };
 
@@ -217,7 +221,7 @@ export default function SecureVideoPlayer({
     >
       {/* YouTube iframe */}
       <div
-        id={`youtube-player-${videoId}`}
+        id="youtube-player-container"
         className="absolute inset-0 w-full h-full"
         style={{ pointerEvents: "none" }}
       />
