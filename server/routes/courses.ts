@@ -423,4 +423,237 @@ export function registerCourseRoutes(app: Express) {
       res.status(500).json({ error: "Failed to delete course" });
     }
   });
+
+  // Get course reviews
+  app.get("/api/courses/:courseId/reviews", async (req, res) => {
+    try {
+      const courseId = parseInt(req.params.courseId);
+      const reviews = await storage.getCourseReviews(courseId);
+      
+      // Get student names for each review
+      const reviewsWithNames = await Promise.all(
+        reviews.map(async (review) => {
+          const student = await storage.getUser(review.studentId);
+          return {
+            ...review,
+            studentName: student?.fullName || "Unknown",
+          };
+        })
+      );
+
+      res.json({ success: true, reviews: reviewsWithNames });
+    } catch (error) {
+      console.error("Get reviews error:", error);
+      res.status(500).json({ error: "Failed to get reviews" });
+    }
+  });
+
+  // Create course review (students only, enrolled students)
+  app.post("/api/courses/:courseId/reviews", requireAuth, requireRole("student"), async (req: AuthRequest, res) => {
+    try {
+      const courseId = parseInt(req.params.courseId);
+      const studentId = req.user!.id;
+
+      // Check if student is enrolled
+      const enrollment = await storage.getEnrollment(studentId, courseId);
+      if (!enrollment || enrollment.purchaseStatus !== "confirmed" && enrollment.purchaseStatus !== "free") {
+        return res.status(403).json({ error: "You must be enrolled in this course to leave a review" });
+      }
+
+      // Check if student already reviewed
+      const existingReview = await storage.getStudentCourseReview(studentId, courseId);
+      if (existingReview) {
+        return res.status(400).json({ error: "You have already reviewed this course" });
+      }
+
+      const { rating, review } = req.body;
+      if (!rating || rating < 1 || rating > 5) {
+        return res.status(400).json({ error: "Rating must be between 1 and 5" });
+      }
+
+      const newReview = await storage.createCourseReview({
+        courseId,
+        studentId,
+        rating: parseInt(rating),
+        review: review || null,
+      });
+
+      res.json({ success: true, review: newReview });
+    } catch (error) {
+      console.error("Create review error:", error);
+      res.status(500).json({ error: "Failed to create review" });
+    }
+  });
+
+  // Update course review (students only, own reviews)
+  app.put("/api/reviews/:id", requireAuth, requireRole("student"), async (req: AuthRequest, res) => {
+    try {
+      const reviewId = parseInt(req.params.id);
+      const review = await storage.getCourseReview(reviewId);
+
+      if (!review) {
+        return res.status(404).json({ error: "Review not found" });
+      }
+
+      if (review.studentId !== req.user!.id) {
+        return res.status(403).json({ error: "You can only edit your own reviews" });
+      }
+
+      const { rating, review: reviewText } = req.body;
+      const updates: any = {};
+      if (rating !== undefined) {
+        if (rating < 1 || rating > 5) {
+          return res.status(400).json({ error: "Rating must be between 1 and 5" });
+        }
+        updates.rating = parseInt(rating);
+      }
+      if (reviewText !== undefined) updates.review = reviewText;
+
+      await storage.updateCourseReview(reviewId, updates);
+
+      res.json({ success: true, message: "Review updated successfully" });
+    } catch (error) {
+      console.error("Update review error:", error);
+      res.status(500).json({ error: "Failed to update review" });
+    }
+  });
+
+  // Delete course review (students only, own reviews)
+  app.delete("/api/reviews/:id", requireAuth, requireRole("student"), async (req: AuthRequest, res) => {
+    try {
+      const reviewId = parseInt(req.params.id);
+      const review = await storage.getCourseReview(reviewId);
+
+      if (!review) {
+        return res.status(404).json({ error: "Review not found" });
+      }
+
+      if (review.studentId !== req.user!.id) {
+        return res.status(403).json({ error: "You can only delete your own reviews" });
+      }
+
+      await storage.deleteCourseReview(reviewId);
+
+      res.json({ success: true, message: "Review deleted successfully" });
+    } catch (error) {
+      console.error("Delete review error:", error);
+      res.status(500).json({ error: "Failed to delete review" });
+    }
+  });
+
+  // Get course announcements
+  app.get("/api/courses/:courseId/announcements", async (req, res) => {
+    try {
+      const courseId = parseInt(req.params.courseId);
+      const announcements = await storage.getCourseAnnouncements(courseId);
+
+      res.json({ success: true, announcements });
+    } catch (error) {
+      console.error("Get announcements error:", error);
+      res.status(500).json({ error: "Failed to get announcements" });
+    }
+  });
+
+  // Create course announcement (teachers only, own courses)
+  app.post("/api/courses/:courseId/announcements", requireAuth, requireRole("teacher"), async (req: AuthRequest, res) => {
+    try {
+      const courseId = parseInt(req.params.courseId);
+      const course = await storage.getCourse(courseId);
+
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      if (course.teacherId !== req.user!.id) {
+        return res.status(403).json({ error: "You can only create announcements for your own courses" });
+      }
+
+      const { title, content } = req.body;
+      if (!title || !content) {
+        return res.status(400).json({ error: "Title and content are required" });
+      }
+
+      const announcement = await storage.createCourseAnnouncement({
+        courseId,
+        teacherId: req.user!.id,
+        title,
+        content,
+      });
+
+      // Notify all enrolled students
+      const enrollments = await storage.getCourseEnrollments(courseId);
+      const confirmedEnrollments = enrollments.filter(
+        (e) => e.purchaseStatus === "confirmed" || e.purchaseStatus === "free"
+      );
+
+      for (const enrollment of confirmedEnrollments) {
+        await storage.createNotification({
+          userId: enrollment.studentId,
+          type: "new_content",
+          title: `إعلان جديد: ${title}`,
+          message: `لديك إعلان جديد في دورة ${course.title}`,
+          relatedId: announcement.id,
+          metadata: JSON.stringify({ courseId, announcementId: announcement.id }),
+          read: false,
+        });
+      }
+
+      res.json({ success: true, announcement });
+    } catch (error) {
+      console.error("Create announcement error:", error);
+      res.status(500).json({ error: "Failed to create announcement" });
+    }
+  });
+
+  // Delete course announcement (teachers only, own courses)
+  app.delete("/api/announcements/:id", requireAuth, requireRole("teacher"), async (req: AuthRequest, res) => {
+    try {
+      const announcementId = parseInt(req.params.id);
+      const announcement = await storage.getCourseAnnouncement(announcementId);
+
+      if (!announcement) {
+        return res.status(404).json({ error: "Announcement not found" });
+      }
+
+      if (announcement.teacherId !== req.user!.id) {
+        return res.status(403).json({ error: "You can only delete your own announcements" });
+      }
+
+      await storage.deleteCourseAnnouncement(announcementId);
+
+      res.json({ success: true, message: "Announcement deleted successfully" });
+    } catch (error) {
+      console.error("Delete announcement error:", error);
+      res.status(500).json({ error: "Failed to delete announcement" });
+    }
+  });
+
+  // Get course completion percentage for a student
+  app.get("/api/courses/:courseId/completion", requireAuth, async (req: AuthRequest, res) => {
+    try {
+      const courseId = parseInt(req.params.courseId);
+      const studentId = req.user!.id;
+
+      // Get all lessons for this course
+      const lessons = await storage.getCourseLessons(courseId);
+      if (lessons.length === 0) {
+        return res.json({ success: true, completionPercentage: 0, completedLessons: 0, totalLessons: 0 });
+      }
+
+      // Get student's progress for this course
+      const progress = await storage.getStudentProgressForCourse(studentId, courseId);
+      const completedLessons = progress.filter(p => p.completed).length;
+      const completionPercentage = Math.round((completedLessons / lessons.length) * 100);
+
+      res.json({ 
+        success: true, 
+        completionPercentage, 
+        completedLessons, 
+        totalLessons: lessons.length 
+      });
+    } catch (error) {
+      console.error("Get completion error:", error);
+      res.status(500).json({ error: "Failed to get completion percentage" });
+    }
+  });
 }
