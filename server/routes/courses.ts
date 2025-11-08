@@ -313,4 +313,114 @@ export function registerCourseRoutes(app: Express) {
       res.status(500).json({ error: "Failed to get lessons" });
     }
   });
+
+  // Update lesson (teachers only, own courses)
+  app.put("/api/lessons/:id", requireAuth, requireRole("teacher"), async (req: AuthRequest, res) => {
+    try {
+      const lessonId = parseInt(req.params.id);
+      const lesson = await storage.getCourseLesson(lessonId);
+
+      if (!lesson) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }
+
+      const course = await storage.getCourse(lesson.courseId);
+      if (!course || course.teacherId !== req.user!.id) {
+        return res.status(403).json({ error: "You can only edit your own lessons" });
+      }
+
+      const { title, youtubeUrl, durationMinutes } = req.body;
+      const updates: any = {};
+      if (title) updates.title = title;
+      if (youtubeUrl) updates.youtubeUrl = youtubeUrl;
+      if (durationMinutes !== undefined) updates.durationMinutes = durationMinutes ? parseInt(durationMinutes) : null;
+
+      await storage.updateCourseLesson(lessonId, updates);
+
+      res.json({ success: true, message: "Lesson updated successfully" });
+    } catch (error) {
+      console.error("Update lesson error:", error);
+      res.status(500).json({ error: "Failed to update lesson" });
+    }
+  });
+
+  // Delete lesson (teachers only, own courses)
+  app.delete("/api/lessons/:id", requireAuth, requireRole("teacher"), async (req: AuthRequest, res) => {
+    try {
+      const lessonId = parseInt(req.params.id);
+      const lesson = await storage.getCourseLesson(lessonId);
+
+      if (!lesson) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }
+
+      const course = await storage.getCourse(lesson.courseId);
+      if (!course || course.teacherId !== req.user!.id) {
+        return res.status(403).json({ error: "You can only delete your own lessons" });
+      }
+
+      await storage.deleteCourseLesson(lessonId);
+
+      res.json({ success: true, message: "Lesson deleted successfully" });
+    } catch (error) {
+      console.error("Delete lesson error:", error);
+      res.status(500).json({ error: "Failed to delete lesson" });
+    }
+  });
+
+  // Update course (teachers only, own courses)
+  app.put("/api/courses/:id", requireAuth, requireRole("teacher"), async (req: AuthRequest, res) => {
+    try {
+      const courseId = parseInt(req.params.id);
+      const course = await storage.getCourse(courseId);
+
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      if (course.teacherId !== req.user!.id) {
+        return res.status(403).json({ error: "You can only edit your own courses" });
+      }
+
+      const { title, description, whatYouWillLearn, thumbnailUrl, price, isFree, categoryId } = req.body;
+      const updates: any = {};
+      if (title) updates.title = title;
+      if (description) updates.description = description;
+      if (whatYouWillLearn !== undefined) updates.whatYouWillLearn = whatYouWillLearn;
+      if (thumbnailUrl !== undefined) updates.thumbnailUrl = thumbnailUrl;
+      if (price !== undefined) updates.price = price;
+      if (isFree !== undefined) updates.isFree = isFree;
+      if (categoryId) updates.categoryId = parseInt(categoryId);
+
+      await storage.updateCourse(courseId, updates);
+
+      res.json({ success: true, message: "Course updated successfully" });
+    } catch (error) {
+      console.error("Update course error:", error);
+      res.status(500).json({ error: "Failed to update course" });
+    }
+  });
+
+  // Delete course (teachers only, own courses)
+  app.delete("/api/courses/:id", requireAuth, requireRole("teacher"), async (req: AuthRequest, res) => {
+    try {
+      const courseId = parseInt(req.params.id);
+      const course = await storage.getCourse(courseId);
+
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      if (course.teacherId !== req.user!.id) {
+        return res.status(403).json({ error: "You can only delete your own courses" });
+      }
+
+      await storage.deleteCourse(courseId);
+
+      res.json({ success: true, message: "Course deleted successfully" });
+    } catch (error) {
+      console.error("Delete course error:", error);
+      res.status(500).json({ error: "Failed to delete course" });
+    }
+  });
 }

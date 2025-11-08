@@ -222,4 +222,70 @@ export function registerQuizRoutes(app: Express) {
       res.status(500).json({ error: "Failed to grade submission" });
     }
   });
+
+  // Update quiz (teachers only, own courses)
+  app.put("/api/quizzes/:id", requireAuth, requireRole("teacher"), async (req: AuthRequest, res) => {
+    try {
+      const quizId = parseInt(req.params.id);
+      const quiz = await storage.getQuiz(quizId);
+
+      if (!quiz) {
+        return res.status(404).json({ error: "Quiz not found" });
+      }
+
+      // Verify this is teacher's quiz
+      const lesson = await storage.getCourseLesson(quiz.lessonId);
+      if (!lesson) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }
+
+      const course = await storage.getCourse(lesson.courseId);
+      if (!course || course.teacherId !== req.user!.id) {
+        return res.status(403).json({ error: "You can only edit your own quizzes" });
+      }
+
+      const { title, description, deadline } = req.body;
+      const updates: any = {};
+      if (title) updates.title = title;
+      if (description) updates.description = description;
+      if (deadline !== undefined) updates.deadline = deadline ? new Date(deadline) : null;
+
+      await storage.updateQuiz(quizId, updates);
+
+      res.json({ success: true, message: "Quiz updated successfully" });
+    } catch (error) {
+      console.error("Update quiz error:", error);
+      res.status(500).json({ error: "Failed to update quiz" });
+    }
+  });
+
+  // Delete quiz (teachers only, own courses)
+  app.delete("/api/quizzes/:id", requireAuth, requireRole("teacher"), async (req: AuthRequest, res) => {
+    try {
+      const quizId = parseInt(req.params.id);
+      const quiz = await storage.getQuiz(quizId);
+
+      if (!quiz) {
+        return res.status(404).json({ error: "Quiz not found" });
+      }
+
+      // Verify this is teacher's quiz
+      const lesson = await storage.getCourseLesson(quiz.lessonId);
+      if (!lesson) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }
+
+      const course = await storage.getCourse(lesson.courseId);
+      if (!course || course.teacherId !== req.user!.id) {
+        return res.status(403).json({ error: "You can only delete your own quizzes" });
+      }
+
+      await storage.deleteQuiz(quizId);
+
+      res.json({ success: true, message: "Quiz deleted successfully" });
+    } catch (error) {
+      console.error("Delete quiz error:", error);
+      res.status(500).json({ error: "Failed to delete quiz" });
+    }
+  });
 }
