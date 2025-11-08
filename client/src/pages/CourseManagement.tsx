@@ -88,10 +88,12 @@ export default function CourseManagement() {
 
   const addLessonMutation = useMutation({
     mutationFn: async (data: typeof newLesson) => {
-      const lessonOrder = courseData?.lessons?.length || 0;
+      // Find the highest lesson order and add 1 to ensure correct sequencing
+      const maxLessonOrder = courseData?.lessons?.reduce((max, lesson) => 
+        Math.max(max, lesson.lessonOrder), 0) || 0;
       await apiRequest("POST", `/api/courses/${id}/lessons`, {
         ...data,
-        lessonOrder: lessonOrder + 1,
+        lessonOrder: maxLessonOrder + 1,
         durationMinutes: parseInt(data.durationMinutes) || 0,
       });
     },
