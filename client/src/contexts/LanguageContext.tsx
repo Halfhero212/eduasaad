@@ -28,6 +28,11 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.get_started": "ابدأ الآن",
     "nav.logout": "تسجيل الخروج",
     
+    // Notifications
+    "notifications.title": "الإشعارات",
+    "notifications.unread": "غير مقروء",
+    "notifications.no_notifications": "لا توجد إشعارات",
+    
     // Home Page
     "home.hero_title": "الباشق العراقي",
     "home.hero_subtitle": "منصه للتعليم الاكتروني",
@@ -447,6 +452,11 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.sign_in": "Sign in",
     "nav.get_started": "Get started",
     "nav.logout": "Log out",
+    
+    // Notifications
+    "notifications.title": "Notifications",
+    "notifications.unread": "unread",
+    "notifications.no_notifications": "No notifications",
     
     // Home Page
     "home.hero_title": "Al-Bashiq Al-Iraqi",

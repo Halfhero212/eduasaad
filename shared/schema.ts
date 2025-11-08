@@ -172,10 +172,10 @@ export type LessonComment = typeof lessonComments.$inferSelect;
 export const notifications = pgTable("notifications", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
-  type: varchar("type", { length: 50 }).notNull().$type<"question" | "quiz_submission" | "reply" | "new_content">(),
+  type: varchar("type", { length: 50 }).notNull().$type<"new_question" | "quiz_submission" | "reply" | "new_content" | "enrollment_confirmed" | "new_enrollment" | "enrollment_request" | "grade_received">(),
   title: varchar("title", { length: 255 }).notNull(),
   message: text("message").notNull(),
-  relatedId: integer("related_id"), // Can reference comment, quiz, etc.
+  relatedId: integer("related_id"), // Can reference comment, quiz, lesson, course, etc.
   read: boolean("read").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

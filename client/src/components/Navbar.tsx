@@ -12,12 +12,75 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, LogOut, LayoutDashboard, Languages } from "lucide-react";
+import { GraduationCap, LogOut, LayoutDashboard, Languages, Bell } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import type { Notification } from "@shared/schema";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Navbar() {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const [location, setLocation] = useLocation();
+
+  // Fetch notifications
+  const { data: notificationsData } = useQuery<{ notifications: Notification[] }>({
+    queryKey: ["/api/notifications"],
+    enabled: isAuthenticated,
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+
+  const notifications = notificationsData?.notifications || [];
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  // Mark notification as read
+  const markAsReadMutation = useMutation({
+    mutationFn: async (notificationId: number) => {
+      return apiRequest(`/api/notifications/${notificationId}/read`, {
+        method: "PUT",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
+    },
+  });
+
+  // Get navigation link based on notification type
+  const getNotificationLink = (notification: Notification): string => {
+    switch (notification.type) {
+      case "new_question":
+      case "reply":
+        // For comments, relatedId is the course ID
+        return `/courses/${notification.relatedId}`;
+      case "quiz_submission":
+        // For teachers: navigate to teacher dashboard to grade
+        return "/dashboard/teacher";
+      case "grade_received":
+        // For students: navigate to student dashboard to see grade
+        return "/dashboard/student";
+      case "new_content":
+        // Navigate to course page
+        return `/courses/${notification.relatedId}`;
+      case "enrollment_confirmed":
+        // Navigate to course page
+        return `/courses/${notification.relatedId}`;
+      case "new_enrollment":
+      case "enrollment_request":
+        // For teachers: navigate to teacher dashboard enrollments
+        return "/dashboard/teacher";
+      default:
+        return "/";
+    }
+  };
+
+  const handleNotificationClick = (notification: Notification) => {
+    // Mark as read
+    if (!notification.read) {
+      markAsReadMutation.mutate(notification.id);
+    }
+    // Navigate to related content
+    setLocation(getNotificationLink(notification));
+  };
 
   const getDashboardLink = () => {
     if (!user) return "/";
@@ -88,6 +151,66 @@ export default function Navbar() {
             <Languages className="w-5 h-5" />
             <span className="sr-only">Toggle language</span>
           </Button>
+
+          {/* Notifications */}
+          {isAuthenticated && user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild data-testid="button-notifications">
+                <Button variant="ghost" size="icon" className="relative">
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <Badge 
+                      variant="destructive" 
+                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                      data-testid="badge-unread-count"
+                    >
+                      {unreadCount}
+                    </Badge>
+                  )}
+                  <span className="sr-only">Notifications</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-80">
+                <DropdownMenuLabel>
+                  {t("notifications.title")} ({unreadCount} {t("notifications.unread")})
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <ScrollArea className="h-96">
+                  {notifications.length > 0 ? (
+                    notifications.map((notification) => (
+                      <DropdownMenuItem
+                        key={notification.id}
+                        onClick={() => handleNotificationClick(notification)}
+                        className={`flex flex-col items-start p-4 cursor-pointer ${
+                          !notification.read ? "bg-accent/50" : ""
+                        }`}
+                        data-testid={`notification-${notification.id}`}
+                      >
+                        <div className="flex items-start justify-between w-full gap-2">
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">{notification.title}</div>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {notification.message}
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-2">
+                              {new Date(notification.createdAt).toLocaleString()}
+                            </div>
+                          </div>
+                          {!notification.read && (
+                            <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1" />
+                          )}
+                        </div>
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-sm text-muted-foreground">
+                      {t("notifications.no_notifications")}
+                    </div>
+                  )}
+                </ScrollArea>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
           {isLoading ? (
             <div className="flex items-center gap-2">
