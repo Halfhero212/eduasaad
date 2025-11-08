@@ -102,11 +102,25 @@ export function registerAuthRoutes(app: Express) {
         return res.status(401).json({ error: "Not authenticated" });
       }
 
+      // Try to fetch fresh user data from database
       const user = await storage.getUser(req.user.id);
+      
+      // If user not found in DB but JWT is valid, return JWT data
+      // This handles cases where DB was cleared but valid JWTs still exist
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        console.warn(`User ID ${req.user.id} from JWT not found in database, returning JWT data`);
+        return res.json({
+          success: true,
+          user: {
+            id: req.user.id,
+            email: req.user.email,
+            fullName: req.user.fullName,
+            role: req.user.role,
+          },
+        });
       }
 
+      // Return fresh data from database
       res.json({
         success: true,
         user: {
