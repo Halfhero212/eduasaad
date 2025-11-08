@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { CheckCircle, ChevronRight, ChevronLeft, MessageSquare, FileText, Upload, Clock } from "lucide-react";
 import type { CourseLesson } from "@shared/schema";
+import SecureVideoPlayer from "@/components/SecureVideoPlayer";
 
 export default function LessonPlayer() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>();
@@ -225,21 +226,22 @@ export default function LessonPlayer() {
             <Card>
               <CardContent className="p-0">
                 {videoId ? (
-                  <div 
-                    className="aspect-video relative select-none"
-                    onContextMenu={(e) => e.preventDefault()}
-                    style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
-                  >
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      src={`https://www.youtube-nocookie.com/embed/${videoId}?modestbranding=1&rel=0&disablekb=1&controls=1&showinfo=0&iv_load_policy=3&fs=0`}
-                      title={lesson.title}
-                      allow="accelerometer; autoplay; encrypted-media; gyroscope"
-                      className="rounded-lg"
-                      style={{ border: 'none', pointerEvents: 'auto' }}
-                    ></iframe>
-                  </div>
+                  <SecureVideoPlayer
+                    videoId={videoId}
+                    title={lesson.title}
+                    studentName={user?.fullName}
+                    studentEmail={user?.email}
+                    initialTime={lessonProgress.lastPosition}
+                    onTimeUpdate={(currentTime) => {
+                      // Auto-save progress every 5 seconds
+                      if (Math.floor(currentTime) % 5 === 0) {
+                        apiRequest("POST", `/api/lessons/${lessonId}/progress`, {
+                          completed: false,
+                          lastPosition: currentTime,
+                        }).catch(() => {});
+                      }
+                    }}
+                  />
                 ) : (
                   <div className="aspect-video bg-muted flex items-center justify-center">
                     <p className="text-muted-foreground">{t("lesson.no_video")}</p>
