@@ -33,6 +33,7 @@ export default function Register() {
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
+    mode: "onChange", // Validate instantly as user types
     defaultValues: {
       fullName: "",
       email: "",

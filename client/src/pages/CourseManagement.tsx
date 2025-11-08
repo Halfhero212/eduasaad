@@ -206,11 +206,11 @@ export default function CourseManagement() {
                   {t("action.add_lesson")}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>{t("action.add_lesson")}</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4">
+                <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4">
                   <div>
                     <Label htmlFor="lesson-title">{t("label.lesson_title")} *</Label>
                     <Input
@@ -300,11 +300,11 @@ export default function CourseManagement() {
 
         {/* Add Quiz Dialog */}
         <Dialog open={addQuizOpen} onOpenChange={setAddQuizOpen}>
-          <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>{t("action.add_quiz")}</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4">
               <div>
                 <Label htmlFor="quiz-title">{t("label.quiz_title")} *</Label>
                 <Input

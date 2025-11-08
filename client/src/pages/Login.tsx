@@ -27,6 +27,7 @@ export default function Login() {
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
+    mode: "onChange", // Validate instantly as user types
     defaultValues: {
       email: "",
       password: "",
