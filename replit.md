@@ -34,7 +34,9 @@ The platform is a full-stack application utilizing a modern JAMstack-inspired ar
 - **Enrollment System**: Supports both free (immediate access) and paid courses (pending status until superadmin confirmation after WhatsApp payment). Superadmin dashboard provides comprehensive oversight of all enrollments.
 - **Quiz System**: Teachers can create quizzes for lessons. Students submit image-based solutions, which teachers grade with feedback.
 - **Q&A System**: Students can ask questions on specific video lessons, and only the course teacher can reply, forming threaded discussions.
-- **Progress Tracking**: Automatic tracking of video progress, allowing students to resume lessons from their last watched position.
+- **Progress Tracking**: Automatic tracking of video progress, allowing students to resume lessons from their last watched position. Course completion percentage is calculated based on completed vs. total lessons.
+- **Course Reviews & Ratings**: Students can rate courses (1-5 stars) and write reviews after enrollment. One review per student per course, with edit and delete capabilities.
+- **Course Announcements**: Teachers can post announcements to enrolled students, with automatic notifications sent to all enrolled students.
 - **Platform Settings**: Superadmin can manage global platform settings.
 - **Platform Analytics**: Superadmin dashboard displays detailed statistics including course analytics (student counts per course, lesson counts, enrollment status breakdown) and teacher analytics (course count, total students, total lessons, detailed course breakdown).
 
