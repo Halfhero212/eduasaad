@@ -48,8 +48,17 @@ export default function Navbar() {
     switch (notification.type) {
       case "new_question":
       case "reply":
-        // For comments, relatedId is the lesson ID
-        return `/lessons/${notification.relatedId}`;
+        // For comments, parse metadata to get courseId and lessonId
+        try {
+          if (notification.metadata) {
+            const { courseId, lessonId } = JSON.parse(notification.metadata);
+            return `/courses/${courseId}/lessons/${lessonId}`;
+          }
+        } catch (e) {
+          console.error("Failed to parse notification metadata:", e);
+        }
+        // For legacy notifications without metadata, go to home
+        return "/";
       case "quiz_submission":
         // For teachers: navigate to teacher dashboard to grade
         return "/dashboard/teacher";

@@ -176,6 +176,7 @@ export const notifications = pgTable("notifications", {
   title: varchar("title", { length: 255 }).notNull(),
   message: text("message").notNull(),
   relatedId: integer("related_id"), // Can reference comment, quiz, lesson, course, etc.
+  metadata: text("metadata"), // JSON string for additional context (e.g., {courseId, lessonId})
   read: boolean("read").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

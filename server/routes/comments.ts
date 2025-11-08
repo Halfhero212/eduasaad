@@ -54,13 +54,14 @@ export function registerCommentRoutes(app: Express) {
         parentCommentId: null,
       });
 
-      // Create notification for teacher with lessonId for direct navigation
+      // Create notification for teacher with navigation metadata
       await storage.createNotification({
         userId: course.teacherId,
         type: "new_question",
         title: "New Question",
         message: `${req.user!.fullName} asked a question on "${lesson.title}"`,
-        relatedId: lessonId, // Store lesson ID for direct navigation
+        relatedId: lessonId,
+        metadata: JSON.stringify({ courseId: lesson.courseId, lessonId }),
       });
 
       res.json({ success: true, commentId: comment.id, message: "Question posted successfully" });
@@ -108,7 +109,8 @@ export function registerCommentRoutes(app: Express) {
         type: "reply",
         title: "Teacher Replied",
         message: `${req.user!.fullName} replied to your question on "${lesson.title}"`,
-        relatedId: parentComment.lessonId, // Store lesson ID for direct navigation
+        relatedId: parentComment.lessonId,
+        metadata: JSON.stringify({ courseId: lesson.courseId, lessonId: parentComment.lessonId }),
       });
 
       res.json({ success: true, replyId: reply.id, message: "Reply posted successfully" });
