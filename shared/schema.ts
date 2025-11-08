@@ -222,3 +222,41 @@ export const insertPasswordResetTokenSchema = createInsertSchema(passwordResetTo
 
 export type InsertPasswordResetToken = z.infer<typeof insertPasswordResetTokenSchema>;
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+
+// Course Reviews
+export const courseReviews = pgTable("course_reviews", {
+  id: serial("id").primaryKey(),
+  courseId: integer("course_id").notNull().references(() => courses.id, { onDelete: "cascade" }),
+  studentId: integer("student_id").notNull().references(() => users.id),
+  rating: integer("rating").notNull(), // 1-5 stars
+  review: text("review"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertCourseReviewSchema = createInsertSchema(courseReviews).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertCourseReview = z.infer<typeof insertCourseReviewSchema>;
+export type CourseReview = typeof courseReviews.$inferSelect;
+
+// Course Announcements
+export const courseAnnouncements = pgTable("course_announcements", {
+  id: serial("id").primaryKey(),
+  courseId: integer("course_id").notNull().references(() => courses.id, { onDelete: "cascade" }),
+  teacherId: integer("teacher_id").notNull().references(() => users.id),
+  title: varchar("title", { length: 255 }).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertCourseAnnouncementSchema = createInsertSchema(courseAnnouncements).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertCourseAnnouncement = z.infer<typeof insertCourseAnnouncementSchema>;
+export type CourseAnnouncement = typeof courseAnnouncements.$inferSelect;

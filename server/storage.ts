@@ -24,6 +24,10 @@ import {
   type InsertPlatformSetting,
   type PasswordResetToken,
   type InsertPasswordResetToken,
+  type CourseReview,
+  type InsertCourseReview,
+  type CourseAnnouncement,
+  type InsertCourseAnnouncement,
   users,
   courses,
   courseLessons,
@@ -36,6 +40,8 @@ import {
   notifications,
   platformSettings,
   passwordResetTokens,
+  courseReviews,
+  courseAnnouncements,
 } from "@shared/schema";
 import { eq, and, desc, sql, inArray } from "drizzle-orm";
 
@@ -123,6 +129,21 @@ export interface IStorage {
   getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
   deletePasswordResetToken(token: string): Promise<void>;
   deleteExpiredPasswordResetTokens(): Promise<void>;
+
+  // Course Review operations
+  getCourseReview(id: number): Promise<CourseReview | undefined>;
+  getCourseReviews(courseId: number): Promise<CourseReview[]>;
+  getStudentCourseReview(studentId: number, courseId: number): Promise<CourseReview | undefined>;
+  createCourseReview(review: InsertCourseReview): Promise<CourseReview>;
+  updateCourseReview(id: number, updates: Partial<InsertCourseReview>): Promise<CourseReview | undefined>;
+  deleteCourseReview(id: number): Promise<void>;
+
+  // Course Announcement operations
+  getCourseAnnouncement(id: number): Promise<CourseAnnouncement | undefined>;
+  getCourseAnnouncements(courseId: number): Promise<CourseAnnouncement[]>;
+  createCourseAnnouncement(announcement: InsertCourseAnnouncement): Promise<CourseAnnouncement>;
+  updateCourseAnnouncement(id: number, updates: Partial<InsertCourseAnnouncement>): Promise<CourseAnnouncement | undefined>;
+  deleteCourseAnnouncement(id: number): Promise<void>;
 }
 
 export class PostgresStorage implements IStorage {
@@ -474,6 +495,70 @@ export class PostgresStorage implements IStorage {
   async deleteExpiredPasswordResetTokens(): Promise<void> {
     await db.delete(passwordResetTokens)
       .where(sql`${passwordResetTokens.expiresAt} < NOW()`);
+  }
+
+  // Course Review operations
+  async getCourseReview(id: number): Promise<CourseReview | undefined> {
+    const [review] = await db.select().from(courseReviews).where(eq(courseReviews.id, id));
+    return review;
+  }
+
+  async getCourseReviews(courseId: number): Promise<CourseReview[]> {
+    return db.select().from(courseReviews)
+      .where(eq(courseReviews.courseId, courseId))
+      .orderBy(desc(courseReviews.createdAt));
+  }
+
+  async getStudentCourseReview(studentId: number, courseId: number): Promise<CourseReview | undefined> {
+    const [review] = await db.select().from(courseReviews)
+      .where(and(eq(courseReviews.studentId, studentId), eq(courseReviews.courseId, courseId)));
+    return review;
+  }
+
+  async createCourseReview(review: InsertCourseReview): Promise<CourseReview> {
+    const [newReview] = await db.insert(courseReviews).values(review).returning();
+    return newReview;
+  }
+
+  async updateCourseReview(id: number, updates: Partial<InsertCourseReview>): Promise<CourseReview | undefined> {
+    const [updated] = await db.update(courseReviews)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(courseReviews.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteCourseReview(id: number): Promise<void> {
+    await db.delete(courseReviews).where(eq(courseReviews.id, id));
+  }
+
+  // Course Announcement operations
+  async getCourseAnnouncement(id: number): Promise<CourseAnnouncement | undefined> {
+    const [announcement] = await db.select().from(courseAnnouncements).where(eq(courseAnnouncements.id, id));
+    return announcement;
+  }
+
+  async getCourseAnnouncements(courseId: number): Promise<CourseAnnouncement[]> {
+    return db.select().from(courseAnnouncements)
+      .where(eq(courseAnnouncements.courseId, courseId))
+      .orderBy(desc(courseAnnouncements.createdAt));
+  }
+
+  async createCourseAnnouncement(announcement: InsertCourseAnnouncement): Promise<CourseAnnouncement> {
+    const [newAnnouncement] = await db.insert(courseAnnouncements).values(announcement).returning();
+    return newAnnouncement;
+  }
+
+  async updateCourseAnnouncement(id: number, updates: Partial<InsertCourseAnnouncement>): Promise<CourseAnnouncement | undefined> {
+    const [updated] = await db.update(courseAnnouncements)
+      .set(updates)
+      .where(eq(courseAnnouncements.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteCourseAnnouncement(id: number): Promise<void> {
+    await db.delete(courseAnnouncements).where(eq(courseAnnouncements.id, id));
   }
 }
 
