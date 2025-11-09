@@ -25,6 +25,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["/api/auth/me"],
     enabled: !!token,
     retry: false,
+    staleTime: 0, // Always fetch fresh user data on mount
+    refetchOnMount: true, // Refetch when component mounts
   });
 
   // Debug logging

@@ -98,6 +98,11 @@ export function registerAuthRoutes(app: Express) {
   // Get current user
   app.get("/api/auth/me", requireAuth, async (req: AuthRequest, res) => {
     try {
+      // Disable caching for this endpoint to always return fresh user data
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      
       if (!req.user) {
         return res.status(401).json({ error: "Not authenticated" });
       }
