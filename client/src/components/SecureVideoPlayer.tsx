@@ -155,7 +155,7 @@ export default function SecureVideoPlayer({
   };
 
   const togglePlay = () => {
-    if (!playerRef.current) return;
+    if (!playerRef.current || !playerRef.current.playVideo || !playerRef.current.pauseVideo) return;
     if (isPlaying) {
       playerRef.current.pauseVideo();
     } else {
@@ -164,7 +164,7 @@ export default function SecureVideoPlayer({
   };
 
   const handleSeek = (value: number[]) => {
-    if (!playerRef.current) return;
+    if (!playerRef.current || !playerRef.current.seekTo) return;
     const newTime = value[0];
     playerRef.current.seekTo(newTime, true);
     setCurrentTime(newTime);
@@ -172,7 +172,7 @@ export default function SecureVideoPlayer({
   };
 
   const handleVolumeChange = (value: number[]) => {
-    if (!playerRef.current) return;
+    if (!playerRef.current || !playerRef.current.setVolume) return;
     const newVolume = value[0];
     setVolume(newVolume);
     playerRef.current.setVolume(newVolume);
@@ -180,11 +180,13 @@ export default function SecureVideoPlayer({
   };
 
   const toggleMute = () => {
-    if (!playerRef.current) return;
+    if (!playerRef.current || !playerRef.current.mute || !playerRef.current.unMute) return;
     if (isMuted) {
       playerRef.current.unMute();
       setIsMuted(false);
-      setVolume(playerRef.current.getVolume());
+      if (playerRef.current.getVolume) {
+        setVolume(playerRef.current.getVolume());
+      }
     } else {
       playerRef.current.mute();
       setIsMuted(true);
