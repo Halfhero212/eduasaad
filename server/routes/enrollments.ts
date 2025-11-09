@@ -157,10 +157,16 @@ export function registerEnrollmentRoutes(app: Express) {
         progress = await storage.getLessonProgress(req.user.id, lessonId);
       }
 
+      // Get teacher information
+      const teacher = course ? await storage.getUser(course.teacherId) : null;
+
       res.json({
         success: true,
         lesson,
-        course,
+        course: {
+          ...course,
+          teacher: teacher ? { id: teacher.id, fullName: teacher.fullName } : null,
+        },
         lessons: allLessons,
         progress,
       });

@@ -26,7 +26,7 @@ export default function LessonPlayer() {
 
   const { data: lessonData, isLoading } = useQuery<{
     lesson: CourseLesson;
-    course: { id: number; title: string };
+    course: { id: number; title: string; teacher?: { id: number; fullName: string } };
     lessons: CourseLesson[];
     progress: { completed: boolean; lastPosition: number };
   }>({
@@ -239,6 +239,7 @@ export default function LessonPlayer() {
                     title={lesson.title}
                     studentName={user?.fullName}
                     studentEmail={user?.email}
+                    teacherName={course.teacher?.fullName}
                     initialTime={lessonProgress.lastPosition}
                     onTimeUpdate={(currentTime) => {
                       // Auto-save progress (throttled to every 5 seconds inside player)

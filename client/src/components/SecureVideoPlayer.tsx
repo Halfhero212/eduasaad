@@ -8,6 +8,7 @@ interface SecureVideoPlayerProps {
   title: string;
   studentName?: string;
   studentEmail?: string;
+  teacherName?: string;
   onTimeUpdate?: (currentTime: number) => void;
   initialTime?: number;
 }
@@ -17,6 +18,7 @@ export default function SecureVideoPlayer({
   title,
   studentName,
   studentEmail,
+  teacherName,
   onTimeUpdate,
   initialTime = 0,
 }: SecureVideoPlayerProps) {
@@ -211,12 +213,44 @@ export default function SecureVideoPlayer({
     }, 3000);
   };
 
+  // Prevent right-click context menu
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+  };
+
+  // Block DevTools keyboard shortcuts (deterrent only - not absolute prevention)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Windows/Linux shortcuts
+      const isWindowsLinuxDevTools = 
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "i" || e.key === "J" || e.key === "j" || e.key === "C" || e.key === "c")) ||
+        (e.ctrlKey && (e.key === "u" || e.key === "U"));
+      
+      // macOS shortcuts (Cmd+Option+I/J/C)
+      const isMacDevTools = 
+        (e.metaKey && e.altKey && (e.key === "I" || e.key === "i" || e.key === "J" || e.key === "j" || e.key === "C" || e.key === "c")) ||
+        (e.metaKey && (e.key === "u" || e.key === "U"));
+
+      if (isWindowsLinuxDevTools || isMacDevTools) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    };
+
+    // Use capture phase on window to catch all keyboard events
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
+  }, []);
+
   return (
     <div
       ref={containerRef}
-      className="relative w-full aspect-video bg-black rounded-lg overflow-hidden group"
+      className="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl border-2 border-primary/20"
       onMouseMove={handleMouseMove}
       onMouseLeave={() => isPlaying && setShowControls(false)}
+      onContextMenu={handleContextMenu}
       data-testid="secure-video-player"
     >
       {/* YouTube iframe */}
@@ -227,7 +261,11 @@ export default function SecureVideoPlayer({
       />
 
       {/* Blocking overlay - prevents clicking through to YouTube */}
-      <div className="absolute inset-0 w-full h-full" style={{ pointerEvents: "auto" }} />
+      <div 
+        className="absolute inset-0 w-full h-full" 
+        style={{ pointerEvents: "auto" }}
+        onContextMenu={handleContextMenu}
+      />
 
       {/* Error overlay */}
       {playerError && (
@@ -240,11 +278,25 @@ export default function SecureVideoPlayer({
         </div>
       )}
 
-      {/* Watermark - student info overlay */}
-      {!playerError && (studentName || studentEmail) && (
-        <div className="absolute top-4 right-4 bg-black/30 text-white text-xs px-3 py-1 rounded backdrop-blur-sm pointer-events-none">
-          <p className="font-medium">{studentName}</p>
-          {studentEmail && <p className="opacity-75">{studentEmail}</p>}
+      {/* Enhanced Watermark - dual display for branding and security */}
+      {!playerError && (teacherName || studentName || studentEmail) && (
+        <div className="absolute top-4 left-4 right-4 flex justify-between items-start gap-4 pointer-events-none">
+          {/* Teacher branding (left side) */}
+          {teacherName && (
+            <div className="bg-gradient-to-br from-primary/90 to-primary/70 text-primary-foreground px-4 py-2 rounded-lg backdrop-blur-md shadow-lg border border-primary-foreground/20">
+              <p className="text-xs font-medium opacity-75">Instructor</p>
+              <p className="font-semibold text-sm">{teacherName}</p>
+            </div>
+          )}
+          
+          {/* Student watermark (right side) - for security tracking */}
+          {(studentName || studentEmail) && (
+            <div className="bg-black/60 text-white px-4 py-2 rounded-lg backdrop-blur-md shadow-lg border border-white/10">
+              <p className="text-xs font-medium opacity-60">Licensed to</p>
+              {studentName && <p className="font-semibold text-sm">{studentName}</p>}
+              {studentEmail && <p className="text-xs opacity-75 mt-0.5">{studentEmail}</p>}
+            </div>
+          )}
         </div>
       )}
 
