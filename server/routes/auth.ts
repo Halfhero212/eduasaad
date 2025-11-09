@@ -3,6 +3,7 @@ import { storage } from "../storage";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { generateToken, requireAuth, requireRole, type AuthRequest } from "../middleware/auth";
+import { sendPasswordResetEmail } from "../services/email";
 
 export function registerAuthRoutes(app: Express) {
   // Student registration
@@ -214,11 +215,13 @@ export function registerAuthRoutes(app: Express) {
         expiresAt,
       });
 
-      // TODO: Send email with reset link
-      // For now, we'll just return success
-      // In production, integrate with email service (e.g., Resend, SendGrid)
-      // const resetLink = `${process.env.APP_URL}/reset-password?token=${token}`;
-      // await sendEmail(user.email, "Password Reset", resetLink);
+      // Send password reset email
+      const emailResult = await sendPasswordResetEmail(user.email, token, user.fullName);
+      
+      if (!emailResult.success) {
+        console.error('Failed to send password reset email:', emailResult.error);
+        // Don't reveal email sending failure to user for security
+      }
 
       res.json({ 
         success: true, 
