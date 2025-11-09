@@ -301,13 +301,53 @@ export function registerCourseRoutes(app: Express) {
     }
   });
 
-  // Get course lessons
-  app.get("/api/courses/:courseId/lessons", async (req, res) => {
+  // Get course lessons (with enrollment verification and video URL protection)
+  app.get("/api/courses/:courseId/lessons", requireAuth, async (req: AuthRequest, res) => {
     try {
       const courseId = parseInt(req.params.courseId);
-      const lessons = await storage.getCourseLessons(courseId);
+      const userId = req.user!.id;
+      const userRole = req.user!.role;
 
-      res.json({ success: true, lessons });
+      const course = await storage.getCourse(courseId);
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      // Check authorization: teacher owns course OR student is enrolled
+      let isAuthorized = false;
+      
+      if (userRole === "teacher" && course.teacherId === userId) {
+        isAuthorized = true;
+      } else if (userRole === "student") {
+        const enrollment = await storage.getEnrollment(userId, courseId);
+        if (enrollment && (enrollment.purchaseStatus === "confirmed" || enrollment.purchaseStatus === "free")) {
+          isAuthorized = true;
+        }
+      } else if (userRole === "superadmin") {
+        isAuthorized = true;
+      }
+
+      if (!isAuthorized) {
+        // Return lessons WITHOUT video URLs for unauthorized users
+        const lessons = await storage.getCourseLessons(courseId);
+        const safeLessons = lessons.map(lesson => ({
+          id: lesson.id,
+          courseId: lesson.courseId,
+          title: lesson.title,
+          lessonOrder: lesson.lessonOrder,
+          durationMinutes: lesson.durationMinutes,
+          // youtubeUrl is intentionally omitted
+        }));
+        return res.json({ success: true, lessons: safeLessons, restricted: true });
+      }
+
+      // Authorized users get full lesson data with video URLs
+      const lessons = await storage.getCourseLessons(courseId);
+      
+      // Log video access for audit trail
+      console.log(`🎥 Video access: User ${userId} (${req.user!.fullName}) accessed ${lessons.length} lessons for course ${courseId}`);
+
+      res.json({ success: true, lessons, restricted: false });
     } catch (error) {
       console.error("Get lessons error:", error);
       res.status(500).json({ error: "Failed to get lessons" });
