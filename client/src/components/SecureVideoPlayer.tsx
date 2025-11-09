@@ -57,7 +57,12 @@ export default function SecureVideoPlayer({
             fs: 0,
             enablejsapi: 1,
             origin: window.location.origin,
+            autohide: 1,
+            cc_load_policy: 0,
+            color: 'white',
+            playsinline: 1,
           },
+          host: 'https://www.youtube-nocookie.com',
           events: {
             onReady: (event: any) => {
               setDuration(event.target.getDuration());
@@ -266,6 +271,12 @@ export default function SecureVideoPlayer({
         style={{ pointerEvents: "auto" }}
         onContextMenu={handleContextMenu}
       />
+
+      {/* Hide YouTube title at top */}
+      <div className="absolute top-0 left-0 right-0 h-16 bg-black/90 pointer-events-none z-10" />
+
+      {/* Hide YouTube logo at bottom-right */}
+      <div className="absolute bottom-12 right-0 w-32 h-20 bg-black/90 pointer-events-none z-10" />
 
       {/* Error overlay */}
       {playerError && (
