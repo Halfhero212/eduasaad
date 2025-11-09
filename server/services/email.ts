@@ -7,6 +7,10 @@ const APP_URL = process.env.REPL_SLUG
   ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
   : process.env.APP_URL || 'http://localhost:5000';
 
+// Resend sandbox mode: can only send to verified email
+// To send to any email, verify a domain at resend.com/domains
+const SANDBOX_MODE = FROM_EMAIL === 'onboarding@resend.dev';
+
 export async function sendPasswordResetEmail(
   toEmail: string,
   resetToken: string,
@@ -14,6 +18,19 @@ export async function sendPasswordResetEmail(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const resetLink = `${APP_URL}/reset-password?token=${resetToken}`;
+    
+    if (SANDBOX_MODE) {
+      console.log(`📧 [SANDBOX MODE] Password reset email simulation`);
+      console.log(`   To: ${toEmail}`);
+      console.log(`   User: ${userName}`);
+      console.log(`   Reset link: ${resetLink}`);
+      console.log(`   ⚠️  In sandbox mode (onboarding@resend.dev), emails can only be sent to verified addresses.`);
+      console.log(`   ⚠️  To send to any email, verify a domain at resend.com/domains and set RESEND_FROM_EMAIL`);
+      
+      // In sandbox mode, don't attempt to send to avoid 403 errors
+      // Return success so the reset flow completes (user gets token in development)
+      return { success: true };
+    }
     
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,

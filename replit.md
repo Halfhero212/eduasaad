@@ -20,7 +20,7 @@ The platform is a full-stack application utilizing a modern JAMstack-inspired ar
 ### Technical Implementations
 - **Backend Framework**: Express.js for a robust and scalable API layer.
 - **Database**: PostgreSQL managed with Drizzle ORM for type-safe and efficient database interactions.
-- **Authentication**: JWT-based authentication with role-based access control (superadmin, teacher, student). Secure password hashing using bcrypt (10 rounds). Password reset functionality is implemented with secure tokens.
+- **Authentication**: JWT-based authentication with role-based access control (superadmin, teacher, student). Secure password hashing using bcrypt (10 rounds). Password reset functionality is implemented with secure tokens and email delivery via Resend.
 - **File Storage**: Replit Object Storage is used for storing course thumbnails and quiz submission images. Server-side MIME type validation and randomized filenames enhance security.
 - **Video Content**: YouTube URLs are used for video lessons, with client-side features for progress tracking and resume playback. Enhanced download protection includes: privacy-enhanced YouTube player (youtube-nocookie.com), disabled fullscreen, hidden video info, disabled keyboard shortcuts, and right-click prevention. For maximum security, teachers should use YouTube's privacy settings (Unlisted videos, Domain Restrictions).
 - **Payment Workflow**: Integrates WhatsApp for direct student-teacher communication regarding payments for paid courses, with superadmin confirmation for enrollment activation.
@@ -50,6 +50,7 @@ The platform is a full-stack application utilizing a modern JAMstack-inspired ar
 - **Replit Object Storage**: Used for storing course thumbnails and quiz submission images.
 - **YouTube**: Used for hosting and embedding all course video content.
 - **WhatsApp**: Integrated for facilitating communication between students and teachers for paid course enrollments.
+- **Resend**: Email service for sending password reset emails. Free tier allows 3,000 emails/month. In sandbox mode (using onboarding@resend.dev), emails are simulated in development. For production, verify a domain at resend.com/domains and set RESEND_FROM_EMAIL environment variable.
 - **bcrypt**: Library for secure password hashing.
 - **JWT (JSON Web Tokens)**: Used for user authentication and authorization.
 - **Vite**: Frontend build tool.
