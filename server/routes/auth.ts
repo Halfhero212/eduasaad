@@ -145,7 +145,7 @@ export function registerAuthRoutes(app: Express) {
   // Superadmin creates teacher account
   app.post("/api/auth/create-teacher", requireAuth, requireRole("superadmin"), async (req: AuthRequest, res) => {
     try {
-      const { email, fullName } = req.body;
+      const { email, fullName, password: providedPassword } = req.body;
 
       if (!email || !fullName) {
         return res.status(400).json({ error: "Email and full name are required" });
@@ -157,8 +157,19 @@ export function registerAuthRoutes(app: Express) {
         return res.status(400).json({ error: "Email already registered" });
       }
 
-      // Generate random password
-      const password = generateRandomPassword();
+      // Use provided password or generate random one
+      let password: string;
+      if (providedPassword) {
+        // Validate provided password
+        if (providedPassword.length < 8) {
+          return res.status(400).json({ error: "Password must be at least 8 characters long" });
+        }
+        password = providedPassword;
+      } else {
+        // Auto-generate password if not provided
+        password = generateRandomPassword();
+      }
+
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create teacher user

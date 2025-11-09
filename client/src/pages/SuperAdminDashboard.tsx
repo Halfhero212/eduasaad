@@ -27,6 +27,7 @@ export default function SuperAdminDashboard() {
   const { toast } = useToast();
   const [newTeacherEmail, setNewTeacherEmail] = useState("");
   const [newTeacherName, setNewTeacherName] = useState("");
+  const [newTeacherPassword, setNewTeacherPassword] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
   const [deleteTeacherId, setDeleteTeacherId] = useState<number | null>(null);
@@ -134,7 +135,7 @@ export default function SuperAdminDashboard() {
   const teacherStats = teacherStatsData?.teachers || [];
 
   const createTeacherMutation = useMutation({
-    mutationFn: async (data: { fullName: string; email: string }) => {
+    mutationFn: async (data: { fullName: string; email: string; password?: string }) => {
       const res = await apiRequest("POST", "/api/auth/create-teacher", data);
       return await res.json();
     },
@@ -144,6 +145,7 @@ export default function SuperAdminDashboard() {
       setGeneratedPassword(data.password);
       setNewTeacherEmail("");
       setNewTeacherName("");
+      setNewTeacherPassword("");
       setCreateDialogOpen(false);
     },
     onError: (error) => {
@@ -332,6 +334,16 @@ export default function SuperAdminDashboard() {
     }
   };
 
+  const generateRandomPassword = () => {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%&*";
+    const length = 12;
+    let password = "";
+    for (let i = 0; i < length; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setNewTeacherPassword(password);
+  };
+
   const handleCreateTeacher = () => {
     if (!newTeacherName || !newTeacherEmail) {
       toast({
@@ -341,9 +353,21 @@ export default function SuperAdminDashboard() {
       });
       return;
     }
+    
+    // Validate password if provided
+    if (newTeacherPassword && newTeacherPassword.length < 8) {
+      toast({
+        title: t("dialog.create_teacher.validation_error"),
+        description: "Password must be at least 8 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     createTeacherMutation.mutate({
       fullName: newTeacherName,
       email: newTeacherEmail,
+      password: newTeacherPassword || undefined, // Only send if provided
     });
   };
 
@@ -869,6 +893,31 @@ export default function SuperAdminDashboard() {
                       placeholder="teacher@example.com"
                       data-testid="input-teacher-email"
                     />
+                  </div>
+                  <div>
+                    <Label htmlFor="password">Password (optional - leave empty to auto-generate)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="password"
+                        type="text"
+                        value={newTeacherPassword}
+                        onChange={(e) => setNewTeacherPassword(e.target.value)}
+                        placeholder="Enter password or click generate"
+                        data-testid="input-teacher-password"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={generateRandomPassword}
+                        data-testid="button-generate-password"
+                      >
+                        <Key className="w-4 h-4 mr-2" />
+                        Generate
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Minimum 8 characters. Leave empty to auto-generate a secure password.
+                    </p>
                   </div>
                 </div>
                 <DialogFooter>
