@@ -57,12 +57,7 @@ export default function SecureVideoPlayer({
             fs: 0,
             enablejsapi: 1,
             origin: window.location.origin,
-            autohide: 1,
-            cc_load_policy: 0,
-            color: 'white',
-            playsinline: 1,
           },
-          host: 'https://www.youtube-nocookie.com',
           events: {
             onReady: (event: any) => {
               setDuration(event.target.getDuration());
@@ -155,7 +150,7 @@ export default function SecureVideoPlayer({
   };
 
   const togglePlay = () => {
-    if (!playerRef.current || !playerRef.current.playVideo || !playerRef.current.pauseVideo) return;
+    if (!playerRef.current) return;
     if (isPlaying) {
       playerRef.current.pauseVideo();
     } else {
@@ -164,7 +159,7 @@ export default function SecureVideoPlayer({
   };
 
   const handleSeek = (value: number[]) => {
-    if (!playerRef.current || !playerRef.current.seekTo) return;
+    if (!playerRef.current) return;
     const newTime = value[0];
     playerRef.current.seekTo(newTime, true);
     setCurrentTime(newTime);
@@ -172,7 +167,7 @@ export default function SecureVideoPlayer({
   };
 
   const handleVolumeChange = (value: number[]) => {
-    if (!playerRef.current || !playerRef.current.setVolume) return;
+    if (!playerRef.current) return;
     const newVolume = value[0];
     setVolume(newVolume);
     playerRef.current.setVolume(newVolume);
@@ -180,13 +175,11 @@ export default function SecureVideoPlayer({
   };
 
   const toggleMute = () => {
-    if (!playerRef.current || !playerRef.current.mute || !playerRef.current.unMute) return;
+    if (!playerRef.current) return;
     if (isMuted) {
       playerRef.current.unMute();
       setIsMuted(false);
-      if (playerRef.current.getVolume) {
-        setVolume(playerRef.current.getVolume());
-      }
+      setVolume(playerRef.current.getVolume());
     } else {
       playerRef.current.mute();
       setIsMuted(true);
@@ -273,12 +266,6 @@ export default function SecureVideoPlayer({
         style={{ pointerEvents: "auto" }}
         onContextMenu={handleContextMenu}
       />
-
-      {/* Hide YouTube title at top */}
-      <div className="absolute top-0 left-0 right-0 h-16 bg-black/90 pointer-events-none z-10" />
-
-      {/* Hide YouTube logo at bottom-right */}
-      <div className="absolute bottom-12 right-0 w-32 h-20 bg-black/90 pointer-events-none z-10" />
 
       {/* Error overlay */}
       {playerError && (
