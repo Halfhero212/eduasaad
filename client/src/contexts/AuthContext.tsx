@@ -25,6 +25,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["/api/auth/me"],
     enabled: !!token,
     retry: false,
+    staleTime: 0, // Always fetch fresh auth data
+    gcTime: 0, // Don't cache auth data in memory
+    select: (data: any) => data?.user || data, // Extract user from {success: true, user: {...}} response
   });
 
   // Debug logging
@@ -34,7 +37,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasUser: !!user, 
       isLoading, 
       hasError: !!error,
-      userName: user?.fullName 
+      userName: user?.fullName,
+      fullUserObject: user 
     });
   }, [token, user, isLoading, error]);
 
