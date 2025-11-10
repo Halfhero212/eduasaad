@@ -1,5 +1,5 @@
-# منصة الباشق العراقي - Complete Feature List
-## Al-Bashiq Al-Iraqi Learning Platform - Complete Features
+# منصة ابراج التعليمية - Complete Feature List
+## Abraj Educational Platform - Complete Features
 
 ---
 

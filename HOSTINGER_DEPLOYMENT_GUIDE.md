@@ -1,4 +1,4 @@
-# 🚀 Hostinger VPS Deployment Guide - منصة الباشق العراقي
+# 🚀 Hostinger VPS Deployment Guide - منصة ابراج التعليمية
 
 Complete step-by-step guide to deploy your learning platform on Hostinger VPS.
 
@@ -13,7 +13,7 @@ Complete step-by-step guide to deploy your learning platform on Hostinger VPS.
    - Ubuntu 22.04 LTS (recommended OS)
 
 2. **Domain Name** (optional but recommended)
-   - Example: `bashiq-iraqi.com`
+   - Example: `abraj-platform.com`
 
 3. **Third-Party Services:**
    - **Resend API Key** (for password reset emails) - FREE tier available
@@ -106,9 +106,9 @@ psql --version  # Should show PostgreSQL 16.x
 sudo -u postgres psql
 
 # Create database and user (run these commands in PostgreSQL prompt)
-CREATE DATABASE bashiq_platform;
-CREATE USER bashiq_user WITH ENCRYPTED PASSWORD 'YOUR_SECURE_PASSWORD_HERE';
-GRANT ALL PRIVILEGES ON DATABASE bashiq_platform TO bashiq_user;
+CREATE DATABASE abraj_platform;
+CREATE USER abraj_user WITH ENCRYPTED PASSWORD 'YOUR_SECURE_PASSWORD_HERE';
+GRANT ALL PRIVILEGES ON DATABASE abraj_platform TO abraj_user;
 
 # Exit PostgreSQL
 \q
@@ -126,7 +126,7 @@ listen_addresses = 'localhost'  # Keep as localhost for security
 nano /etc/postgresql/16/main/pg_hba.conf
 
 # Add this line for local connections:
-local   all             bashiq_user                             md5
+local   all             abraj_user                             md5
 
 # Restart PostgreSQL
 systemctl restart postgresql
@@ -168,14 +168,14 @@ pm2 --version
 
 ```bash
 # Create dedicated user for security
-adduser bashiq
+adduser abraj
 # Set password when prompted
 
 # Add user to sudo group (optional)
-usermod -aG sudo bashiq
+usermod -aG sudo abraj
 
 # Switch to application user
-su - bashiq
+su - abraj
 ```
 
 ---
@@ -190,21 +190,21 @@ First, push your code to GitHub:
 git init
 git add .
 git commit -m "Initial deployment"
-git remote add origin https://github.com/YOUR_USERNAME/bashiq-platform.git
+git remote add origin https://github.com/YOUR_USERNAME/abraj-platform.git
 git push -u origin main
 ```
 
 Then on VPS:
 ```bash
 # Clone repository
-cd /home/bashiq
-git clone https://github.com/YOUR_USERNAME/bashiq-platform.git
-cd bashiq-platform
+cd /home/abraj
+git clone https://github.com/YOUR_USERNAME/abraj-platform.git
+cd abraj-platform
 ```
 
 **Option B: Upload via SFTP**
 
-Use FileZilla or WinSCP to upload your project files to `/home/bashiq/bashiq-platform`
+Use FileZilla or WinSCP to upload your project files to `/home/abraj/abraj-platform`
 
 ---
 
@@ -219,12 +219,12 @@ nano .env
 
 ```env
 # Database Configuration
-DATABASE_URL=postgresql://bashiq_user:YOUR_SECURE_PASSWORD_HERE@localhost:5432/bashiq_platform
+DATABASE_URL=postgresql://abraj_user:YOUR_SECURE_PASSWORD_HERE@localhost:5432/abraj_platform
 PGHOST=localhost
 PGPORT=5432
-PGUSER=bashiq_user
+PGUSER=abraj_user
 PGPASSWORD=YOUR_SECURE_PASSWORD_HERE
-PGDATABASE=bashiq_platform
+PGDATABASE=abraj_platform
 
 # Application
 NODE_ENV=production
@@ -237,13 +237,13 @@ RESEND_FROM_EMAIL=noreply@yourdomain.com
 
 # Object Storage (DigitalOcean Spaces example)
 DO_SPACES_ENDPOINT=https://nyc3.digitaloceanspaces.com
-DO_SPACES_BUCKET=bashiq-platform
+DO_SPACES_BUCKET=abraj-platform
 DO_SPACES_KEY=your_spaces_key_here
 DO_SPACES_SECRET=your_spaces_secret_here
 DO_SPACES_REGION=nyc3
 
 # OR if using AWS S3:
-# AWS_S3_BUCKET=bashiq-platform
+# AWS_S3_BUCKET=abraj-platform
 # AWS_ACCESS_KEY_ID=your_aws_key
 # AWS_SECRET_ACCESS_KEY=your_aws_secret
 # AWS_REGION=us-east-1
@@ -277,7 +277,7 @@ npm run build
 npm run db:push
 
 # Verify database tables were created
-PGPASSWORD=YOUR_SECURE_PASSWORD_HERE psql -h localhost -U bashiq_user -d bashiq_platform -c "\dt"
+PGPASSWORD=YOUR_SECURE_PASSWORD_HERE psql -h localhost -U abraj_user -d abraj_platform -c "\dt"
 ```
 
 ---
@@ -286,7 +286,7 @@ PGPASSWORD=YOUR_SECURE_PASSWORD_HERE psql -h localhost -U bashiq_user -d bashiq_
 
 ```bash
 # Start application
-pm2 start npm --name "bashiq-platform" -- run start
+pm2 start npm --name "abraj-platform" -- run start
 
 # Save PM2 configuration
 pm2 save
@@ -297,7 +297,7 @@ pm2 startup
 
 # Check application status
 pm2 status
-pm2 logs bashiq-platform
+pm2 logs abraj-platform
 ```
 
 ---
@@ -308,10 +308,10 @@ pm2 logs bashiq-platform
 
 ```bash
 # Switch back to root user
-exit  # Exit from bashiq user
+exit  # Exit from abraj user
 
 # Create Nginx configuration
-nano /etc/nginx/sites-available/bashiq-platform
+nano /etc/nginx/sites-available/abraj-platform
 ```
 
 **Add this configuration:**
@@ -319,7 +319,7 @@ nano /etc/nginx/sites-available/bashiq-platform
 ```nginx
 server {
     listen 80;
-    server_name YOUR_DOMAIN_OR_IP;  # e.g., bashiq-iraqi.com or 123.45.67.89
+    server_name YOUR_DOMAIN_OR_IP;  # e.g., abraj-platform.com or 123.45.67.89
 
     # Increase client body size for file uploads
     client_max_body_size 50M;
@@ -342,7 +342,7 @@ server {
 
 ```bash
 # Create symbolic link to enable site
-ln -s /etc/nginx/sites-available/bashiq-platform /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/abraj-platform /etc/nginx/sites-enabled/
 
 # Remove default site
 rm /etc/nginx/sites-enabled/default
@@ -402,7 +402,7 @@ certbot renew --dry-run
 
 1. **Create Spaces Bucket:**
    - Go to DigitalOcean → Spaces
-   - Create new Space (e.g., `bashiq-platform`)
+   - Create new Space (e.g., `abraj-platform`)
    - Choose region (e.g., NYC3)
    - Set permissions to "Private"
 
@@ -498,12 +498,12 @@ npm install cloudinary
 
 ```bash
 # Connect to database
-PGPASSWORD=YOUR_SECURE_PASSWORD_HERE psql -h localhost -U bashiq_user -d bashiq_platform
+PGPASSWORD=YOUR_SECURE_PASSWORD_HERE psql -h localhost -U abraj_user -d abraj_platform
 
 # Insert superadmin user
 INSERT INTO users (email, password, full_name, role) 
 VALUES (
-  'admin@bashiq-iraqi.com',
+  'admin@abraj.edu',
   '$2b$10$HASH_GENERATED_PASSWORD_HERE',
   'Super Admin',
   'superadmin'
@@ -535,19 +535,19 @@ node -e "const bcrypt = require('bcrypt'); bcrypt.hash('YOUR_ADMIN_PASSWORD', 10
 
 ```bash
 # Create backup script
-nano /home/bashiq/backup.sh
+nano /home/abraj/backup.sh
 ```
 
 ```bash
 #!/bin/bash
-BACKUP_DIR="/home/bashiq/backups"
+BACKUP_DIR="/home/abraj/backups"
 DATE=$(date +%Y%m%d_%H%M%S)
 
 # Create backup directory
 mkdir -p $BACKUP_DIR
 
 # Backup database
-PGPASSWORD=YOUR_SECURE_PASSWORD_HERE pg_dump -h localhost -U bashiq_user -d bashiq_platform > $BACKUP_DIR/db_backup_$DATE.sql
+PGPASSWORD=YOUR_SECURE_PASSWORD_HERE pg_dump -h localhost -U abraj_user -d abraj_platform > $BACKUP_DIR/db_backup_$DATE.sql
 
 # Keep only last 7 days of backups
 find $BACKUP_DIR -name "db_backup_*.sql" -mtime +7 -delete
@@ -557,13 +557,13 @@ echo "Backup completed: $DATE"
 
 ```bash
 # Make script executable
-chmod +x /home/bashiq/backup.sh
+chmod +x /home/abraj/backup.sh
 
 # Add to crontab (daily at 2 AM)
 crontab -e
 
 # Add this line:
-0 2 * * * /home/bashiq/backup.sh >> /home/bashiq/backup.log 2>&1
+0 2 * * * /home/abraj/backup.sh >> /home/abraj/backup.log 2>&1
 ```
 
 ---
@@ -572,7 +572,7 @@ crontab -e
 
 ```bash
 # View application logs
-pm2 logs bashiq-platform
+pm2 logs abraj-platform
 
 # View Nginx access logs
 tail -f /var/log/nginx/access.log
@@ -592,10 +592,10 @@ When you need to update your app:
 
 ```bash
 # SSH into VPS
-ssh bashiq@YOUR_VPS_IP
+ssh abraj@YOUR_VPS_IP
 
 # Navigate to application directory
-cd /home/bashiq/bashiq-platform
+cd /home/abraj/abraj-platform
 
 # Pull latest changes
 git pull origin main
@@ -610,10 +610,10 @@ npm run build
 npm run db:push
 
 # Restart application
-pm2 restart bashiq-platform
+pm2 restart abraj-platform
 
 # Check logs
-pm2 logs bashiq-platform
+pm2 logs abraj-platform
 ```
 
 ---
@@ -637,13 +637,13 @@ pm2 logs bashiq-platform
 
 ### Application won't start:
 ```bash
-pm2 logs bashiq-platform --lines 100
+pm2 logs abraj-platform --lines 100
 ```
 
 ### Database connection errors:
 ```bash
 # Test database connection
-PGPASSWORD=YOUR_PASSWORD psql -h localhost -U bashiq_user -d bashiq_platform -c "SELECT 1;"
+PGPASSWORD=YOUR_PASSWORD psql -h localhost -U abraj_user -d abraj_platform -c "SELECT 1;"
 ```
 
 ### Nginx errors:
@@ -697,7 +697,7 @@ kill -9 PID
 
 ## 🎉 Congratulations!
 
-Your منصة الباشق العراقي platform is now live on Hostinger!
+Your منصة ابراج التعليمية platform is now live on Hostinger!
 
 **Access your platform at:** `https://yourdomain.com`
 

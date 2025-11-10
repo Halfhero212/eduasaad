@@ -1,4 +1,4 @@
-# منصة الباشق العراقي (Iraqi Hawk Platform) Design Guidelines
+# منصة ابراج التعليمية (Abraj Educational Platform) Design Guidelines
 
 ## Design Approach
 

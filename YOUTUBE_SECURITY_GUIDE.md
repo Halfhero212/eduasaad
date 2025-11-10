@@ -3,9 +3,9 @@
 
 ## Overview / نظرة عامة
 
-This guide helps teachers configure YouTube videos for maximum security while using the Al-Bashiq Al-Iraqi learning platform.
+This guide helps teachers configure YouTube videos for maximum security while using the Abraj Educational Platform.
 
-يساعد هذا الدليل المعلمين على تكوين فيديوهات اليوتيوب لتحقيق أقصى قدر من الأمان أثناء استخدام منصة الباشق العراقي للتعليم.
+يساعد هذا الدليل المعلمين على تكوين فيديوهات اليوتيوب لتحقيق أقصى قدر من الأمان أثناء استخدام منصة ابراج التعليمية.
 
 ---
 

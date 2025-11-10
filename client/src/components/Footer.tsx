@@ -33,7 +33,7 @@ export default function Footer() {
           {/* Brand Section */}
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-foreground">
-              {language === 'ar' ? 'الباشق العراقي' : 'Al-Bashiq Al-Iraqi'}
+              {language === 'ar' ? 'منصة ابراج التعليمية' : 'Abraj Educational Platform'}
             </h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
               {t('footer.tagline')}
@@ -135,20 +135,20 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
             <div className="flex flex-col sm:flex-row gap-4 text-sm text-muted-foreground">
               <a 
-                href="mailto:info@albashiq.edu" 
+                href="mailto:info@abraj.edu" 
                 className="flex items-center gap-2 hover:text-foreground transition-colors"
                 data-testid="link-footer-email"
               >
                 <Mail className="w-4 h-4" />
-                <span>info@albashiq.edu</span>
+                <span>info@abraj.edu</span>
               </a>
               <a 
-                href="tel:+9647801234567" 
+                href="tel:+9467730145334" 
                 className="flex items-center gap-2 hover:text-foreground transition-colors"
                 data-testid="link-footer-phone"
               >
                 <Phone className="w-4 h-4" />
-                <span dir="ltr">+964 780 123 4567</span>
+                <span dir="ltr">+946 773 014 5334</span>
               </a>
             </div>
           </div>

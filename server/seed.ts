@@ -59,7 +59,7 @@ async function seed() {
         password: hashedPassword,
         fullName: "Test Teacher",
         role: "teacher",
-        whatsappNumber: "9647801111111",
+        whatsappNumber: "9467730145334",
       });
       console.log(`✅ Created test teacher account`);
       console.log(`   Email: ${teacherEmail}`);
@@ -75,7 +75,7 @@ async function seed() {
     if (!existingSetting) {
       await db.insert(platformSettings).values({
         key: whatsappKey,
-        value: "9647801234567", // Default Iraqi phone number format
+        value: "9467730145334", // Default contact phone number
       });
       console.log(`✅ Set default WhatsApp number`);
     } else {

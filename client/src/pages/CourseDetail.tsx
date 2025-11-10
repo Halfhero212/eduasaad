@@ -68,7 +68,7 @@ export default function CourseDetail() {
         .replace("{title}", courseData.course.title)
         .replace("${price}", String(courseData.course.price))
     );
-    const phone = courseData.course.teacher?.whatsappNumber || "9647801234567";
+    const phone = courseData.course.teacher?.whatsappNumber || "9467730145334";
     const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
     
     // Open WhatsApp window immediately (before async operation) to avoid popup blocking

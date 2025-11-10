@@ -35,7 +35,7 @@ export async function sendPasswordResetEmail(
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: toEmail,
-      subject: 'إعادة تعيين كلمة المرور - Password Reset | الباشق العراقي',
+      subject: 'إعادة تعيين كلمة المرور - Password Reset | منصة ابراج التعليمية',
       html: `
         <!DOCTYPE html>
         <html dir="rtl" lang="ar">
@@ -109,13 +109,13 @@ export async function sendPasswordResetEmail(
         <body>
           <div class="container">
             <div class="header">
-              <div class="logo">🦅 الباشق العراقي</div>
+              <div class="logo">🦅 منصة ابراج التعليمية</div>
               <div style="color: #6b7280;">منصة التعليم الإلكتروني</div>
             </div>
             
             <div class="content">
               <h2 style="color: #1f2937;">مرحباً ${userName}</h2>
-              <p>تلقينا طلباً لإعادة تعيين كلمة المرور لحسابك في منصة الباشق العراقي.</p>
+              <p>تلقينا طلباً لإعادة تعيين كلمة المرور لحسابك في منصة ابراج التعليمية.</p>
               
               <p>للمتابعة، يرجى النقر على الزر أدناه:</p>
               
@@ -137,21 +137,21 @@ export async function sendPasswordResetEmail(
             </div>
             
             <div class="footer">
-              <p>هذه رسالة تلقائية من منصة الباشق العراقي<br>
-              Al-Bashiq Al-Iraqi Learning Platform</p>
+              <p>هذه رسالة تلقائية من منصة ابراج التعليمية<br>
+              Abraj Educational Platform</p>
             </div>
           </div>
           
           <!-- English Version -->
           <div class="container" dir="ltr" style="margin-top: 20px;">
             <div class="header">
-              <div class="logo">🦅 Al-Bashiq Al-Iraqi</div>
+              <div class="logo">🦅 Abraj Educational Platform</div>
               <div style="color: #6b7280;">Learning Platform</div>
             </div>
             
             <div class="content">
               <h2 style="color: #1f2937;">Hello ${userName}</h2>
-              <p>We received a request to reset the password for your Al-Bashiq Al-Iraqi account.</p>
+              <p>We received a request to reset the password for your Abraj Educational Platform account.</p>
               
               <p>To proceed, please click the button below:</p>
               
@@ -173,7 +173,7 @@ export async function sendPasswordResetEmail(
             </div>
             
             <div class="footer">
-              <p>This is an automated message from Al-Bashiq Al-Iraqi Platform</p>
+              <p>This is an automated message from Abraj Educational Platform</p>
             </div>
           </div>
         </body>

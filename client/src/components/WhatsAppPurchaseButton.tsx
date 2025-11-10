@@ -12,7 +12,7 @@ interface WhatsAppPurchaseButtonProps {
 export function WhatsAppPurchaseButton({
   courseName,
   price,
-  whatsappNumber = "9647801234567", // Default Iraqi number format
+  whatsappNumber = "9467730145334", // Default contact number
   variant = "default",
 }: WhatsAppPurchaseButtonProps) {
   const handlePurchase = () => {

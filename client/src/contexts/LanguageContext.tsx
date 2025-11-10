@@ -16,7 +16,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Common
     "common.loading": "جاري التحميل...",
     "common.welcome": "مرحباً بك في",
-    "app.name": "الباشق العراقي",
+    "app.name": "منصة ابراج التعليمية",
     "app.tagline": "منصه للتعليم الاكتروني",
     "app.description": "منصه للتعليم الاكتروني",
     
@@ -34,7 +34,7 @@ const translations: Record<Language, Record<string, string>> = {
     "notifications.no_notifications": "لا توجد إشعارات",
     
     // Home Page
-    "home.hero_title": "الباشق العراقي",
+    "home.hero_title": "منصة ابراج التعليمية",
     "home.hero_subtitle": "منصه للتعليم الاكتروني",
     "home.get_started": "ابدأ مجاناً",
     "home.browse_courses": "تصفح الدورات",
@@ -192,7 +192,7 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.password_min_length": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
     "auth.fullname_min_length": "الاسم يجب أن يكون حرفين على الأقل",
     "auth.whatsapp_number": "رقم الواتساب",
-    "auth.whatsapp_placeholder": "+9647801234567",
+    "auth.whatsapp_placeholder": "+9467730145334",
     "auth.phone_min_length": "رقم الواتساب يجب أن يكون 10 أرقام على الأقل",
     "auth.reset_password": "إعادة تعيين كلمة المرور",
     "auth.reset_password_desc": "أدخل بريدك الإلكتروني لتلقي رابط إعادة تعيين كلمة المرور",
@@ -206,7 +206,7 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.forgot_password": "نسيت كلمة المرور؟",
     
     // Register
-    "register.subtitle": "انضم إلى آلاف المتعلمين في الباشق العراقي",
+    "register.subtitle": "انضم إلى آلاف المتعلمين في منصة ابراج التعليمية",
     "register.creating_account": "جاري إنشاء الحساب...",
     
     // Login/Register Toast Messages
@@ -463,7 +463,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Common
     "common.loading": "Loading...",
     "common.welcome": "Welcome to",
-    "app.name": "Al-Bashiq Al-Iraqi",
+    "app.name": "Abraj Educational Platform",
     "app.tagline": "Electronic Learning Platform",
     "app.description": "Electronic Learning Platform",
     
@@ -481,7 +481,7 @@ const translations: Record<Language, Record<string, string>> = {
     "notifications.no_notifications": "No notifications",
     
     // Home Page
-    "home.hero_title": "Al-Bashiq Al-Iraqi",
+    "home.hero_title": "Abraj Educational Platform",
     "home.hero_subtitle": "Electronic Learning Platform",
     "home.get_started": "Get Started Free",
     "home.browse_courses": "Browse Courses",
@@ -640,7 +640,7 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.password_min_length": "Password must be at least 6 characters",
     "auth.fullname_min_length": "Name must be at least 2 characters",
     "auth.whatsapp_number": "WhatsApp Number",
-    "auth.whatsapp_placeholder": "+9647801234567",
+    "auth.whatsapp_placeholder": "+9467730145334",
     "auth.phone_min_length": "WhatsApp number must be at least 10 digits",
     "auth.reset_password": "Reset Password",
     "auth.reset_password_desc": "Enter your email to receive a password reset link",

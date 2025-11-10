@@ -1,7 +1,7 @@
-# الباشق العراقي (Al-Bashiq Al-Iraqi) - Full-Stack Learning Management System
+# منصة ابراج التعليمية (Abraj Educational Platform) - Full-Stack Learning Management System
 
 ## Overview
-**الباشق العراقي** is a comprehensive e-learning platform designed for course delivery with a three-tier user hierarchy: superadmin, teachers, and students. Its core purpose is to enable teachers to create and deliver video-based courses with quizzes, allow students to learn and track their progress, and provide superadmins with full platform management capabilities. The platform aims to offer a robust and user-friendly experience for online education, supporting bilingual (Arabic/English) content and a streamlined enrollment process for both free and paid courses, integrating WhatsApp for payment coordination.
+**منصة ابراج التعليمية** is a comprehensive e-learning platform designed for course delivery with a three-tier user hierarchy: superadmin, teachers, and students. Its core purpose is to enable teachers to create and deliver video-based courses with quizzes, allow students to learn and track their progress, and provide superadmins with full platform management capabilities. The platform aims to offer a robust and user-friendly experience for online education, supporting bilingual (Arabic/English) content and a streamlined enrollment process for both free and paid courses, integrating WhatsApp for payment coordination.
 
 ## User Preferences
 I prefer simple language and clear explanations. I want iterative development with frequent check-ins. Ask before making major architectural changes or adding new external dependencies. Do not make changes to files related to authentication without explicit approval.

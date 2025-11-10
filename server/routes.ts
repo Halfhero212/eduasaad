@@ -23,10 +23,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { storage } = await import("./storage");
       const setting = await storage.getPlatformSetting("whatsapp_number");
-      res.json({ success: true, number: setting?.value || "9647801234567" });
+      res.json({ success: true, number: setting?.value || "9467730145334" });
     } catch (error) {
       console.error("Get WhatsApp number error:", error);
-      res.json({ success: true, number: "9647801234567" });
+      res.json({ success: true, number: "9467730145334" });
     }
   });
 
