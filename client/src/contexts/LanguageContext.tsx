@@ -654,7 +654,7 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.forgot_password": "Forgot password?",
     
     // Register
-    "register.subtitle": "Join thousands of learners on Al-Bashiq Al-Iraqi",
+    "register.subtitle": "Join thousands of learners on Abraj Educational Platform",
     "register.creating_account": "Creating account...",
     
     // Login/Register Toast Messages
