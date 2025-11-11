@@ -341,6 +341,11 @@ const translations: Record<Language, Record<string, string>> = {
     "dialog.category.update": "تحديث",
     "dialog.category.saving": "جاري الحفظ...",
     
+    // Reset Password Dialog
+    "dialog.reset_password.title": "تم إعادة تعيين كلمة المرور بنجاح",
+    "dialog.reset_password.description": "تم إنشاء كلمة مرور جديدة لحساب المعلم",
+    "dialog.reset_password.note": "يرجى حفظ كلمة المرور هذه ومشاركتها مع المعلم. لن تظهر مرة أخرى.",
+    
     // Common Actions
     "action.view": "عرض",
     "action.edit": "تعديل",

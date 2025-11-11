@@ -1123,10 +1123,13 @@ export default function SuperAdminDashboard() {
             <div className="space-y-4">
               <Alert>
                 <AlertDescription>
-                  <div className="flex items-center justify-between">
-                    <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
-                      {resetPassword}
-                    </code>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={resetPassword || ""}
+                      onChange={(e) => setResetPassword(e.target.value)}
+                      className="font-mono"
+                      data-testid="input-reset-password"
+                    />
                     <Button
                       variant="ghost"
                       size="icon"
