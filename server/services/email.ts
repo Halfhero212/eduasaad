@@ -1,6 +1,19 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization - only create Resend client when actually needed
+let resendClient: Resend | null = null;
+
+function getResendClient(): Resend | null {
+  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 're_dummy_key') {
+    return null;
+  }
+  
+  if (!resendClient) {
+    resendClient = new Resend(process.env.RESEND_API_KEY);
+  }
+  
+  return resendClient;
+}
 
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 const APP_URL = process.env.REPL_SLUG 
@@ -19,15 +32,23 @@ export async function sendPasswordResetEmail(
   try {
     const resetLink = `${APP_URL}/reset-password?token=${resetToken}`;
     
-    if (SANDBOX_MODE) {
-      console.log(`📧 [SANDBOX MODE] Password reset email simulation`);
+    // Check if Resend is configured
+    const resend = getResendClient();
+    
+    if (!resend || SANDBOX_MODE) {
+      console.log(`📧 [EMAIL SIMULATION MODE] Password reset email simulation`);
       console.log(`   To: ${toEmail}`);
       console.log(`   User: ${userName}`);
       console.log(`   Reset link: ${resetLink}`);
-      console.log(`   ⚠️  In sandbox mode (onboarding@resend.dev), emails can only be sent to verified addresses.`);
-      console.log(`   ⚠️  To send to any email, verify a domain at resend.com/domains and set RESEND_FROM_EMAIL`);
       
-      // In sandbox mode, don't attempt to send to avoid 403 errors
+      if (!resend) {
+        console.log(`   ⚠️  RESEND_API_KEY not configured - emails will only be simulated`);
+      } else {
+        console.log(`   ⚠️  In sandbox mode (onboarding@resend.dev), emails can only be sent to verified addresses.`);
+        console.log(`   ⚠️  To send to any email, verify a domain at resend.com/domains and set RESEND_FROM_EMAIL`);
+      }
+      
+      // In simulation mode, don't attempt to send to avoid errors
       // Return success so the reset flow completes (user gets token in development)
       return { success: true };
     }
