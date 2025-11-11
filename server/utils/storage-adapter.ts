@@ -1,6 +1,6 @@
 /**
- * Storage Adapter - Works on both Replit and regular servers
- * Falls back to local filesystem if Replit Object Storage is not available
+ * Local File Storage Adapter
+ * Stores all uploads in the uploads/ directory
  */
 
 import fs from 'fs/promises';
@@ -15,32 +15,6 @@ interface StorageAdapter {
   uploadFromBytes(filepath: string, buffer: Buffer, options?: { contentType?: string }): Promise<UploadResult>;
   delete(filepath: string): Promise<void>;
   getPublicUrl(filepath: string): string;
-}
-
-class ReplitStorageAdapter implements StorageAdapter {
-  private client: any;
-
-  constructor() {
-    // Dynamically import only if available
-    try {
-      const { Client } = require('@replit/object-storage');
-      this.client = new Client();
-    } catch (error) {
-      throw new Error('Replit Object Storage not available');
-    }
-  }
-
-  async uploadFromBytes(filepath: string, buffer: Buffer, options?: { contentType?: string }): Promise<UploadResult> {
-    return await this.client.uploadFromBytes(filepath, buffer, options as any);
-  }
-
-  async delete(filepath: string): Promise<void> {
-    await this.client.delete(filepath);
-  }
-
-  getPublicUrl(filepath: string): string {
-    return filepath; // Replit serves directly from storage paths
-  }
 }
 
 class LocalStorageAdapter implements StorageAdapter {
@@ -89,23 +63,9 @@ class LocalStorageAdapter implements StorageAdapter {
 let storageInstance: StorageAdapter | null = null;
 
 export function getStorageAdapter(): StorageAdapter {
-  if (storageInstance) {
-    return storageInstance;
-  }
-
-  // Try Replit Object Storage first
-  try {
-    storageInstance = new ReplitStorageAdapter();
-    console.log('✅ Using Replit Object Storage');
-  } catch (error) {
-    // Fall back to local filesystem
+  if (!storageInstance) {
     storageInstance = new LocalStorageAdapter();
     console.log('✅ Using Local File Storage (uploads/ directory)');
   }
-
   return storageInstance;
-}
-
-export function isReplitStorage(): boolean {
-  return storageInstance instanceof ReplitStorageAdapter;
 }
