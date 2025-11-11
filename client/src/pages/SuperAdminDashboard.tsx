@@ -895,7 +895,7 @@ export default function SuperAdminDashboard() {
                       id="name"
                       value={newTeacherName}
                       onChange={(e) => setNewTeacherName(e.target.value)}
-                      placeholder="John Doe"
+                      placeholder={t("auth.fullname_placeholder")}
                       data-testid="input-teacher-name"
                     />
                   </div>
