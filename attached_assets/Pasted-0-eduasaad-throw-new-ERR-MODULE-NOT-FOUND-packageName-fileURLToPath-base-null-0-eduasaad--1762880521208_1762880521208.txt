@@ -1,0 +1,50 @@
+0|eduasaad |   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+0|eduasaad |         ^
+0|eduasaad |
+0|eduasaad | Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /home/abraj/abraj-platform/eduasaad/dist/index.js
+0|eduasaad |     at packageResolve (node:internal/modules/esm/resolve:873:9)
+0|eduasaad |     at moduleResolve (node:internal/modules/esm/resolve:946:18)
+0|eduasaad |     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+0|eduasaad |     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+0|eduasaad |     at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+0|eduasaad |     at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+0|eduasaad |     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+0|eduasaad |     at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+0|eduasaad |   code: 'ERR_MODULE_NOT_FOUND'
+0|eduasaad | }
+0|eduasaad |
+0|eduasaad | Node.js v20.19.5
+0|eduasaad | node:internal/modules/esm/resolve:873
+0|eduasaad |   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+0|eduasaad |         ^
+0|eduasaad |
+0|eduasaad | Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /home/abraj/abraj-platform/eduasaad/dist/index.js
+0|eduasaad |     at packageResolve (node:internal/modules/esm/resolve:873:9)
+0|eduasaad |     at moduleResolve (node:internal/modules/esm/resolve:946:18)
+0|eduasaad |     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+0|eduasaad |     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+0|eduasaad |     at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+0|eduasaad |     at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+0|eduasaad |     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+0|eduasaad |     at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+0|eduasaad |   code: 'ERR_MODULE_NOT_FOUND'
+0|eduasaad | }
+0|eduasaad |
+0|eduasaad | Node.js v20.19.5
+0|eduasaad | node:internal/modules/esm/resolve:873
+0|eduasaad |   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+0|eduasaad |         ^
+0|eduasaad |
+0|eduasaad | Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /home/abraj/abraj-platform/eduasaad/dist/index.js
+0|eduasaad |     at packageResolve (node:internal/modules/esm/resolve:873:9)
+0|eduasaad |     at moduleResolve (node:internal/modules/esm/resolve:946:18)
+0|eduasaad |     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+0|eduasaad |     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+0|eduasaad |     at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+0|eduasaad |     at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+0|eduasaad |     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+0|eduasaad |     at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+0|eduasaad |   code: 'ERR_MODULE_NOT_FOUND'
+0|eduasaad | }
+0|eduasaad |
+0|eduasaad | Node.js v20.19.5
