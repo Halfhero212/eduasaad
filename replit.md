@@ -64,3 +64,20 @@ The platform is a full-stack application utilizing a modern JAMstack-inspired ar
 - **Drizzle ORM**: Object-Relational Mapper for PostgreSQL.
 - **Zod**: Schema validation library.
 - **Multer**: Middleware for handling `multipart/form-data`, primarily for file uploads.
+
+## Recent Changes
+
+### Visual Polish & Production Ready (November 2025)
+- Added professional stock images throughout the platform (educational themes, no people)
+- Implemented default course thumbnails using 3 rotating stock images for courses without custom images
+- Enhanced home page hero section with engaging background image and gradient overlay
+- Tested and verified production build configuration (658KB frontend, 117KB backend bundles)
+- Created comprehensive DEPLOYMENT.md guide for Hostinger deployment
+- All images properly integrated using @assets alias for optimal bundling
+
+### SEO-Friendly Arabic URLs
+- Implemented SEO-friendly course URLs with Arabic slugs (`/courses/:id/:slug` pattern)
+- Added slug field to courses schema with automatic generation from Arabic course titles
+- Created slug generation utility with proper Arabic text normalization (supports Arabic Unicode blocks, diacritics, and Arabic-Indic digits)
+- Backfilled existing courses with slugs and updated all course/lesson links throughout the app
+- Created shared `getCourseUrl()` and `getCourseLessonUrl()` helper functions for consistent URL building
