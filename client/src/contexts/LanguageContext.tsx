@@ -929,8 +929,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     
     // Update page title
     document.title = language === "ar" 
-      ? "منصة التعلم - أتقن مهارات جديدة" 
-      : "Learning Platform - Master New Skills";
+      ? "منصة ابراج التعليمية - أتقن مهارات جديدة" 
+      : "Abraj Educational Platform - Master New Skills";
   }, [language, isRTL]);
 
   const setLanguage = (lang: Language) => {

@@ -9,10 +9,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { GraduationCap, BookOpen, Users, Award } from "lucide-react";
 import type { Course } from "@shared/schema";
 import { useLanguage } from "@/contexts/LanguageContext";
-import heroImage from "@assets/stock_images/students_learning_on_40a689ec.jpg";
-import collaborativeImage from "@assets/stock_images/diverse_students_stu_fc2fa83f.jpg";
-import onlineCourseImage from "@assets/stock_images/online_course_video__aa2c456c.jpg";
-import achievementImage from "@assets/stock_images/achievement_success__a449349c.jpg";
+import heroImage from "@assets/stock_images/muslim_student_girl__ac85122a.jpg";
+import collaborativeImage from "@assets/stock_images/muslim_student_girl__52e970b1.jpg";
+import onlineCourseImage from "@assets/stock_images/muslim_student_girl__5ab02134.jpg";
+import achievementImage from "@assets/stock_images/muslim_student_girl__ac85122a.jpg";
 
 export default function Home() {
   const { t } = useLanguage();
