@@ -86,28 +86,6 @@ export default function TeacherDashboard() {
     ? allEnrollments 
     : allEnrollments.filter(e => e.purchaseStatus === enrollmentFilter);
 
-  const confirmEnrollmentMutation = useMutation({
-    mutationFn: async (enrollmentId: number) => {
-      await apiRequest("PUT", `/api/enrollments/${enrollmentId}/status`, { status: "confirmed" });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/enrollments/teacher/pending"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/enrollments/teacher/all"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/my-courses"] });
-      toast({
-        title: t("toast.enrollment_confirmed"),
-        description: t("toast.enrollment_confirmed_desc"),
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: t("toast.enrollment_update_failed"),
-        description: error instanceof Error ? error.message : t("toast.error_generic"),
-        variant: "destructive",
-      });
-    },
-  });
-
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -304,18 +282,9 @@ export default function TeacherDashboard() {
                       <p className="text-sm text-muted-foreground">
                         {t("label.price")}: ${enrollment.course?.price || "0"}
                       </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="default"
-                        onClick={() => confirmEnrollmentMutation.mutate(enrollment.id)}
-                        disabled={confirmEnrollmentMutation.isPending}
-                        data-testid={`button-confirm-${enrollment.id}`}
-                      >
-                        <Check className="h-4 w-4 mr-1" />
-                        {t("button.confirm")}
-                      </Button>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {t("dashboard.teacher.pending_approval")}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -404,18 +373,6 @@ export default function TeacherDashboard() {
                         {new Date(enrollment.enrolledAt).toLocaleDateString()}
                       </p>
                     </div>
-                    {enrollment.purchaseStatus === "pending" && (
-                      <Button
-                        size="sm"
-                        variant="default"
-                        onClick={() => confirmEnrollmentMutation.mutate(enrollment.id)}
-                        disabled={confirmEnrollmentMutation.isPending}
-                        data-testid={`button-confirm-enrollment-${enrollment.id}`}
-                      >
-                        <Check className="h-4 w-4 mr-1" />
-                        {t("button.confirm")}
-                      </Button>
-                    )}
                   </div>
                 ))}
               </div>
@@ -437,7 +394,7 @@ export default function TeacherDashboard() {
                   {t("dashboard.teacher.create_course")}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>{t("dashboard.teacher.create_course")}</DialogTitle>
                   <DialogDescription>

@@ -100,8 +100,6 @@ const translations: Record<Language, Record<string, string>> = {
     "lesson.not_found": "الدرس غير موجود",
     "lesson.back_to_course": "العودة للدورة",
     "lesson.no_video": "لا يوجد فيديو متاح",
-    "lesson.previous": "السابق",
-    "lesson.mark_complete": "وضع علامة كمكتمل",
     
     // Comments/Q&A
     "comment.ask_question": "اطرح سؤالاً",
@@ -168,9 +166,6 @@ const translations: Record<Language, Record<string, string>> = {
     "quiz.quizzes": "الاختبارات",
     "quiz.upload_solution": "ارفع الحل (صور)",
     "quiz.images_selected": "صور محددة",
-    "quiz.submit": "إرسال الحل",
-    "quiz.submitting": "جاري الإرسال...",
-    "quiz.no_quizzes": "لا توجد اختبارات لهذا الدرس",
     
     // Auth
     "auth.login": "تسجيل الدخول",
@@ -178,7 +173,6 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.email": "البريد الإلكتروني",
     "auth.password": "كلمة المرور",
     "auth.full_name": "الاسم الكامل",
-    "auth.sign_in": "تسجيل الدخول",
     "auth.create_account": "إنشاء حساب",
     "auth.no_account": "ليس لديك حساب؟",
     "auth.have_account": "لديك حساب؟",
@@ -199,7 +193,6 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.whatsapp_number": "رقم الواتساب",
     "auth.whatsapp_placeholder": "+9467730145334",
     "auth.phone_min_length": "رقم الواتساب يجب أن يكون 10 أرقام على الأقل",
-    "auth.reset_password": "إعادة تعيين كلمة المرور",
     "auth.reset_password_desc": "أدخل بريدك الإلكتروني لتلقي رابط إعادة تعيين كلمة المرور",
     "auth.reset_email_sent_desc": "لقد أرسلنا لك رابط إعادة تعيين كلمة المرور",
     "auth.check_email_instructions": "تحقق من بريدك الإلكتروني للحصول على تعليمات إعادة تعيين كلمة المرور",
@@ -208,7 +201,6 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.invalid_reset_link_desc": "رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية",
     "auth.password_reset_success": "تم إعادة تعيين كلمة المرور بنجاح",
     "auth.password_reset_success_desc": "يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة",
-    "auth.forgot_password": "نسيت كلمة المرور؟",
     
     // Register
     "register.subtitle": "انضم إلى آلاف المتعلمين في منصة ابراج التعليمية",
@@ -265,6 +257,7 @@ const translations: Record<Language, Record<string, string>> = {
     
     // Dashboard - Teacher
     "dashboard.teacher.title": "لوحة تحكم المعلم",
+    "dashboard.teacher.pending_approval": "بانتظار موافقة المسؤول",
     "dashboard.teacher.welcome": "مرحباً بعودتك",
     "dashboard.teacher.my_courses": "دوراتي",
     "dashboard.teacher.students": "الطلاب",
@@ -555,7 +548,6 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.reset_password": "إعادة تعيين كلمة المرور",
     "auth.send_reset_link": "إرسال رابط الاستعادة",
     "auth.back_to_login": "العودة لتسجيل الدخول",
-    "auth.password": "كلمة المرور",
     "auth.email_sent": "تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني",
     "auth.reset_success": "تم تحديث كلمة المرور بنجاح",
     "auth.student_account": "حساب طالب",
