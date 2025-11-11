@@ -5,10 +5,31 @@ import { notificationMessages } from "../utils/notificationMessages";
 
 export function registerCommentRoutes(app: Express) {
   // Get comments for a lesson
-  app.get("/api/lessons/:lessonId/comments", requireAuth, async (req, res) => {
+  app.get("/api/lessons/:lessonId/comments", requireAuth, async (req: AuthRequest, res) => {
     try {
       const lessonId = parseInt(req.params.lessonId);
-      const comments = await storage.getLessonComments(lessonId);
+      const currentUserId = req.user!.id;
+      const currentUserRole = req.user!.role;
+      
+      let comments = await storage.getLessonComments(lessonId);
+
+      // Filter comments based on user role
+      if (currentUserRole === "student") {
+        // Students see only their own questions and replies to their questions
+        const studentCommentIds = new Set(
+          comments
+            .filter((c: any) => c.userId === currentUserId && c.parentCommentId === null)
+            .map((c: any) => c.id)
+        );
+
+        comments = comments.filter((c: any) => 
+          // Their own questions
+          c.userId === currentUserId || 
+          // Replies to their questions
+          (c.parentCommentId !== null && studentCommentIds.has(c.parentCommentId))
+        );
+      }
+      // Teachers and superadmins see all comments
 
       // Enrich with user info
       const enrichedComments = await Promise.all(
