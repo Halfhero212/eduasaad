@@ -280,7 +280,7 @@ export default function TeacherDashboard() {
                         {t("dashboard.teacher.course")}: {enrollment.course?.title || "Unknown Course"}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {t("label.price")}: ${enrollment.course?.price || "0"}
+                        {t("label.price")}: {enrollment.course?.price || "0"} {t("courses.currency")}
                       </p>
                       <p className="text-xs text-muted-foreground mt-2">
                         {t("dashboard.teacher.pending_approval")}
@@ -367,7 +367,7 @@ export default function TeacherDashboard() {
                         {t("dashboard.teacher.course")}: {enrollment.course?.title || "Unknown Course"}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {t("label.price")}: ${enrollment.course?.price || "0"}
+                        {t("label.price")}: {enrollment.course?.price || "0"} {t("courses.currency")}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
                         {new Date(enrollment.enrolledAt).toLocaleDateString()}
@@ -547,7 +547,7 @@ export default function TeacherDashboard() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-muted-foreground">
-                        {course.isFree ? t("courses.free") : `$${course.price}`}
+                        {course.isFree ? t("courses.free") : `${course.price} ${t("courses.currency")}`}
                       </p>
                     </CardContent>
                     <CardFooter>

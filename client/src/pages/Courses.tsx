@@ -137,7 +137,7 @@ export default function Courses() {
                       {course.isFree ? (
                         <Badge variant="secondary" data-testid={`badge-free-${course.id}`}>{t("courses.free")}</Badge>
                       ) : (
-                        <Badge variant="default" data-testid={`badge-price-${course.id}`}>${course.price}</Badge>
+                        <Badge variant="default" data-testid={`badge-price-${course.id}`}>{course.price} {t("courses.currency")}</Badge>
                       )}
                     </div>
                     <CardDescription className="line-clamp-3">

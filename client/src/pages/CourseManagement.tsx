@@ -362,7 +362,7 @@ export default function CourseManagement() {
           <h1 className="text-3xl font-bold mb-2">{course.title}</h1>
           <p className="text-muted-foreground mb-4">{course.description}</p>
           <div className="flex gap-2">
-            <Badge>{course.isFree ? t("courses.free") : `$${course.price}`}</Badge>
+            <Badge>{course.isFree ? t("courses.free") : `${course.price} ${t("courses.currency")}`}</Badge>
             <Link href={`/courses/${course.id}`}>
               <Button variant="outline" size="sm" data-testid="button-view-public">
                 <Edit className="w-4 h-4 mr-2" />

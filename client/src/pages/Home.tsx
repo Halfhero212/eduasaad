@@ -204,7 +204,7 @@ export default function Home() {
                           </Badge>
                         ) : (
                           <Badge variant="default" className="bg-primary/90 backdrop-blur-sm">
-                            ${course.price}
+                            {course.price} {t("courses.currency")}
                           </Badge>
                         )}
                       </div>

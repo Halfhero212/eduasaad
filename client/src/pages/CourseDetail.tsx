@@ -66,7 +66,7 @@ export default function CourseDetail() {
     const message = encodeURIComponent(
       messageTemplate
         .replace("{title}", courseData.course.title)
-        .replace("${price}", String(courseData.course.price))
+        .replace("{price}", `${courseData.course.price} ${t("courses.currency")}`)
     );
     const phone = courseData.course.teacher?.whatsappNumber || "9467730145334";
     const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
@@ -187,7 +187,7 @@ export default function CourseDetail() {
                       <div className="text-4xl font-bold text-secondary">{t("courses.free")}</div>
                     ) : (
                       <>
-                        <div className="text-4xl font-bold">${course.price}</div>
+                        <div className="text-4xl font-bold">{course.price} {t("courses.currency")}</div>
                         <p className="text-sm text-muted-foreground">{t("courses.one_time_payment")}</p>
                       </>
                     )}

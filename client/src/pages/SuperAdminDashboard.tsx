@@ -607,7 +607,7 @@ export default function SuperAdminDashboard() {
                         {course.isFree ? (
                           <Badge variant="secondary">{t("courses.free")}</Badge>
                         ) : (
-                          `$${course.price}`
+                          `${course.price} ${t("courses.currency")}`
                         )}
                       </TableCell>
                     </TableRow>
@@ -732,7 +732,7 @@ export default function SuperAdminDashboard() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>${enrollment.course?.price}</TableCell>
+                      <TableCell>{enrollment.course?.price} {t("courses.currency")}</TableCell>
                       <TableCell>{new Date(enrollment.enrolledAt).toLocaleDateString()}</TableCell>
                       <TableCell>
                         <Button
