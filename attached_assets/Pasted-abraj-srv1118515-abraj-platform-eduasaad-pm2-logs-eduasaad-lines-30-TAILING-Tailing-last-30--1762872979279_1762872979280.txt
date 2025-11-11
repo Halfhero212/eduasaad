@@ -1,0 +1,516 @@
+abraj@srv1118515:~/abraj-platform/eduasaad$ pm2 logs eduasaad --lines 30
+[TAILING] Tailing last 30 lines for [eduasaad] process (change the value with --lines option)
+/home/abraj/.pm2/logs/eduasaad-error.log last 30 lines:
+0|eduasaad |     _closeFrameReceived: false,
+0|eduasaad |     _closeFrameSent: false,
+0|eduasaad |     _closeMessage: <Buffer >,
+0|eduasaad |     _closeTimer: null,
+0|eduasaad |     _errorEmitted: true,
+0|eduasaad |     _extensions: {},
+0|eduasaad |     _paused: false,
+0|eduasaad |     _protocol: '',
+0|eduasaad |     _readyState: 3,
+0|eduasaad |     _receiver: null,
+0|eduasaad |     _sender: null,
+0|eduasaad |     _socket: null,
+0|eduasaad |     _bufferedAmount: 0,
+0|eduasaad |     _isServer: false,
+0|eduasaad |     _redirects: 0,
+0|eduasaad |     _autoPong: true,
+0|eduasaad |     _url: 'wss://localhost/v2',
+0|eduasaad |     _req: null,
+0|eduasaad |     [Symbol(shapeMode)]: false,
+0|eduasaad |     [Symbol(kCapture)]: false
+0|eduasaad |   },
+0|eduasaad |   [Symbol(kType)]: 'error',
+0|eduasaad |   [Symbol(kError)]: AggregateError [ECONNREFUSED]: 
+0|eduasaad |       at internalConnectMultiple (node:net:1122:18)
+0|eduasaad |       at afterConnectMultiple (node:net:1689:7) {
+0|eduasaad |     code: 'ECONNREFUSED',
+0|eduasaad |     [errors]: [ [Error], [Error] ]
+0|eduasaad |   },
+0|eduasaad |   [Symbol(kMessage)]: ''
+0|eduasaad | }
+
+/home/abraj/.pm2/logs/eduasaad-out.log last 30 lines:
+0|eduasaad | ✅ Cron jobs started (daily cleanup at 2 AM)
+0|eduasaad | 2:55:52 PM [express] serving on port 3000
+0|eduasaad | 
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad | 
+0|eduasaad | 🧹 Starting cleanup of old quiz submission images...
+0|eduasaad | ✅ Using Local File Storage (uploads/ directory)
+0|eduasaad | ✅ Cron jobs started (daily cleanup at 2 AM)
+0|eduasaad | 2:55:53 PM [express] serving on port 3000
+0|eduasaad | 
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad | 
+0|eduasaad | 🧹 Starting cleanup of old quiz submission images...
+0|eduasaad | ✅ Using Local File Storage (uploads/ directory)
+0|eduasaad | ✅ Cron jobs started (daily cleanup at 2 AM)
+0|eduasaad | 2:55:53 PM [express] serving on port 3000
+0|eduasaad | 
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad | 
+0|eduasaad | 🧹 Starting cleanup of old quiz submission images...
+0|eduasaad | ✅ Using Local File Storage (uploads/ directory)
+0|eduasaad | ✅ Cron jobs started (daily cleanup at 2 AM)
+0|eduasaad | 2:55:54 PM [express] serving on port 3000
+0|eduasaad | 
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad | 
+
+0|eduasaad  | 🧹 Starting cleanup of old quiz submission images...
+0|eduasaad  | ✅ Using Local File Storage (uploads/ directory)
+0|eduasaad  | ✅ Cron jobs started (daily cleanup at 2 AM)
+0|eduasaad  | 2:55:55 PM [express] serving on port 3000
+0|eduasaad  | ❌ Error during cleanup: ErrorEvent {
+0|eduasaad  |   [Symbol(kTarget)]: WebSocket {
+0|eduasaad  |     _events: [Object: null prototype] {
+0|eduasaad  |       error: [Function],
+0|eduasaad  |       message: [Function],
+0|eduasaad  |       close: [Function],
+0|eduasaad  |       open: [Function]
+0|eduasaad  |     },
+0|eduasaad  |     _eventsCount: 4,
+0|eduasaad  |     _maxListeners: undefined,
+0|eduasaad  |     _binaryType: 'arraybuffer',
+0|eduasaad  |     _closeCode: 1006,
+0|eduasaad  |     _closeFrameReceived: false,
+0|eduasaad  |     _closeFrameSent: false,
+0|eduasaad  |     _closeMessage: <Buffer >,
+0|eduasaad  |     _closeTimer: null,
+0|eduasaad  |     _errorEmitted: true,
+0|eduasaad  |     _extensions: {},
+0|eduasaad  |     _paused: false,
+0|eduasaad  |     _protocol: '',
+0|eduasaad  |     _readyState: 3,
+0|eduasaad  |     _receiver: null,
+0|eduasaad  |     _sender: null,
+0|eduasaad  |     _socket: null,
+0|eduasaad  |     _bufferedAmount: 0,
+0|eduasaad  |     _isServer: false,
+0|eduasaad  |     _redirects: 0,
+0|eduasaad  |     _autoPong: true,
+0|eduasaad  |     _url: 'wss://localhost/v2',
+0|eduasaad  |     _req: null,
+0|eduasaad  |     [Symbol(shapeMode)]: false,
+0|eduasaad  |     [Symbol(kCapture)]: false
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kType)]: 'error',
+0|eduasaad  |   [Symbol(kError)]: AggregateError [ECONNREFUSED]: 
+0|eduasaad  |       at internalConnectMultiple (node:net:1122:18)
+0|eduasaad  |       at afterConnectMultiple (node:net:1689:7) {
+0|eduasaad  |     code: 'ECONNREFUSED',
+0|eduasaad  |     [errors]: [ [Error], [Error] ]
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kMessage)]: ''
+0|eduasaad  | }
+0|eduasaad  | Fatal error: ErrorEvent {
+0|eduasaad  |   [Symbol(kTarget)]: WebSocket {
+0|eduasaad  |     _events: [Object: null prototype] {
+0|eduasaad  |       error: [Function],
+0|eduasaad  |       message: [Function],
+0|eduasaad  |       close: [Function],
+0|eduasaad  |       open: [Function]
+0|eduasaad  |     },
+0|eduasaad  |     _eventsCount: 4,
+0|eduasaad  |     _maxListeners: undefined,
+0|eduasaad  |     _binaryType: 'arraybuffer',
+0|eduasaad  |     _closeCode: 1006,
+0|eduasaad  |     _closeFrameReceived: false,
+0|eduasaad  |     _closeFrameSent: false,
+0|eduasaad  |     _closeMessage: <Buffer >,
+0|eduasaad  |     _closeTimer: null,
+0|eduasaad  |     _errorEmitted: true,
+0|eduasaad  |     _extensions: {},
+0|eduasaad  |     _paused: false,
+0|eduasaad  |     _protocol: '',
+0|eduasaad  |     _readyState: 3,
+0|eduasaad  |     _receiver: null,
+0|eduasaad  |     _sender: null,
+0|eduasaad  |     _socket: null,
+0|eduasaad  |     _bufferedAmount: 0,
+0|eduasaad  |     _isServer: false,
+0|eduasaad  |     _redirects: 0,
+0|eduasaad  |     _autoPong: true,
+0|eduasaad  |     _url: 'wss://localhost/v2',
+0|eduasaad  |     _req: null,
+0|eduasaad  |     [Symbol(shapeMode)]: false,
+0|eduasaad  |     [Symbol(kCapture)]: false
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kType)]: 'error',
+0|eduasaad  |   [Symbol(kError)]: AggregateError [ECONNREFUSED]: 
+0|eduasaad  |       at internalConnectMultiple (node:net:1122:18)
+0|eduasaad  |       at afterConnectMultiple (node:net:1689:7) {
+0|eduasaad  |     code: 'ECONNREFUSED',
+0|eduasaad  |     [errors]: [ [Error], [Error] ]
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kMessage)]: ''
+0|eduasaad  | }
+0|eduasaad  | > rest-express@1.0.0 start
+0|eduasaad  | > NODE_ENV=production node dist/index.js
+0|eduasaad  | 🧹 Starting cleanup of old quiz submission images...
+0|eduasaad  | ✅ Using Local File Storage (uploads/ directory)
+0|eduasaad  | ✅ Cron jobs started (daily cleanup at 2 AM)
+0|eduasaad  | 2:55:55 PM [express] serving on port 3000
+0|eduasaad  | ❌ Error during cleanup: ErrorEvent {
+0|eduasaad  |   [Symbol(kTarget)]: WebSocket {
+0|eduasaad  |     _events: [Object: null prototype] {
+0|eduasaad  |       error: [Function],
+0|eduasaad  |       message: [Function],
+0|eduasaad  |       close: [Function],
+0|eduasaad  |       open: [Function]
+0|eduasaad  |     },
+0|eduasaad  |     _eventsCount: 4,
+0|eduasaad  |     _maxListeners: undefined,
+0|eduasaad  |     _binaryType: 'arraybuffer',
+0|eduasaad  |     _closeCode: 1006,
+0|eduasaad  |     _closeFrameReceived: false,
+0|eduasaad  |     _closeFrameSent: false,
+0|eduasaad  |     _closeMessage: <Buffer >,
+0|eduasaad  |     _closeTimer: null,
+0|eduasaad  |     _errorEmitted: true,
+0|eduasaad  |     _extensions: {},
+0|eduasaad  |     _paused: false,
+0|eduasaad  |     _protocol: '',
+0|eduasaad  |     _readyState: 3,
+0|eduasaad  |     _receiver: null,
+0|eduasaad  |     _sender: null,
+0|eduasaad  |     _socket: null,
+0|eduasaad  |     _bufferedAmount: 0,
+0|eduasaad  |     _isServer: false,
+0|eduasaad  |     _redirects: 0,
+0|eduasaad  |     _autoPong: true,
+0|eduasaad  |     _url: 'wss://localhost/v2',
+0|eduasaad  |     _req: null,
+0|eduasaad  |     [Symbol(shapeMode)]: false,
+0|eduasaad  |     [Symbol(kCapture)]: false
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kType)]: 'error',
+0|eduasaad  |   [Symbol(kError)]: AggregateError [ECONNREFUSED]: 
+0|eduasaad  |       at internalConnectMultiple (node:net:1122:18)
+0|eduasaad  |       at afterConnectMultiple (node:net:1689:7) {
+0|eduasaad  |     code: 'ECONNREFUSED',
+0|eduasaad  |     [errors]: [ [Error], [Error] ]
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kMessage)]: ''
+0|eduasaad  | }
+0|eduasaad  | Fatal error: ErrorEvent {
+0|eduasaad  |   [Symbol(kTarget)]: WebSocket {
+0|eduasaad  |     _events: [Object: null prototype] {
+0|eduasaad  |       error: [Function],
+0|eduasaad  |       message: [Function],
+0|eduasaad  |       close: [Function],
+0|eduasaad  |       open: [Function]
+0|eduasaad  |     },
+0|eduasaad  |     _eventsCount: 4,
+0|eduasaad  |     _maxListeners: undefined,
+0|eduasaad  |     _binaryType: 'arraybuffer',
+0|eduasaad  |     _closeCode: 1006,
+0|eduasaad  |     _closeFrameReceived: false,
+0|eduasaad  |     _closeFrameSent: false,
+0|eduasaad  |     _closeMessage: <Buffer >,
+0|eduasaad  |     _closeTimer: null,
+0|eduasaad  |     _errorEmitted: true,
+0|eduasaad  |     _extensions: {},
+0|eduasaad  |     _paused: false,
+0|eduasaad  |     _protocol: '',
+0|eduasaad  |     _readyState: 3,
+0|eduasaad  |     _receiver: null,
+0|eduasaad  |     _sender: null,
+0|eduasaad  |     _socket: null,
+0|eduasaad  |     _bufferedAmount: 0,
+0|eduasaad  |     _isServer: false,
+0|eduasaad  |     _redirects: 0,
+0|eduasaad  |     _autoPong: true,
+0|eduasaad  |     _url: 'wss://localhost/v2',
+0|eduasaad  |     _req: null,
+0|eduasaad  |     [Symbol(shapeMode)]: false,
+0|eduasaad  |     [Symbol(kCapture)]: false
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kType)]: 'error',
+0|eduasaad  |   [Symbol(kError)]: AggregateError [ECONNREFUSED]: 
+0|eduasaad  |       at internalConnectMultiple (node:net:1122:18)
+0|eduasaad  |       at afterConnectMultiple (node:net:1689:7) {
+0|eduasaad  |     code: 'ECONNREFUSED',
+0|eduasaad  |     [errors]: [ [Error], [Error] ]
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kMessage)]: ''
+0|eduasaad  | }
+0|eduasaad  | > rest-express@1.0.0 start
+0|eduasaad  | > NODE_ENV=production node dist/index.js
+0|eduasaad  | 🧹 Starting cleanup of old quiz submission images...
+0|eduasaad  | ✅ Using Local File Storage (uploads/ directory)
+0|eduasaad  | ✅ Cron jobs started (daily cleanup at 2 AM)
+0|eduasaad  | 2:55:56 PM [express] serving on port 3000
+0|eduasaad  | ❌ Error during cleanup: ErrorEvent {
+0|eduasaad  |   [Symbol(kTarget)]: WebSocket {
+0|eduasaad  |     _events: [Object: null prototype] {
+0|eduasaad  |       error: [Function],
+0|eduasaad  |       message: [Function],
+0|eduasaad  |       close: [Function],
+0|eduasaad  |       open: [Function]
+0|eduasaad  |     },
+0|eduasaad  |     _eventsCount: 4,
+0|eduasaad  |     _maxListeners: undefined,
+0|eduasaad  |     _binaryType: 'arraybuffer',
+0|eduasaad  |     _closeCode: 1006,
+0|eduasaad  |     _closeFrameReceived: false,
+0|eduasaad  |     _closeFrameSent: false,
+0|eduasaad  |     _closeMessage: <Buffer >,
+0|eduasaad  |     _closeTimer: null,
+0|eduasaad  |     _errorEmitted: true,
+0|eduasaad  |     _extensions: {},
+0|eduasaad  |     _paused: false,
+0|eduasaad  |     _protocol: '',
+0|eduasaad  |     _readyState: 3,
+0|eduasaad  |     _receiver: null,
+0|eduasaad  |     _sender: null,
+0|eduasaad  |     _socket: null,
+0|eduasaad  |     _bufferedAmount: 0,
+0|eduasaad  |     _isServer: false,
+0|eduasaad  |     _redirects: 0,
+0|eduasaad  |     _autoPong: true,
+0|eduasaad  |     _url: 'wss://localhost/v2',
+0|eduasaad  |     _req: null,
+0|eduasaad  |     [Symbol(shapeMode)]: false,
+0|eduasaad  |     [Symbol(kCapture)]: false
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kType)]: 'error',
+0|eduasaad  |   [Symbol(kError)]: AggregateError [ECONNREFUSED]: 
+0|eduasaad  |       at internalConnectMultiple (node:net:1122:18)
+0|eduasaad  |       at afterConnectMultiple (node:net:1689:7) {
+0|eduasaad  |     code: 'ECONNREFUSED',
+0|eduasaad  |     [errors]: [ [Error], [Error] ]
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kMessage)]: ''
+0|eduasaad  | }
+0|eduasaad  | Fatal error: ErrorEvent {
+0|eduasaad  |   [Symbol(kTarget)]: WebSocket {
+0|eduasaad  |     _events: [Object: null prototype] {
+0|eduasaad  |       error: [Function],
+0|eduasaad  |       message: [Function],
+0|eduasaad  |       close: [Function],
+0|eduasaad  |       open: [Function]
+0|eduasaad  |     },
+0|eduasaad  |     _eventsCount: 4,
+0|eduasaad  |     _maxListeners: undefined,
+0|eduasaad  |     _binaryType: 'arraybuffer',
+0|eduasaad  |     _closeCode: 1006,
+0|eduasaad  |     _closeFrameReceived: false,
+0|eduasaad  |     _closeFrameSent: false,
+0|eduasaad  |     _closeMessage: <Buffer >,
+0|eduasaad  |     _closeTimer: null,
+0|eduasaad  |     _errorEmitted: true,
+0|eduasaad  |     _extensions: {},
+0|eduasaad  |     _paused: false,
+0|eduasaad  |     _protocol: '',
+0|eduasaad  |     _readyState: 3,
+0|eduasaad  |     _receiver: null,
+0|eduasaad  |     _sender: null,
+0|eduasaad  |     _socket: null,
+0|eduasaad  |     _bufferedAmount: 0,
+0|eduasaad  |     _isServer: false,
+0|eduasaad  |     _redirects: 0,
+0|eduasaad  |     _autoPong: true,
+0|eduasaad  |     _url: 'wss://localhost/v2',
+0|eduasaad  |     _req: null,
+0|eduasaad  |     [Symbol(shapeMode)]: false,
+0|eduasaad  |     [Symbol(kCapture)]: false
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kType)]: 'error',
+0|eduasaad  |   [Symbol(kError)]: AggregateError [ECONNREFUSED]: 
+0|eduasaad  |       at internalConnectMultiple (node:net:1122:18)
+0|eduasaad  |       at afterConnectMultiple (node:net:1689:7) {
+0|eduasaad  |     code: 'ECONNREFUSED',
+0|eduasaad  |     [errors]: [ [Error], [Error] ]
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kMessage)]: ''
+0|eduasaad  | }
+0|eduasaad  | > rest-express@1.0.0 start
+0|eduasaad  | > NODE_ENV=production node dist/index.js
+0|eduasaad  | 🧹 Starting cleanup of old quiz submission images...
+0|eduasaad  | ✅ Using Local File Storage (uploads/ directory)
+0|eduasaad  | ✅ Cron jobs started (daily cleanup at 2 AM)
+0|eduasaad  | 2:55:57 PM [express] serving on port 3000
+0|eduasaad  | ❌ Error during cleanup: ErrorEvent {
+0|eduasaad  |   [Symbol(kTarget)]: WebSocket {
+0|eduasaad  |     _events: [Object: null prototype] {
+0|eduasaad  |       error: [Function],
+0|eduasaad  |       message: [Function],
+0|eduasaad  |       close: [Function],
+0|eduasaad  |       open: [Function]
+0|eduasaad  |     },
+0|eduasaad  |     _eventsCount: 4,
+0|eduasaad  |     _maxListeners: undefined,
+0|eduasaad  |     _binaryType: 'arraybuffer',
+0|eduasaad  |     _closeCode: 1006,
+0|eduasaad  |     _closeFrameReceived: false,
+0|eduasaad  |     _closeFrameSent: false,
+0|eduasaad  |     _closeMessage: <Buffer >,
+0|eduasaad  |     _closeTimer: null,
+0|eduasaad  |     _errorEmitted: true,
+0|eduasaad  |     _extensions: {},
+0|eduasaad  |     _paused: false,
+0|eduasaad  |     _protocol: '',
+0|eduasaad  |     _readyState: 3,
+0|eduasaad  |     _receiver: null,
+0|eduasaad  |     _sender: null,
+0|eduasaad  |     _socket: null,
+0|eduasaad  |     _bufferedAmount: 0,
+0|eduasaad  |     _isServer: false,
+0|eduasaad  |     _redirects: 0,
+0|eduasaad  |     _autoPong: true,
+0|eduasaad  |     _url: 'wss://localhost/v2',
+0|eduasaad  |     _req: null,
+0|eduasaad  |     [Symbol(shapeMode)]: false,
+0|eduasaad  |     [Symbol(kCapture)]: false
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kType)]: 'error',
+0|eduasaad  |   [Symbol(kError)]: AggregateError [ECONNREFUSED]: 
+0|eduasaad  |       at internalConnectMultiple (node:net:1122:18)
+0|eduasaad  |       at afterConnectMultiple (node:net:1689:7) {
+0|eduasaad  |     code: 'ECONNREFUSED',
+0|eduasaad  |     [errors]: [ [Error], [Error] ]
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kMessage)]: ''
+0|eduasaad  | }
+0|eduasaad  | Fatal error: ErrorEvent {
+0|eduasaad  |   [Symbol(kTarget)]: WebSocket {
+0|eduasaad  |     _events: [Object: null prototype] {
+0|eduasaad  |       error: [Function],
+0|eduasaad  |       message: [Function],
+0|eduasaad  |       close: [Function],
+0|eduasaad  |       open: [Function]
+0|eduasaad  |     },
+0|eduasaad  |     _eventsCount: 4,
+0|eduasaad  |     _maxListeners: undefined,
+0|eduasaad  |     _binaryType: 'arraybuffer',
+0|eduasaad  |     _closeCode: 1006,
+0|eduasaad  |     _closeFrameReceived: false,
+0|eduasaad  |     _closeFrameSent: false,
+0|eduasaad  |     _closeMessage: <Buffer >,
+0|eduasaad  |     _closeTimer: null,
+0|eduasaad  |     _errorEmitted: true,
+0|eduasaad  |     _extensions: {},
+0|eduasaad  |     _paused: false,
+0|eduasaad  |     _protocol: '',
+0|eduasaad  |     _readyState: 3,
+0|eduasaad  |     _receiver: null,
+0|eduasaad  |     _sender: null,
+0|eduasaad  |     _socket: null,
+0|eduasaad  |     _bufferedAmount: 0,
+0|eduasaad  |     _isServer: false,
+0|eduasaad  |     _redirects: 0,
+0|eduasaad  |     _autoPong: true,
+0|eduasaad  |     _url: 'wss://localhost/v2',
+0|eduasaad  |     _req: null,
+0|eduasaad  |     [Symbol(shapeMode)]: false,
+0|eduasaad  |     [Symbol(kCapture)]: false
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kType)]: 'error',
+0|eduasaad  |   [Symbol(kError)]: AggregateError [ECONNREFUSED]: 
+0|eduasaad  |       at internalConnectMultiple (node:net:1122:18)
+0|eduasaad  |       at afterConnectMultiple (node:net:1689:7) {
+0|eduasaad  |     code: 'ECONNREFUSED',
+0|eduasaad  |     [errors]: [ [Error], [Error] ]
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kMessage)]: ''
+0|eduasaad  | }
+0|eduasaad  | > rest-express@1.0.0 start
+0|eduasaad  | > NODE_ENV=production node dist/index.js
+0|eduasaad  | 🧹 Starting cleanup of old quiz submission images...
+0|eduasaad  | ✅ Using Local File Storage (uploads/ directory)
+0|eduasaad  | ✅ Cron jobs started (daily cleanup at 2 AM)
+0|eduasaad  | 2:55:57 PM [express] serving on port 3000
+0|eduasaad  | ❌ Error during cleanup: ErrorEvent {
+0|eduasaad  |   [Symbol(kTarget)]: WebSocket {
+0|eduasaad  |     _events: [Object: null prototype] {
+0|eduasaad  |       error: [Function],
+0|eduasaad  |       message: [Function],
+0|eduasaad  |       close: [Function],
+0|eduasaad  |       open: [Function]
+0|eduasaad  |     },
+0|eduasaad  |     _eventsCount: 4,
+0|eduasaad  |     _maxListeners: undefined,
+0|eduasaad  |     _binaryType: 'arraybuffer',
+0|eduasaad  |     _closeCode: 1006,
+0|eduasaad  |     _closeFrameReceived: false,
+0|eduasaad  |     _closeFrameSent: false,
+0|eduasaad  |     _closeMessage: <Buffer >,
+0|eduasaad  |     _closeTimer: null,
+0|eduasaad  |     _errorEmitted: true,
+0|eduasaad  |     _extensions: {},
+0|eduasaad  |     _paused: false,
+0|eduasaad  |     _protocol: '',
+0|eduasaad  |     _readyState: 3,
+0|eduasaad  |     _receiver: null,
+0|eduasaad  |     _sender: null,
+0|eduasaad  |     _socket: null,
+0|eduasaad  |     _bufferedAmount: 0,
+0|eduasaad  |     _isServer: false,
+0|eduasaad  |     _redirects: 0,
+0|eduasaad  |     _autoPong: true,
+0|eduasaad  |     _url: 'wss://localhost/v2',
+0|eduasaad  |     _req: null,
+0|eduasaad  |     [Symbol(shapeMode)]: false,
+0|eduasaad  |     [Symbol(kCapture)]: false
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kType)]: 'error',
+0|eduasaad  |   [Symbol(kError)]: AggregateError [ECONNREFUSED]: 
+0|eduasaad  |       at internalConnectMultiple (node:net:1122:18)
+0|eduasaad  |       at afterConnectMultiple (node:net:1689:7) {
+0|eduasaad  |     code: 'ECONNREFUSED',
+0|eduasaad  |     [errors]: [ [Error], [Error] ]
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kMessage)]: ''
+0|eduasaad  | }
+0|eduasaad  | Fatal error: ErrorEvent {
+0|eduasaad  |   [Symbol(kTarget)]: WebSocket {
+0|eduasaad  |     _events: [Object: null prototype] {
+0|eduasaad  |       error: [Function],
+0|eduasaad  |       message: [Function],
+0|eduasaad  |       close: [Function],
+0|eduasaad  |       open: [Function]
+0|eduasaad  |     },
+0|eduasaad  |     _eventsCount: 4,
+0|eduasaad  |     _maxListeners: undefined,
+0|eduasaad  |     _binaryType: 'arraybuffer',
+0|eduasaad  |     _closeCode: 1006,
+0|eduasaad  |     _closeFrameReceived: false,
+0|eduasaad  |     _closeFrameSent: false,
+0|eduasaad  |     _closeMessage: <Buffer >,
+0|eduasaad  |     _closeTimer: null,
+0|eduasaad  |     _errorEmitted: true,
+0|eduasaad  |     _extensions: {},
+0|eduasaad  |     _paused: false,
+0|eduasaad  |     _protocol: '',
+0|eduasaad  |     _readyState: 3,
+0|eduasaad  |     _receiver: null,
+0|eduasaad  |     _sender: null,
+0|eduasaad  |     _socket: null,
+0|eduasaad  |     _bufferedAmount: 0,
+0|eduasaad  |     _isServer: false,
+0|eduasaad  |     _redirects: 0,
+0|eduasaad  |     _autoPong: true,
+0|eduasaad  |     _url: 'wss://localhost/v2',
+0|eduasaad  |     _req: null,
+0|eduasaad  |     [Symbol(shapeMode)]: false,
+0|eduasaad  |     [Symbol(kCapture)]: false
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kType)]: 'error',
+0|eduasaad  |   [Symbol(kError)]: AggregateError [ECONNREFUSED]: 
+0|eduasaad  |       at internalConnectMultiple (node:net:1122:18)
+0|eduasaad  |       at afterConnectMultiple (node:net:1689:7) {
+0|eduasaad  |     code: 'ECONNREFUSED',
+0|eduasaad  |     [errors]: [ [Error], [Error] ]
+0|eduasaad  |   },
+0|eduasaad  |   [Symbol(kMessage)]: ''
+0|eduasaad  | }
+^C
+abraj@srv1118515:~/abraj-platform/eduasaad$ 
