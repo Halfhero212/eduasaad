@@ -239,7 +239,7 @@ export default function Navbar() {
                   <div className="hidden md:flex flex-col items-start">
                     <span className="text-sm font-medium" data-testid="text-user-name">{user.fullName}</span>
                     <Badge variant={getRoleBadgeColor()} className="text-xs" data-testid="text-user-role">
-                      {user.role}
+                      {t(`role.${user.role}`)}
                     </Badge>
                   </div>
                 </Button>

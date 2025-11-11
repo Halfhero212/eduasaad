@@ -114,6 +114,11 @@ const translations: Record<Language, Record<string, string>> = {
     "comment.reply_placeholder": "اكتب ردك...",
     "comment.cancel": "إلغاء",
     
+    // User Roles
+    "role.student": "طالب",
+    "role.teacher": "معلم",
+    "role.superadmin": "مدير النظام",
+    
     // Toast Messages
     "toast.enrollment_success": "نجح التسجيل",
     "toast.enrollment_success_desc": "يمكنك الآن الوصول إلى محتوى الدورة",
@@ -695,6 +700,11 @@ const translations: Record<Language, Record<string, string>> = {
     "comment.post_reply": "Post Reply",
     "comment.reply_placeholder": "Write your reply...",
     "comment.cancel": "Cancel",
+    
+    // User Roles
+    "role.student": "Student",
+    "role.teacher": "Teacher",
+    "role.superadmin": "Super Admin",
     
     // Toast Messages
     "toast.enrollment_success": "Enrollment successful",
