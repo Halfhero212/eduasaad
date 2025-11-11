@@ -33,6 +33,7 @@ export default function SuperAdminDashboard() {
   const [deleteTeacherId, setDeleteTeacherId] = useState<number | null>(null);
   const [deleteStudentId, setDeleteStudentId] = useState<number | null>(null);
   const [resetPasswordTeacherId, setResetPasswordTeacherId] = useState<number | null>(null);
+  const [resetPasswordStudentId, setResetPasswordStudentId] = useState<number | null>(null);
   const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -321,8 +322,42 @@ export default function SuperAdminDashboard() {
     },
   });
 
+  const resetStudentPasswordMutation = useMutation({
+    mutationFn: async ({ studentId, password }: { studentId: number; password: string }) => {
+      const res = await apiRequest("POST", `/api/admin/students/${studentId}/reset-password`, { password });
+      return await res.json();
+    },
+    onSuccess: () => {
+      setResetPasswordDialogOpen(false);
+      setResetPasswordStudentId(null);
+      setNewPassword("");
+      setConfirmPassword("");
+      toast({
+        title: t("toast.password_reset_success"),
+        description: t("toast.password_reset_student_desc"),
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: t("toast.failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
+        variant: "destructive",
+      });
+      setResetPasswordStudentId(null);
+    },
+  });
+
   const handleResetTeacherPassword = (teacherId: number) => {
     setResetPasswordTeacherId(teacherId);
+    setResetPasswordStudentId(null);
+    setNewPassword("");
+    setConfirmPassword("");
+    setResetPasswordDialogOpen(true);
+  };
+
+  const handleResetStudentPassword = (studentId: number) => {
+    setResetPasswordStudentId(studentId);
+    setResetPasswordTeacherId(null);
     setNewPassword("");
     setConfirmPassword("");
     setResetPasswordDialogOpen(true);
@@ -347,6 +382,8 @@ export default function SuperAdminDashboard() {
     }
     if (resetPasswordTeacherId) {
       resetTeacherPasswordMutation.mutate({ teacherId: resetPasswordTeacherId, password: newPassword });
+    } else if (resetPasswordStudentId) {
+      resetStudentPasswordMutation.mutate({ studentId: resetPasswordStudentId, password: newPassword });
     }
   };
 
@@ -1029,14 +1066,26 @@ export default function SuperAdminDashboard() {
                         <Badge>{t("dashboard.superadmin.active")}</Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteStudentId(student.id)}
-                          data-testid={`button-delete-student-${student.id}`}
-                        >
-                          <Trash className="h-4 w-4 text-destructive" />
-                        </Button>
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleResetStudentPassword(student.id)}
+                            disabled={resetStudentPasswordMutation.isPending && resetPasswordStudentId === student.id}
+                            data-testid={`button-reset-password-${student.id}`}
+                            title={t("action.reset_password")}
+                          >
+                            <Key className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeleteStudentId(student.id)}
+                            data-testid={`button-delete-student-${student.id}`}
+                          >
+                            <Trash className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))

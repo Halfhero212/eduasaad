@@ -339,6 +339,36 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  // Reset student password (superadmin only)
+  app.post("/api/admin/students/:id/reset-password", requireAuth, requireRole("superadmin"), async (req, res) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      const { password } = req.body;
+      
+      // Verify the user is a student
+      const student = await storage.getUserById(studentId);
+      if (!student || student.role !== "student") {
+        return res.status(404).json({ error: "Student not found" });
+      }
+
+      // Validate password
+      if (!password || password.length < 6) {
+        return res.status(400).json({ error: "Password must be at least 6 characters" });
+      }
+
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Update student password
+      await storage.updateUser(studentId, { password: hashedPassword });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Reset student password error:", error);
+      res.status(500).json({ error: "Failed to reset student password" });
+    }
+  });
+
   // Get detailed course statistics (superadmin only)
   app.get("/api/admin/courses/stats", requireAuth, requireRole("superadmin"), async (req, res) => {
     try {

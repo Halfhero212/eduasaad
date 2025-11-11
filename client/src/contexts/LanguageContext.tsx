@@ -563,6 +563,8 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.sign_in": "تسجيل الدخول",
     "auth.sign_up": "إنشاء حساب",
     "auth.forgot_password": "نسيت كلمة المرور؟",
+    "auth.forgot_password_contact": "نسيت كلمة المرور؟ تواصل معنا عبر واتساب:",
+    "auth.contact_whatsapp": "تواصل عبر واتساب",
     "auth.reset_password": "إعادة تعيين كلمة المرور",
     "auth.send_reset_link": "إرسال رابط الاستعادة",
     "auth.back_to_login": "العودة لتسجيل الدخول",
@@ -756,6 +758,7 @@ const translations: Record<Language, Record<string, string>> = {
     "toast.category_deleted_desc": "The category has been removed from the platform",
     "toast.category_name_required": "Category name is required",
     "toast.password_reset_teacher_desc": "New password generated for teacher",
+    "toast.password_reset_student_desc": "New password generated for student",
     "toast.enrollment_update_failed": "Failed to update enrollment",
     "toast.quiz_submitted": "Quiz submitted",
     "toast.quiz_submitted_desc": "Your teacher will grade your answers soon",
@@ -809,6 +812,8 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.password_reset_success": "Password Reset Successful",
     "auth.password_reset_success_desc": "You can now login with your new password",
     "auth.forgot_password": "Forgot password?",
+    "auth.forgot_password_contact": "Forgot password? Contact us on WhatsApp:",
+    "auth.contact_whatsapp": "Contact on WhatsApp",
     
     // Register
     "register.subtitle": "Join thousands of learners on Abraj Educational Platform",

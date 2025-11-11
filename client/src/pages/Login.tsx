@@ -102,14 +102,7 @@ export default function Login() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="flex items-center justify-between">
-                      <FormLabel>{t('auth.password')}</FormLabel>
-                      <Link href="/request-reset">
-                        <span className="text-sm text-primary hover:underline cursor-pointer" data-testid="link-forgot-password">
-                          {t('auth.forgot_password')}
-                        </span>
-                      </Link>
-                    </div>
+                    <FormLabel>{t('auth.password')}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
@@ -119,6 +112,18 @@ export default function Login() {
                       />
                     </FormControl>
                     <FormMessage />
+                    <div className="text-xs text-muted-foreground mt-2">
+                      {t('auth.forgot_password_contact')}{" "}
+                      <a
+                        href="https://wa.me/9467730145334"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                        data-testid="link-whatsapp-support"
+                      >
+                        +964 773 014 5334
+                      </a>
+                    </div>
                   </FormItem>
                 )}
               />
