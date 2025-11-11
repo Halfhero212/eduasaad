@@ -14,7 +14,11 @@ The platform is a full-stack application utilizing a modern JAMstack-inspired ar
 - **Routing**: Wouter for lightweight client-side routing.
 - **State Management**: TanStack Query for data fetching, caching, and synchronization.
 - **Component Library**: Shadcn UI for a consistent, accessible, and customizable UI.
-- **Localization**: Full bilingual support (Arabic/English) with RTL layout enabled for Arabic, using the Cairo font.
+- **Localization**: Full bilingual support (Arabic/English) with RTL layout enabled for Arabic, using the Cairo font. Arabic is the primary default language with comprehensive translation coverage:
+  - **Backend Notifications** (✅ Complete): All 10 notification types fully translated to Arabic via centralized `notificationMessages.ts` helper covering enrollments, quizzes, Q&A, and announcements
+  - **Frontend UI** (✅ 110+ Keys Added): LanguageContext expanded with Arabic translations for admin management, dashboards, course details, reviews, quizzes, comments, lesson navigation, authentication, and error messages
+  - **Cultural Assets**: Home page features culturally appropriate stock images of Muslim girls wearing hijab
+  - **Email Templates** (⏳ Pending): Password reset emails still require Arabic translation
 - **Design Aesthetic**: Modern, clean, and responsive design for optimal viewing on both mobile and desktop devices. Features include course cards with thumbnails, custom video player controls, threaded comments, and a notification system.
 
 ### Technical Implementations
