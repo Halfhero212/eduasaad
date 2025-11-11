@@ -3,7 +3,9 @@ import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
 import * as schema from "@shared/schema";
 
+// Configure WebSocket with error handling to prevent crashes
 neonConfig.webSocketConstructor = ws;
+neonConfig.pipelineConnect = false; // Disable WebSocket pooling in production
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
