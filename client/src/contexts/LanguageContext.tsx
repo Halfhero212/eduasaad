@@ -81,7 +81,7 @@ const translations: Record<Language, Record<string, string>> = {
     "courses.discounted_price": "السعر بعد الخصم",
     "courses.installment_available": "الدفع بالتقسيط متاح",
     "courses.limited_offer": "عرض محدود",
-    "courses.already_applied": "تم التقديم بالفعل",
+    "courses.already_applied": "تم طلب الشراء",
     "courses.sign_in_to_enroll": "الرجاء تسجيل الدخول للتسجيل",
     "courses.course_content": "محتوى الدورة",
     "courses.lesson_label": "الدرس",
