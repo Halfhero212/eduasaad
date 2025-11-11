@@ -10,6 +10,13 @@ import { GraduationCap, BookOpen, Users, Award, Search, UserCheck, Trophy } from
 import type { Course } from "@shared/schema";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getCourseUrl } from "@/lib/courseUtils";
+import heroImage from "@assets/stock_images/books_learning_educa_0b5e5152.jpg";
+import workspaceImage from "@assets/stock_images/modern_workspace_lap_0f911a7f.jpg";
+import defaultThumbnail1 from "@assets/stock_images/books_learning_educa_d5ff243b.jpg";
+import defaultThumbnail2 from "@assets/stock_images/modern_workspace_lap_d3ff4837.jpg";
+import defaultThumbnail3 from "@assets/stock_images/notebook_pen_study_d_df2d2ad2.jpg";
+
+const defaultThumbnails = [defaultThumbnail1, defaultThumbnail2, defaultThumbnail3];
 
 export default function Home() {
   const { t } = useLanguage();
@@ -34,7 +41,15 @@ export default function Home() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-primary to-accent text-primary-foreground py-20 md:py-32 overflow-hidden">
+      <section className="relative text-primary-foreground py-20 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={heroImage} 
+            alt="Educational background" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/95 to-accent/95"></div>
+        </div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
@@ -179,25 +194,19 @@ export default function Home() {
             </div>
           ) : filteredCourses && filteredCourses.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredCourses.map((course) => (
+              {filteredCourses.map((course, index) => (
                 <Card
                   key={course.id}
                   className="hover-elevate transition-all overflow-hidden"
                   data-testid={`card-course-${course.id}`}
                 >
                   <CardHeader className="p-0">
-                    <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-accent/20">
-                      {course.thumbnailUrl ? (
-                        <img
-                          src={course.thumbnailUrl}
-                          alt={course.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <BookOpen className="w-12 h-12 text-muted-foreground" />
-                        </div>
-                      )}
+                    <div className="relative aspect-video">
+                      <img
+                        src={course.thumbnailUrl || defaultThumbnails[index % defaultThumbnails.length]}
+                        alt={course.title}
+                        className="w-full h-full object-cover"
+                      />
                       <div className="absolute top-2 right-2">
                         {course.isFree ? (
                           <Badge variant="secondary" className="bg-secondary/90 backdrop-blur-sm">

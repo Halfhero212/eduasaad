@@ -11,6 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, Award, Target, PlayCircle } from "lucide-react";
 import { getCourseUrl } from "@/lib/courseUtils";
+import defaultThumbnail1 from "@assets/stock_images/books_learning_educa_d5ff243b.jpg";
+import defaultThumbnail2 from "@assets/stock_images/modern_workspace_lap_d3ff4837.jpg";
+import defaultThumbnail3 from "@assets/stock_images/notebook_pen_study_d_df2d2ad2.jpg";
+
+const defaultThumbnails = [defaultThumbnail1, defaultThumbnail2, defaultThumbnail3];
 
 interface EnrolledCourse {
   id: number;
@@ -113,21 +118,15 @@ export default function StudentDashboard() {
           <CardContent>
             {enrolledCourses && enrolledCourses.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {enrolledCourses.map((course) => (
-                  <Card key={course.id} data-testid={`card-course-${course.id}`} className="hover-elevate">
+                {enrolledCourses.map((course, index) => (
+                  <Card key={course.id} data-testid={`card-course-${course.id}`} className="hover-elevate overflow-hidden">
                     <CardHeader className="p-0">
-                      <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-accent/20">
-                        {course.thumbnailUrl ? (
-                          <img
-                            src={course.thumbnailUrl}
-                            alt={course.title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <BookOpen className="w-12 h-12 text-muted-foreground" />
-                          </div>
-                        )}
+                      <div className="relative aspect-video">
+                        <img
+                          src={course.thumbnailUrl || defaultThumbnails[index % defaultThumbnails.length]}
+                          alt={course.title}
+                          className="w-full h-full object-cover"
+                        />
                         <div className="absolute top-2 right-2">
                           {course.isFree ? (
                             <Badge variant="secondary" className="bg-secondary/90 backdrop-blur-sm">

@@ -11,6 +11,11 @@ import { Search } from "lucide-react";
 import type { Course } from "@shared/schema";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getCourseUrl } from "@/lib/courseUtils";
+import defaultThumbnail1 from "@assets/stock_images/books_learning_educa_d5ff243b.jpg";
+import defaultThumbnail2 from "@assets/stock_images/modern_workspace_lap_d3ff4837.jpg";
+import defaultThumbnail3 from "@assets/stock_images/notebook_pen_study_d_df2d2ad2.jpg";
+
+const defaultThumbnails = [defaultThumbnail1, defaultThumbnail2, defaultThumbnail3];
 
 export default function Courses() {
   const { t } = useLanguage();
@@ -130,17 +135,28 @@ export default function Courses() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCourses.map((course) => (
-                <Card key={course.id} className="flex flex-col hover-elevate" data-testid={`course-card-${course.id}`}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-2">
-                      <CardTitle className="line-clamp-2">{course.title}</CardTitle>
+              {filteredCourses.map((course, index) => (
+                <Card key={course.id} className="flex flex-col hover-elevate overflow-hidden" data-testid={`course-card-${course.id}`}>
+                  <div className="relative h-48 overflow-hidden">
+                    <img 
+                      src={course.thumbnailUrl || defaultThumbnails[index % defaultThumbnails.length]} 
+                      alt={course.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-2 right-2">
                       {course.isFree ? (
-                        <Badge variant="secondary" data-testid={`badge-free-${course.id}`}>{t("courses.free")}</Badge>
+                        <Badge variant="secondary" className="bg-secondary/90 backdrop-blur-sm" data-testid={`badge-free-${course.id}`}>
+                          {t("courses.free")}
+                        </Badge>
                       ) : (
-                        <Badge variant="default" data-testid={`badge-price-${course.id}`}>{course.price} {t("courses.currency")}</Badge>
+                        <Badge variant="default" className="bg-primary/90 backdrop-blur-sm" data-testid={`badge-price-${course.id}`}>
+                          {course.price} {t("courses.currency")}
+                        </Badge>
                       )}
                     </div>
+                  </div>
+                  <CardHeader>
+                    <CardTitle className="line-clamp-2">{course.title}</CardTitle>
                     <CardDescription className="line-clamp-3">
                       {course.description}
                     </CardDescription>
