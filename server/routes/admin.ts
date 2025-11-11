@@ -4,6 +4,7 @@ import { requireAuth, requireRole, type AuthRequest } from "../middleware/auth";
 import { insertCourseCategorySchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import bcrypt from "bcrypt";
+import { notificationMessages } from "../utils/notificationMessages";
 
 export function registerAdminRoutes(app: Express) {
   // Get all teachers (superadmin only)
@@ -222,8 +223,8 @@ export function registerAdminRoutes(app: Express) {
         await storage.createNotification({
           userId: enrollment.studentId,
           type: "enrollment_confirmed",
-          title: "Enrollment Confirmed",
-          message: "Your course enrollment has been confirmed. You can now access all lessons.",
+          title: notificationMessages.enrollment.confirmedSimple.title,
+          message: notificationMessages.enrollment.confirmedSimple.message,
           relatedId: enrollmentId,
         });
       }

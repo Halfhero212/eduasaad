@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireRole, type AuthRequest } from "../middleware/auth";
+import { notificationMessages } from "../utils/notificationMessages";
 
 export function registerEnrollmentRoutes(app: Express) {
   // Enroll in course (students only)
@@ -29,19 +30,16 @@ export function registerEnrollmentRoutes(app: Express) {
         purchaseStatus,
       });
 
-      // Notify teacher about new enrollment
-      const notificationTitle = purchaseStatus === "free" 
-        ? "New Student Enrolled" 
-        : "New Enrollment Request";
-      const notificationMessage = purchaseStatus === "free"
-        ? `${req.user!.fullName} enrolled in your course "${course.title}"`
-        : `${req.user!.fullName} requested to enroll in "${course.title}". Please check WhatsApp for payment confirmation.`;
+      // Notify teacher about new enrollment (in Arabic)
+      const notif = purchaseStatus === "free"
+        ? notificationMessages.enrollment.newStudentFree
+        : notificationMessages.enrollment.newEnrollmentRequest;
 
       await storage.createNotification({
         userId: course.teacherId,
         type: purchaseStatus === "free" ? "new_enrollment" : "enrollment_request",
-        title: notificationTitle,
-        message: notificationMessage,
+        title: notif.title,
+        message: notif.message(req.user!.fullName, course.title),
         read: false,
         relatedId: courseId,
       });
@@ -289,8 +287,8 @@ export function registerEnrollmentRoutes(app: Express) {
         await storage.createNotification({
           userId: enrollment.studentId,
           type: "enrollment_confirmed",
-          title: "Enrollment Confirmed",
-          message: `Your enrollment in "${course.title}" has been confirmed. You can now access all lessons.`,
+          title: notificationMessages.enrollment.confirmed.title,
+          message: notificationMessages.enrollment.confirmed.message(course.title),
           read: false,
           relatedId: course.id,
         });

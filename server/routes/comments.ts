@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireRole, type AuthRequest } from "../middleware/auth";
+import { notificationMessages } from "../utils/notificationMessages";
 
 export function registerCommentRoutes(app: Express) {
   // Get comments for a lesson
@@ -54,12 +55,12 @@ export function registerCommentRoutes(app: Express) {
         parentCommentId: null,
       });
 
-      // Create notification for teacher with navigation metadata
+      // Create notification for teacher with navigation metadata (in Arabic)
       await storage.createNotification({
         userId: course.teacherId,
         type: "new_question",
-        title: "New Question",
-        message: `${req.user!.fullName} asked a question on "${lesson.title}"`,
+        title: notificationMessages.question.new.title,
+        message: notificationMessages.question.new.message(req.user!.fullName, lesson.title),
         relatedId: lessonId,
         metadata: JSON.stringify({ courseId: lesson.courseId, lessonId }),
       });
@@ -107,8 +108,8 @@ export function registerCommentRoutes(app: Express) {
       await storage.createNotification({
         userId: parentComment.userId,
         type: "reply",
-        title: "Teacher Replied",
-        message: `${req.user!.fullName} replied to your question on "${lesson.title}"`,
+        title: notificationMessages.question.teacherReply.title,
+        message: notificationMessages.question.teacherReply.message(req.user!.fullName, lesson.title),
         relatedId: parentComment.lessonId,
         metadata: JSON.stringify({ courseId: lesson.courseId, lessonId: parentComment.lessonId }),
       });

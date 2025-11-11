@@ -3,6 +3,7 @@ import { storage } from "../storage";
 import { requireAuth, requireRole, type AuthRequest } from "../middleware/auth";
 import multer from "multer";
 import { Client } from "@replit/object-storage";
+import { notificationMessages } from "../utils/notificationMessages";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -34,14 +35,14 @@ export function registerQuizRoutes(app: Express) {
         deadline: deadline ? new Date(deadline) : null,
       });
 
-      // Create notifications for all enrolled students
+      // Create notifications for all enrolled students (in Arabic)
       const enrollments = await storage.getCourseEnrollments(lesson.courseId);
       for (const enrollment of enrollments) {
         await storage.createNotification({
           userId: enrollment.studentId,
           type: "new_content",
-          title: "New Quiz Available",
-          message: `A new quiz "${title}" has been added to ${course?.title}`,
+          title: notificationMessages.quiz.newAvailable.title,
+          message: notificationMessages.quiz.newAvailable.message(title, course?.title || ""),
           relatedId: quiz.id,
         });
       }
@@ -113,8 +114,8 @@ export function registerQuizRoutes(app: Express) {
           await storage.createNotification({
             userId: course.teacherId,
             type: "quiz_submission",
-            title: "New Quiz Submission",
-            message: `${req.user!.fullName} submitted "${quiz.title}"`,
+            title: notificationMessages.quiz.newSubmission.title,
+            message: notificationMessages.quiz.newSubmission.message(req.user!.fullName, quiz.title),
             relatedId: submission.id,
           });
         }
@@ -211,8 +212,8 @@ export function registerQuizRoutes(app: Express) {
       await storage.createNotification({
         userId: submission.studentId,
         type: "reply",
-        title: "Quiz Graded",
-        message: `Your quiz "${quiz.title}" has been graded. Score: ${score}%`,
+        title: notificationMessages.quiz.graded.title,
+        message: notificationMessages.quiz.graded.message(quiz.title, score),
         relatedId: submissionId,
       });
 
