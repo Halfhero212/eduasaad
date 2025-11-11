@@ -37,7 +37,9 @@ function Router() {
       <Route path="/dashboard/teacher" component={TeacherDashboard} />
       <Route path="/dashboard/superadmin" component={SuperAdminDashboard} />
       <Route path="/manage/courses/:id" component={CourseManagement} />
+      <Route path="/courses/:id/:slug" component={CourseDetail} />
       <Route path="/courses/:id" component={CourseDetail} />
+      <Route path="/courses/:courseId/:slug/lessons/:lessonId" component={LessonPlayer} />
       <Route path="/courses/:courseId/lessons/:lessonId" component={LessonPlayer} />
       <Route component={NotFound} />
     </Switch>

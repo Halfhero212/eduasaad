@@ -44,6 +44,7 @@ import {
   courseAnnouncements,
 } from "@shared/schema";
 import { eq, and, desc, sql, inArray } from "drizzle-orm";
+import { generateSlug } from "@shared/utils";
 
 export interface IStorage {
   // User operations
@@ -226,12 +227,27 @@ export class PostgresStorage implements IStorage {
   }
 
   async createCourse(course: InsertCourse): Promise<Course> {
-    const [newCourse] = await db.insert(courses).values(course).returning();
-    return newCourse;
+    // Generate slug from title
+    const courseWithSlug = {
+      ...course,
+      slug: generateSlug(course.title),
+    };
+    const [newCourse] = await db.insert(courses).values(courseWithSlug).returning();
+    // Update slug with ID for uniqueness
+    const finalSlug = generateSlug(newCourse.title, newCourse.id);
+    const [updatedCourse] = await db.update(courses)
+      .set({ slug: finalSlug })
+      .where(eq(courses.id, newCourse.id))
+      .returning();
+    return updatedCourse;
   }
 
   async updateCourse(id: number, updates: Partial<InsertCourse>): Promise<Course | undefined> {
-    const [updated] = await db.update(courses).set(updates).where(eq(courses.id, id)).returning();
+    // If title is being updated, regenerate slug
+    const updatesWithSlug = updates.title
+      ? { ...updates, slug: generateSlug(updates.title, id) }
+      : updates;
+    const [updated] = await db.update(courses).set(updatesWithSlug).where(eq(courses.id, id)).returning();
     return updated;
   }
 

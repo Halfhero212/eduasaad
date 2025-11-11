@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import type { Course } from "@shared/schema";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getCourseUrl } from "@/lib/courseUtils";
 
 export default function Courses() {
   const { t } = useLanguage();
@@ -150,7 +151,7 @@ export default function Courses() {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Link href={`/courses/${course.id}`} className="w-full">
+                    <Link href={getCourseUrl(course.id, course.title)} className="w-full">
                       <Button className="w-full" data-testid={`button-view-course-${course.id}`}>
                         {t("courses.view_details")}
                       </Button>

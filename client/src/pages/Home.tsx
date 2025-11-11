@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { GraduationCap, BookOpen, Users, Award, Search, UserCheck, Trophy } from "lucide-react";
 import type { Course } from "@shared/schema";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getCourseUrl } from "@/lib/courseUtils";
 
 export default function Home() {
   const { t } = useLanguage();
@@ -215,7 +216,7 @@ export default function Home() {
                     <CardDescription className="line-clamp-2">{course.description}</CardDescription>
                   </CardContent>
                   <CardFooter className="p-4 pt-0">
-                    <Link href={`/courses/${course.id}`} data-testid={`link-course-${course.id}`} className="w-full">
+                    <Link href={getCourseUrl(course.id, course.title)} data-testid={`link-course-${course.id}`} className="w-full">
                       <Button variant="outline" className="w-full">
                         {t("home.view_course")}
                       </Button>

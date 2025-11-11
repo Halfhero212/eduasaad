@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Clock, BookOpen, Users, CheckCircle, PlayCircle, Lock, MessageSquare, Share2 } from "lucide-react";
 import type { Course, CourseLesson, User } from "@shared/schema";
+import { getCourseUrl, getCourseLessonUrl } from "@/lib/courseUtils";
 
 export default function CourseDetail() {
   const { id } = useParams<{ id: string }>();
@@ -103,7 +104,8 @@ export default function CourseDetail() {
   };
 
   const handleShareCourse = () => {
-    const courseUrl = `${window.location.origin}/courses/${id}`;
+    if (!course) return;
+    const courseUrl = `${window.location.origin}${getCourseUrl(course.id, course.title)}`;
     navigator.clipboard.writeText(courseUrl).then(() => {
       toast({
         title: t("toast.link_copied"),
@@ -210,7 +212,7 @@ export default function CourseDetail() {
                   </div>
                   
                   {isEnrolled ? (
-                    <Link href={lessons.length > 0 ? `/courses/${course.id}/lessons/${lessons[0].id}` : "#"}>
+                    <Link href={lessons.length > 0 ? getCourseLessonUrl(course.id, course.title, lessons[0].id) : "#"}>
                       <Button className="w-full" size="lg" data-testid="button-continue">
                         <PlayCircle className="h-5 w-5 mr-2" />
                         {t("courses.continue_learning")}

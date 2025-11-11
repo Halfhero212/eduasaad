@@ -41,6 +41,7 @@ export const courses = pgTable("courses", {
   teacherId: integer("teacher_id").notNull().references(() => users.id),
   categoryId: integer("category_id").notNull().references(() => courseCategories.id),
   title: varchar("title", { length: 500 }).notNull(),
+  slug: varchar("slug", { length: 600 }).notNull(),
   description: text("description").notNull(),
   whatYouWillLearn: text("what_you_will_learn"),
   thumbnailUrl: text("thumbnail_url"),
@@ -52,6 +53,7 @@ export const courses = pgTable("courses", {
 export const insertCourseSchema = createInsertSchema(courses).omit({
   id: true,
   createdAt: true,
+  slug: true, // slug is auto-generated from title
 });
 
 export type InsertCourse = z.infer<typeof insertCourseSchema>;

@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, Award, Target, PlayCircle } from "lucide-react";
+import { getCourseUrl } from "@/lib/courseUtils";
 
 interface EnrolledCourse {
   id: number;
@@ -152,7 +153,7 @@ export default function StudentDashboard() {
                       </div>
                     </CardContent>
                     <CardFooter className="p-4 pt-0">
-                      <Link href={`/courses/${course.id}`} data-testid={`link-continue-${course.id}`} className="w-full">
+                      <Link href={getCourseUrl(course.id, course.title)} data-testid={`link-continue-${course.id}`} className="w-full">
                         <Button variant="default" className="w-full">
                           <PlayCircle className="w-4 h-4 mr-2" />
                           {t("dashboard.student.continue_learning")}
