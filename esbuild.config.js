@@ -1,5 +1,6 @@
 import * as esbuild from 'esbuild';
 
+// Build main server entry point with vite module marked as external
 await esbuild.build({
   entryPoints: ['server/index.ts'],
   bundle: true,
@@ -7,17 +8,18 @@ await esbuild.build({
   format: 'esm',
   outdir: 'dist',
   packages: 'external',
-  // Mark vite and vite.config as external so they're not bundled
-  // This allows dynamic imports to work properly
-  external: ['vite', '../vite.config', '../vite.config.ts'],
-  // Keep dynamic imports as dynamic (don't bundle them)
-  splitting: false,
-  banner: {
-    js: `// Production build - vite is only loaded via dynamic import in development
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-`
-  }
+  // Mark vite module as external so it's not bundled into index.js
+  external: ['./vite.js'],
+});
+
+// Build vite module separately (for development mode dynamic imports)
+await esbuild.build({
+  entryPoints: ['server/vite.ts'],
+  bundle: true,
+  platform: 'node',
+  format: 'esm',
+  outfile: 'dist/vite.js',
+  packages: 'external',
 });
 
 console.log('✅ Backend bundled successfully');
