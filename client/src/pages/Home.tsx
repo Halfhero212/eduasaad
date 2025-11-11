@@ -6,13 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GraduationCap, BookOpen, Users, Award } from "lucide-react";
+import { GraduationCap, BookOpen, Users, Award, Search, UserCheck, Trophy } from "lucide-react";
 import type { Course } from "@shared/schema";
 import { useLanguage } from "@/contexts/LanguageContext";
-import heroImage from "@assets/stock_images/muslim_female_studen_fb8e5c81.jpg";
-import collaborativeImage from "@assets/stock_images/young_muslim_woman_w_29176d3e.jpg";
-import onlineCourseImage from "@assets/stock_images/muslim_girl_student__9d67a006.jpg";
-import achievementImage from "@assets/stock_images/muslim_female_studen_fb8e5c81.jpg";
 
 export default function Home() {
   const { t } = useLanguage();
@@ -38,15 +34,6 @@ export default function Home() {
       
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-primary to-accent text-primary-foreground py-20 md:py-32 overflow-hidden">
-        {/* Background Image with Overlay */}
-        <div className="absolute inset-0">
-          <img 
-            src={heroImage} 
-            alt="Students learning" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-accent/90"></div>
-        </div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
@@ -96,64 +83,40 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">{t("home.how_it_works")}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <Card className="overflow-hidden hover-elevate transition-all">
-              <div className="relative h-48 overflow-hidden">
-                <img 
-                  src={collaborativeImage} 
-                  alt={t("home.step1.title")} 
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute bottom-4 left-4 right-4">
-                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mb-2">
-                    <GraduationCap className="w-6 h-6 text-primary-foreground" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-white">{t("home.step1.title")}</h3>
+            <Card className="hover-elevate transition-all">
+              <CardHeader>
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  <Search className="w-8 h-8 text-primary" />
                 </div>
-              </div>
-              <CardContent className="p-6">
+                <CardTitle>{t("home.step1.title")}</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <p className="text-muted-foreground">
                   {t("home.step1.description")}
                 </p>
               </CardContent>
             </Card>
-            <Card className="overflow-hidden hover-elevate transition-all">
-              <div className="relative h-48 overflow-hidden">
-                <img 
-                  src={onlineCourseImage} 
-                  alt={t("home.step2.title")} 
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute bottom-4 left-4 right-4">
-                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mb-2">
-                    <BookOpen className="w-6 h-6 text-primary-foreground" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-white">{t("home.step2.title")}</h3>
+            <Card className="hover-elevate transition-all">
+              <CardHeader>
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  <UserCheck className="w-8 h-8 text-primary" />
                 </div>
-              </div>
-              <CardContent className="p-6">
+                <CardTitle>{t("home.step2.title")}</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <p className="text-muted-foreground">
                   {t("home.step2.description")}
                 </p>
               </CardContent>
             </Card>
-            <Card className="overflow-hidden hover-elevate transition-all">
-              <div className="relative h-48 overflow-hidden">
-                <img 
-                  src={achievementImage} 
-                  alt={t("home.step3.title")} 
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute bottom-4 left-4 right-4">
-                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mb-2">
-                    <Award className="w-6 h-6 text-primary-foreground" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-white">{t("home.step3.title")}</h3>
+            <Card className="hover-elevate transition-all">
+              <CardHeader>
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  <Trophy className="w-8 h-8 text-primary" />
                 </div>
-              </div>
-              <CardContent className="p-6">
+                <CardTitle>{t("home.step3.title")}</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <p className="text-muted-foreground">
                   {t("home.step3.description")}
                 </p>
