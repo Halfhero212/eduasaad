@@ -8,8 +8,8 @@ await esbuild.build({
   format: 'esm',
   outdir: 'dist',
   packages: 'external',
-  // Keep vite-related imports external - never bundle them
-  external: ['vite', './vite.js', './vite.config.js'],
+  // Mark './vite' as external (NOT './vite.js') to match the actual import path
+  external: ['vite', './vite'],
   banner: {
     js: `// Production build: Vite is external and dynamically imported only in dev
 import { createRequire } from 'module';
@@ -19,6 +19,7 @@ const require = createRequire(import.meta.url);
 });
 
 // Build vite module separately (for development mode only)
+// Bundle vite.config INTO this file, only keep vite package external
 await esbuild.build({
   entryPoints: ['server/vite.ts'],
   bundle: true,
@@ -26,18 +27,8 @@ await esbuild.build({
   format: 'esm',
   outfile: 'dist/vite.js',
   packages: 'external',
-  // Keep vite external, but bundle the config
-  external: ['vite', './vite.config.js'],
-});
-
-// Transpile vite.config.ts to vite.config.js (for runtime import)
-await esbuild.build({
-  entryPoints: ['vite.config.ts'],
-  bundle: false,
-  platform: 'node',
-  format: 'esm',
-  outfile: 'vite.config.js',
-  packages: 'external',
+  // Only keep vite package external, bundle everything else (including vite.config)
+  external: ['vite'],
 });
 
 console.log('✅ esbuild finished: vite externals applied');
