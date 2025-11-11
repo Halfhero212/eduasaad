@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Clock, BookOpen, Users, CheckCircle, PlayCircle, Lock, MessageSquare } from "lucide-react";
+import { Clock, BookOpen, Users, CheckCircle, PlayCircle, Lock, MessageSquare, Share2 } from "lucide-react";
 import type { Course, CourseLesson, User } from "@shared/schema";
 
 export default function CourseDetail() {
@@ -100,6 +100,22 @@ export default function CourseDetail() {
 
   const handleFreeEnroll = () => {
     enrollMutation.mutate();
+  };
+
+  const handleShareCourse = () => {
+    const courseUrl = `${window.location.origin}/courses/${id}`;
+    navigator.clipboard.writeText(courseUrl).then(() => {
+      toast({
+        title: t("toast.link_copied"),
+        description: t("toast.link_copied_desc"),
+      });
+    }).catch(() => {
+      toast({
+        title: t("toast.failed"),
+        description: t("toast.error_generic"),
+        variant: "destructive",
+      });
+    });
   };
 
   if (isLoading) {
@@ -242,6 +258,17 @@ export default function CourseDetail() {
                       )}
                     </>
                   )}
+                  
+                  {/* Share Button */}
+                  <Button
+                    variant="outline"
+                    className="w-full mt-3"
+                    onClick={handleShareCourse}
+                    data-testid="button-share-course"
+                  >
+                    <Share2 className="h-4 w-4 mr-2" />
+                    {t("courses.share_course")}
+                  </Button>
                 </CardContent>
               </Card>
             </div>

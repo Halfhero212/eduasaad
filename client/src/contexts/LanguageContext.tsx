@@ -75,6 +75,7 @@ const translations: Record<Language, Record<string, string>> = {
     "courses.continue_learning": "واصل التعلم",
     "courses.enrolling": "جاري التسجيل...",
     "courses.enroll_free": "سجّل مجاناً",
+    "courses.share_course": "مشاركة الدورة",
     "courses.buy_whatsapp": "اشترِ عبر واتساب",
     "courses.price_discount": "خصم",
     "courses.original_price": "السعر الأصلي",
@@ -174,6 +175,8 @@ const translations: Record<Language, Record<string, string>> = {
     "toast.quiz_failed": "فشل إرسال الاختبار",
     "toast.too_many_images": "عدد كبير جداً من الصور",
     "toast.no_images": "لا توجد صور",
+    "toast.link_copied": "تم نسخ الرابط",
+    "toast.link_copied_desc": "تم نسخ رابط الدورة إلى الحافظة",
     
     // Quiz
     "quiz.quizzes": "الاختبارات",
@@ -680,6 +683,7 @@ const translations: Record<Language, Record<string, string>> = {
     "courses.continue_learning": "Continue Learning",
     "courses.enrolling": "Enrolling...",
     "courses.enroll_free": "Enroll for Free",
+    "courses.share_course": "Share Course",
     "courses.buy_whatsapp": "Buy via WhatsApp",
     "courses.price_discount": "Discount",
     "courses.original_price": "Original Price",
@@ -783,6 +787,8 @@ const translations: Record<Language, Record<string, string>> = {
     "toast.quiz_failed": "Failed to submit quiz",
     "toast.too_many_images": "Too many images",
     "toast.no_images": "No images",
+    "toast.link_copied": "Link Copied",
+    "toast.link_copied_desc": "Course link copied to clipboard",
     
     // Quiz
     "quiz.quizzes": "Quizzes",
