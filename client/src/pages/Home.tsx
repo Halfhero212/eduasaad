@@ -11,13 +11,12 @@ import type { Course } from "@shared/schema";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getCourseUrl } from "@/lib/courseUtils";
 import heroImage from "@assets/stock_images/books_learning_educa_0b5e5152.jpg";
-import workspaceImage from "@assets/stock_images/modern_workspace_lap_0f911a7f.jpg";
 import defaultThumbnail1 from "@assets/stock_images/books_learning_educa_d5ff243b.jpg";
-import defaultThumbnail2 from "@assets/stock_images/modern_workspace_lap_d3ff4837.jpg";
-import defaultThumbnail3 from "@assets/stock_images/notebook_pen_study_d_df2d2ad2.jpg";
+import defaultThumbnail2 from "@assets/stock_images/notebook_pen_study_d_df2d2ad2.jpg";
+import defaultThumbnail3 from "@assets/stock_images/open_book_pages_lear_0f2e0809.jpg";
 import textbookImage from "@assets/stock_images/education_textbook_o_00e1a41c.jpg";
-import graduationImage from "@assets/stock_images/graduation_cap_diplo_b01dc592.jpg";
-import abstractImage from "@assets/stock_images/abstract_colorful_le_dde463a3.jpg";
+import pencilsImage from "@assets/stock_images/pencils_pens_school__89cf85ba.jpg";
+import libraryImage from "@assets/stock_images/library_books_shelve_0b984042.jpg";
 
 const defaultThumbnails = [defaultThumbnail1, defaultThumbnail2, defaultThumbnail3];
 
@@ -128,7 +127,7 @@ export default function Home() {
             <Card className="hover-elevate transition-all overflow-hidden">
               <div className="relative h-48 overflow-hidden">
                 <img 
-                  src={workspaceImage} 
+                  src={pencilsImage} 
                   alt="Enroll in courses" 
                   className="w-full h-full object-cover"
                 />
@@ -151,7 +150,7 @@ export default function Home() {
             <Card className="hover-elevate transition-all overflow-hidden">
               <div className="relative h-48 overflow-hidden">
                 <img 
-                  src={graduationImage} 
+                  src={libraryImage} 
                   alt="Achieve success" 
                   className="w-full h-full object-cover"
                 />
@@ -175,66 +174,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why Choose Us */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">{t("home.why_choose_us") || "لماذا تختارنا"}</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              {t("home.why_choose_subtitle") || "منصة تعليمية شاملة مع محتوى عالي الجودة ودعم مستمر"}
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            <Card className="overflow-hidden hover-elevate">
-              <div className="md:flex">
-                <div className="md:w-2/5">
-                  <img 
-                    src={abstractImage} 
-                    alt="Quality education" 
-                    className="w-full h-full object-cover min-h-[200px]"
-                  />
-                </div>
-                <div className="md:w-3/5 p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                      <BookOpen className="w-6 h-6 text-primary" />
-                    </div>
-                    <CardTitle className="text-xl">{t("home.quality_content") || "محتوى عالي الجودة"}</CardTitle>
-                  </div>
-                  <CardDescription className="text-base">
-                    {t("home.quality_content_desc") || "دورات مصممة بعناية من قبل خبراء متخصصين لضمان أفضل تجربة تعليمية"}
-                  </CardDescription>
-                </div>
-              </div>
-            </Card>
-            <Card className="overflow-hidden hover-elevate">
-              <div className="md:flex">
-                <div className="md:w-2/5">
-                  <img 
-                    src={workspaceImage} 
-                    alt="Flexible learning" 
-                    className="w-full h-full object-cover min-h-[200px]"
-                  />
-                </div>
-                <div className="md:w-3/5 p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Users className="w-6 h-6 text-primary" />
-                    </div>
-                    <CardTitle className="text-xl">{t("home.flexible_learning") || "تعلم مرن"}</CardTitle>
-                  </div>
-                  <CardDescription className="text-base">
-                    {t("home.flexible_learning_desc") || "تعلم بالسرعة التي تناسبك من أي مكان وفي أي وقت"}
-                  </CardDescription>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </div>
-      </section>
-
       {/* Course Catalog */}
-      <section id="courses" className="py-16 bg-muted/30">
+      <section id="courses" className="py-16">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
             <div>
