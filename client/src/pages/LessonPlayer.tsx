@@ -23,6 +23,8 @@ export default function LessonPlayer() {
   const { toast } = useToast();
   const [newComment, setNewComment] = useState("");
   const [submissionImages, setSubmissionImages] = useState<File[]>([]);
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [replyContent, setReplyContent] = useState("");
 
   const { data: lessonData, isLoading } = useQuery<{
     lesson: CourseLesson;
@@ -40,6 +42,8 @@ export default function LessonPlayer() {
     userName: string;
     userRole: string;
     createdAt: string;
+    parentCommentId: number | null;
+    user: { id: number; fullName: string; role: string } | null;
   }> }>({
     queryKey: [`/api/lessons/${lessonId}/comments`],
     enabled: !!lessonId,
@@ -57,6 +61,12 @@ export default function LessonPlayer() {
 
   const comments = commentsData?.comments || [];
   const quizzes = quizzesData?.quizzes || [];
+
+  // Group comments into parent questions and their replies
+  const topLevelComments = comments.filter(c => c.parentCommentId === null);
+  const getReplies = (parentId: number) => {
+    return comments.filter(c => c.parentCommentId === parentId);
+  };
 
   const markCompleteMutation = useMutation({
     mutationFn: async () => {
@@ -89,6 +99,28 @@ export default function LessonPlayer() {
     onError: (error) => {
       toast({
         title: t("toast.question_failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const submitReplyMutation = useMutation({
+    mutationFn: async ({ commentId, content }: { commentId: number; content: string }) => {
+      await apiRequest("POST", `/api/comments/${commentId}/reply`, { comment: content });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/lessons/${lessonId}/comments`] });
+      setReplyingTo(null);
+      setReplyContent("");
+      toast({
+        title: t("toast.reply_posted") || "Reply posted",
+        description: t("toast.reply_posted_desc") || "Your reply has been posted successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: t("toast.reply_failed") || "Reply failed",
         description: error instanceof Error ? error.message : t("toast.error_generic"),
         variant: "destructive",
       });
@@ -135,6 +167,11 @@ export default function LessonPlayer() {
   const handleSubmitComment = () => {
     if (!newComment.trim()) return;
     submitCommentMutation.mutate(newComment);
+  };
+
+  const handleSubmitReply = (commentId: number) => {
+    if (!replyContent.trim()) return;
+    submitReplyMutation.mutate({ commentId, content: replyContent });
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -401,31 +438,107 @@ export default function LessonPlayer() {
                   </div>
                 )}
 
-                {/* Comments List */}
+                {/* Comments List - Threaded */}
                 <div className="space-y-4 mt-6">
-                  {comments && comments.length > 0 ? (
-                    comments.map((comment) => (
-                      <div
-                        key={comment.id}
-                        className="border rounded-lg p-4"
-                        data-testid={`comment-${comment.id}`}
-                      >
-                        <div className="flex justify-between mb-2">
-                          <div className="font-medium">
-                            {comment.userName}{" "}
-                            {comment.userRole === "teacher" && (
-                              <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
-                                {t("comment.teacher_badge")}
-                              </span>
-                            )}
+                  {topLevelComments && topLevelComments.length > 0 ? (
+                    topLevelComments.map((comment) => {
+                      const replies = getReplies(comment.id);
+                      return (
+                        <div
+                          key={comment.id}
+                          className="border rounded-lg p-4 space-y-3"
+                          data-testid={`comment-${comment.id}`}
+                        >
+                          {/* Student Question */}
+                          <div>
+                            <div className="flex justify-between mb-2">
+                              <div className="font-medium">
+                                {comment.user?.fullName || comment.userName}{" "}
+                                {comment.userRole === "teacher" && (
+                                  <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
+                                    {t("comment.teacher_badge")}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {new Date(comment.createdAt).toLocaleDateString()}
+                              </div>
+                            </div>
+                            <p className="text-sm">{comment.content}</p>
                           </div>
-                          <div className="text-sm text-muted-foreground">
-                            {new Date(comment.createdAt).toLocaleDateString()}
-                          </div>
+
+                          {/* Replies */}
+                          {replies.length > 0 && (
+                            <div className="ml-8 pl-4 border-l-2 border-primary/30 space-y-3">
+                              {replies.map((reply) => (
+                                <div key={reply.id} data-testid={`comment-${reply.id}`}>
+                                  <div className="flex justify-between mb-2">
+                                    <div className="font-medium text-sm">
+                                      {reply.user?.fullName || reply.userName}{" "}
+                                      <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
+                                        {t("comment.teacher_badge")}
+                                      </span>
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {new Date(reply.createdAt).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                  <p className="text-sm">{reply.content}</p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Teacher Reply Form */}
+                          {user?.role === "teacher" && (
+                            <div className="mt-3">
+                              {replyingTo === comment.id ? (
+                                <div className="space-y-2 ml-8">
+                                  <Textarea
+                                    value={replyContent}
+                                    onChange={(e) => setReplyContent(e.target.value)}
+                                    placeholder={t("comment.reply_placeholder") || "Write your reply..."}
+                                    rows={3}
+                                    data-testid={`textarea-reply-${comment.id}`}
+                                  />
+                                  <div className="flex gap-2">
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleSubmitReply(comment.id)}
+                                      disabled={submitReplyMutation.isPending || !replyContent.trim()}
+                                      data-testid={`button-submit-reply-${comment.id}`}
+                                    >
+                                      {submitReplyMutation.isPending ? t("comment.posting") : t("comment.post_reply") || "Post Reply"}
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => {
+                                        setReplyingTo(null);
+                                        setReplyContent("");
+                                      }}
+                                      data-testid={`button-cancel-reply-${comment.id}`}
+                                    >
+                                      {t("comment.cancel") || "Cancel"}
+                                    </Button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => setReplyingTo(comment.id)}
+                                  data-testid={`button-reply-${comment.id}`}
+                                >
+                                  <MessageSquare className="w-4 h-4 mr-2" />
+                                  {t("comment.reply") || "Reply"}
+                                </Button>
+                              )}
+                            </div>
+                          )}
                         </div>
-                        <p className="text-sm">{comment.content}</p>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <p className="text-center text-muted-foreground py-8">
                       {t("comment.no_questions")}
