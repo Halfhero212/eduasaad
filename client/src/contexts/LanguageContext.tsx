@@ -54,6 +54,8 @@ const translations: Record<Language, Record<string, string>> = {
     "home.view_course": "عرض الدورة",
     "home.no_courses_category": "لا توجد دورات في هذه الفئة. جرب فئة أخرى.",
     "home.no_courses_available": "لا توجد دورات متاحة بعد. تحقق مرة أخرى قريباً!",
+    "home.platform_highlight": "دورات لمختلف الصفوف والمواد مع أفضل الأساتذة على مستوى العراق",
+    "home.platform_highlight_desc": "انضم لآلاف الطلاب الذين يتعلمون مع نخبة من المعلمين المتميزين",
     
     // Courses
     "courses.title": "استكشف دوراتنا",

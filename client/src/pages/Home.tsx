@@ -174,8 +174,46 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Platform Highlight */}
+      <section className="py-20 bg-gradient-to-r from-primary to-accent text-primary-foreground relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-32 h-32 border-2 border-primary-foreground rounded-full"></div>
+          <div className="absolute bottom-10 right-10 w-40 h-40 border-2 border-primary-foreground rounded-full"></div>
+          <div className="absolute top-1/2 left-1/3 w-24 h-24 border-2 border-primary-foreground rounded-full"></div>
+        </div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                <Award className="w-10 h-10 text-primary-foreground" />
+              </div>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              {t("home.platform_highlight")}
+            </h2>
+            <p className="text-lg md:text-xl opacity-90">
+              {t("home.platform_highlight_desc")}
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4 justify-center">
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-6 py-3">
+                <GraduationCap className="w-5 h-5" />
+                <span className="font-semibold">معلمون متميزون</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-6 py-3">
+                <BookOpen className="w-5 h-5" />
+                <span className="font-semibold">جميع المواد الدراسية</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-6 py-3">
+                <Users className="w-5 h-5" />
+                <span className="font-semibold">مختلف الصفوف الدراسية</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Course Catalog */}
-      <section id="courses" className="py-16">
+      <section id="courses" className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
             <div>
