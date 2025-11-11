@@ -1,6 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { GraduationCap, Users, BookOpen, Award } from "lucide-react";
 
@@ -32,10 +31,10 @@ export default function AboutUs() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="bg-background">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-12">
+      <main className="container mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4" data-testid="heading-about-title">
@@ -94,8 +93,6 @@ export default function AboutUs() {
           </CardContent>
         </Card>
       </main>
-
-      <Footer />
     </div>
   );
 }
