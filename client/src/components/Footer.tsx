@@ -6,23 +6,21 @@ export default function Footer() {
   const { t, language } = useLanguage();
   const isRTL = language === 'ar';
 
-  const footerLinks = {
+  const footerLinks: {
+    platform: Array<{ label: string; href: string; external?: boolean }>;
+    courses: Array<{ label: string; href: string; external?: boolean }>;
+    support: Array<{ label: string; href: string; external?: boolean }>;
+  } = {
     platform: [
-      { label: t('footer.about'), href: '#' },
+      { label: t('footer.about'), href: '/about' },
       { label: t('footer.how_it_works'), href: '#' },
-      { label: t('footer.careers'), href: '#' },
-      { label: t('footer.blog'), href: '#' },
+      { label: t('footer.become_teacher'), href: 'https://wa.me/9467730145334?text=' + encodeURIComponent(t('footer.become_teacher_message')), external: true },
     ],
     courses: [
       { label: t('footer.browse_courses'), href: '/courses' },
-      { label: t('footer.become_teacher'), href: '#' },
-      { label: t('footer.pricing'), href: '#' },
     ],
     support: [
-      { label: t('footer.help_center'), href: '#' },
-      { label: t('footer.contact_us'), href: '#' },
-      { label: t('footer.privacy'), href: '#' },
-      { label: t('footer.terms'), href: '#' },
+      { label: t('footer.contact_us'), href: 'https://wa.me/9467730145334', external: true },
     ],
   };
 
@@ -83,11 +81,23 @@ export default function Footer() {
             <ul className="space-y-3">
               {footerLinks.platform.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href}>
-                    <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer" data-testid={`link-footer-${link.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                  {link.external ? (
+                    <a 
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                      data-testid={`link-footer-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
                       {link.label}
-                    </span>
-                  </Link>
+                    </a>
+                  ) : (
+                    <Link href={link.href}>
+                      <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer" data-testid={`link-footer-${link.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                        {link.label}
+                      </span>
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -101,11 +111,23 @@ export default function Footer() {
             <ul className="space-y-3">
               {footerLinks.courses.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href}>
-                    <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer" data-testid={`link-footer-${link.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                  {link.external ? (
+                    <a 
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                      data-testid={`link-footer-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
                       {link.label}
-                    </span>
-                  </Link>
+                    </a>
+                  ) : (
+                    <Link href={link.href}>
+                      <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer" data-testid={`link-footer-${link.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                        {link.label}
+                      </span>
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -119,11 +141,23 @@ export default function Footer() {
             <ul className="space-y-3">
               {footerLinks.support.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href}>
-                    <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer" data-testid={`link-footer-${link.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                  {link.external ? (
+                    <a 
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                      data-testid={`link-footer-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
                       {link.label}
-                    </span>
-                  </Link>
+                    </a>
+                  ) : (
+                    <Link href={link.href}>
+                      <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer" data-testid={`link-footer-${link.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                        {link.label}
+                      </span>
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

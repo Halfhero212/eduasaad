@@ -591,6 +591,7 @@ const translations: Record<Language, Record<string, string>> = {
     "footer.courses": "الدورات",
     "footer.browse_courses": "تصفح الدورات",
     "footer.become_teacher": "كن معلماً",
+    "footer.become_teacher_message": "مرحباً، أرغب في أن أصبح معلماً على منصة ابراج التعليمية",
     "footer.pricing": "الأسعار",
     "footer.support": "الدعم",
     "footer.help_center": "مركز المساعدة",
@@ -598,6 +599,23 @@ const translations: Record<Language, Record<string, string>> = {
     "footer.privacy": "سياسة الخصوصية",
     "footer.terms": "شروط الخدمة",
     "footer.copyright": "© جميع الحقوق محفوظة.",
+    
+    // About Us Page
+    "about.title": "من نحن",
+    "about.subtitle": "منصة تعليمية رائدة تهدف إلى تمكين المتعلمين في جميع أنحاء العالم",
+    "about.mission_title": "مهمتنا",
+    "about.mission_desc": "نسعى لتوفير تعليم عالي الجودة يمكن الوصول إليه للجميع. نؤمن بأن التعليم هو مفتاح النجاح، ونعمل على توفير بيئة تعليمية متميزة تجمع بين أفضل المعلمين والطلاب المتحمسين للتعلم.",
+    "about.vision_title": "رؤيتنا",
+    "about.vision_desc": "نطمح لأن نكون المنصة التعليمية الأولى في المنطقة، حيث يمكن لكل شخص الوصول إلى تعليم متميز يساعده على تحقيق أهدافه المهنية والشخصية. نسعى لبناء مجتمع تعليمي نابض بالحياة يدعم التعلم المستمر والتطوير الذاتي.",
+    "about.features_title": "لماذا تختار منصة ابراج التعليمية؟",
+    "about.feature_quality_title": "محتوى عالي الجودة",
+    "about.feature_quality_desc": "دورات مصممة بعناية من قبل خبراء في مجالاتهم",
+    "about.feature_teachers_title": "معلمون محترفون",
+    "about.feature_teachers_desc": "تعلم من أفضل المعلمين ذوي الخبرة الواسعة",
+    "about.feature_courses_title": "تنوع في المحتوى",
+    "about.feature_courses_desc": "مجموعة واسعة من الدورات في مختلف المجالات",
+    "about.feature_progress_title": "تتبع التقدم",
+    "about.feature_progress_desc": "راقب تقدمك وحقق أهدافك التعليمية",
   },
   en: {
     // Common
@@ -1065,6 +1083,7 @@ const translations: Record<Language, Record<string, string>> = {
     "footer.courses": "Courses",
     "footer.browse_courses": "Browse Courses",
     "footer.become_teacher": "Become a Teacher",
+    "footer.become_teacher_message": "Hello, I would like to become a teacher on Abraj Educational Platform",
     "footer.pricing": "Pricing",
     "footer.support": "Support",
     "footer.help_center": "Help Center",
@@ -1072,6 +1091,23 @@ const translations: Record<Language, Record<string, string>> = {
     "footer.privacy": "Privacy Policy",
     "footer.terms": "Terms of Service",
     "footer.copyright": "© All rights reserved.",
+    
+    // About Us Page
+    "about.title": "About Us",
+    "about.subtitle": "A leading educational platform aimed at empowering learners worldwide",
+    "about.mission_title": "Our Mission",
+    "about.mission_desc": "We strive to provide high-quality education accessible to everyone. We believe that education is the key to success, and we work to provide an excellent learning environment that brings together the best teachers and students passionate about learning.",
+    "about.vision_title": "Our Vision",
+    "about.vision_desc": "We aspire to be the leading educational platform in the region, where everyone can access excellent education that helps them achieve their professional and personal goals. We seek to build a vibrant educational community that supports continuous learning and self-development.",
+    "about.features_title": "Why Choose Abraj Educational Platform?",
+    "about.feature_quality_title": "High-Quality Content",
+    "about.feature_quality_desc": "Carefully designed courses by experts in their fields",
+    "about.feature_teachers_title": "Professional Teachers",
+    "about.feature_teachers_desc": "Learn from the best teachers with extensive experience",
+    "about.feature_courses_title": "Content Diversity",
+    "about.feature_courses_desc": "A wide range of courses in various fields",
+    "about.feature_progress_title": "Progress Tracking",
+    "about.feature_progress_desc": "Monitor your progress and achieve your educational goals",
   },
 };
 
