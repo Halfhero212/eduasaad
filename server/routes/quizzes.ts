@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireRole, type AuthRequest } from "../middleware/auth";
 import multer from "multer";
-import { Client } from "@replit/object-storage";
+import { getStorageAdapter } from "../utils/storage-adapter";
 import { notificationMessages } from "../utils/notificationMessages";
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -84,16 +84,18 @@ export function registerQuizRoutes(app: Express) {
         return res.status(400).json({ error: "You have already submitted this quiz" });
       }
 
-      // Upload images to object storage
+      // Upload images to storage
       const files = req.files as Express.Multer.File[];
       const imageUrls: string[] = [];
 
       if (files && files.length > 0) {
-        const objectStorage = new Client();
+        const storageAdapter = getStorageAdapter();
         for (const file of files) {
           const fileName = `quiz-submissions/${quizId}/${req.user!.id}/${Date.now()}-${file.originalname}`;
-          await objectStorage.uploadFromBytes(fileName, file.buffer);
-          imageUrls.push(fileName);
+          const result = await storageAdapter.uploadFromBytes(fileName, file.buffer);
+          if (result.ok) {
+            imageUrls.push(storageAdapter.getPublicUrl(fileName));
+          }
         }
       }
 

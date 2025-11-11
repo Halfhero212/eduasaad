@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireRole, verifyToken, type AuthRequest } from "../middleware/auth";
 import multer from "multer";
-import { Client } from "@replit/object-storage";
+import { getStorageAdapter } from "../utils/storage-adapter";
 import { fileTypeFromBuffer } from "file-type";
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -32,35 +32,29 @@ export function registerCourseRoutes(app: Express) {
       // Use detected extension from byte inspection (more secure than client-provided extension)
       const extension = fileType.ext;
 
-      const client = new Client();
-      const publicPaths = process.env.PUBLIC_OBJECT_SEARCH_PATHS?.split(",") || [];
-      const publicDir = publicPaths[0] || "";
+      const storageAdapter = getStorageAdapter();
       
       // Generate unique filename
       const timestamp = Date.now();
       const randomString = Math.random().toString(36).substring(7);
       const filename = `course-${timestamp}-${randomString}.${extension}`;
       
-      // Build storage path - ensure proper structure
-      const storageSubPath = `thumbnails/${filename}`;
-      const filepath = publicDir ? `${publicDir}/${storageSubPath}` : storageSubPath;
+      // Build storage path
+      const filepath = `thumbnails/${filename}`;
 
-      // Upload to object storage with proper content type
-      // Type assertion needed due to incomplete type definitions in @replit/object-storage
-      // Runtime supports contentType per official docs: https://docs.replit.com/reference/object-storage-javascript-sdk
-      const result = await client.uploadFromBytes(filepath, req.file.buffer, {
+      // Upload to storage (works on both Replit and regular servers)
+      const result = await storageAdapter.uploadFromBytes(filepath, req.file.buffer, {
         contentType: fileType.mime
-      } as any);
+      });
       
       if (!result.ok) {
         console.error("Upload failed:", result.error);
         return res.status(500).json({ error: "Failed to upload file to storage" });
       }
 
-      // Return the full storage filepath
-      // Replit Object Storage serves files from PUBLIC_OBJECT_SEARCH_PATHS directories
-      // The frontend will use this path to access the uploaded thumbnail
-      res.json({ success: true, url: filepath });
+      // Return the public URL for the uploaded file
+      const publicUrl = storageAdapter.getPublicUrl(filepath);
+      res.json({ success: true, url: publicUrl });
     } catch (error) {
       console.error("Upload thumbnail error:", error);
       res.status(500).json({ error: "Failed to upload thumbnail" });

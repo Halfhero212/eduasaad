@@ -1,4 +1,4 @@
-import { Client } from "@replit/object-storage";
+import { getStorageAdapter } from "../utils/storage-adapter";
 import { db } from "../db";
 import { quizSubmissions } from "@shared/schema";
 import { sql } from "drizzle-orm";
@@ -9,7 +9,7 @@ export async function cleanupOldQuizImages() {
   console.log("🧹 Starting cleanup of old quiz submission images...");
 
   try {
-    const objectStorage = new Client();
+    const storageAdapter = getStorageAdapter();
     const oneWeekAgo = new Date(Date.now() - ONE_WEEK_MS);
 
     // Find all quiz submissions older than 1 week with images
@@ -30,7 +30,7 @@ export async function cleanupOldQuizImages() {
 
       for (const imageUrl of submission.imageUrls) {
         try {
-          await objectStorage.delete(imageUrl);
+          await storageAdapter.delete(imageUrl);
           deletedCount++;
           console.log(`  ✓ Deleted: ${imageUrl}`);
         } catch (error) {
