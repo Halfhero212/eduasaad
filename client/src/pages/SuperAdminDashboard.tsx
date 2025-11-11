@@ -34,7 +34,8 @@ export default function SuperAdminDashboard() {
   const [deleteStudentId, setDeleteStudentId] = useState<number | null>(null);
   const [resetPasswordTeacherId, setResetPasswordTeacherId] = useState<number | null>(null);
   const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
-  const [resetPassword, setResetPassword] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   
   // Category management state
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
@@ -296,14 +297,15 @@ export default function SuperAdminDashboard() {
   });
 
   const resetTeacherPasswordMutation = useMutation({
-    mutationFn: async (teacherId: number) => {
-      const res = await apiRequest("POST", `/api/admin/teachers/${teacherId}/reset-password`);
+    mutationFn: async ({ teacherId, password }: { teacherId: number; password: string }) => {
+      const res = await apiRequest("POST", `/api/admin/teachers/${teacherId}/reset-password`, { password });
       return await res.json();
     },
-    onSuccess: (data) => {
-      setResetPassword(data.password);
-      setResetPasswordDialogOpen(true);
+    onSuccess: () => {
+      setResetPasswordDialogOpen(false);
       setResetPasswordTeacherId(null);
+      setNewPassword("");
+      setConfirmPassword("");
       toast({
         title: t("toast.password_reset_success"),
         description: t("toast.password_reset_teacher_desc"),
@@ -321,16 +323,30 @@ export default function SuperAdminDashboard() {
 
   const handleResetTeacherPassword = (teacherId: number) => {
     setResetPasswordTeacherId(teacherId);
-    resetTeacherPasswordMutation.mutate(teacherId);
+    setNewPassword("");
+    setConfirmPassword("");
+    setResetPasswordDialogOpen(true);
   };
 
-  const handleCopyResetPassword = () => {
-    if (resetPassword) {
-      navigator.clipboard.writeText(resetPassword);
+  const handleConfirmResetPassword = () => {
+    if (!newPassword || newPassword.length < 6) {
       toast({
-        title: t("dialog.create_teacher.password_copied"),
-        description: t("dialog.create_teacher.password_copied_desc"),
+        title: t("toast.failed"),
+        description: "Password must be at least 6 characters",
+        variant: "destructive",
       });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: t("toast.failed"),
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (resetPasswordTeacherId) {
+      resetTeacherPasswordMutation.mutate({ teacherId: resetPasswordTeacherId, password: newPassword });
     }
   };
 
@@ -1111,9 +1127,9 @@ export default function SuperAdminDashboard() {
           </AlertDialogContent>
         </AlertDialog>
 
-        {/* Reset Password Success Dialog */}
+        {/* Reset Password Dialog */}
         <Dialog open={resetPasswordDialogOpen} onOpenChange={setResetPasswordDialogOpen}>
-          <DialogContent data-testid="dialog-reset-password-success">
+          <DialogContent data-testid="dialog-reset-password">
             <DialogHeader>
               <DialogTitle>{t("dialog.reset_password.title")}</DialogTitle>
               <DialogDescription>
@@ -1121,33 +1137,43 @@ export default function SuperAdminDashboard() {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <Alert>
-                <AlertDescription>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      value={resetPassword || ""}
-                      onChange={(e) => setResetPassword(e.target.value)}
-                      className="font-mono"
-                      data-testid="input-reset-password"
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={handleCopyResetPassword}
-                      data-testid="button-copy-reset-password"
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </AlertDescription>
-              </Alert>
-              <p className="text-sm text-muted-foreground">
-                {t("dialog.reset_password.note")}
-              </p>
+              <div className="space-y-2">
+                <Label htmlFor="new-password">{t("auth.new_password")}</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder={t("auth.password_placeholder")}
+                  data-testid="input-new-password"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">{t("auth.confirm_password")}</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder={t("auth.password_placeholder")}
+                  data-testid="input-confirm-password"
+                />
+              </div>
             </div>
             <DialogFooter>
-              <Button onClick={() => setResetPasswordDialogOpen(false)} data-testid="button-close-reset-password">
-                {t("action.close")}
+              <Button 
+                variant="ghost" 
+                onClick={() => setResetPasswordDialogOpen(false)}
+                data-testid="button-cancel-reset-password"
+              >
+                {t("action.cancel")}
+              </Button>
+              <Button 
+                onClick={handleConfirmResetPassword}
+                disabled={resetTeacherPasswordMutation.isPending}
+                data-testid="button-confirm-reset-password"
+              >
+                {resetTeacherPasswordMutation.isPending ? t("action.resetting") : t("action.reset_password")}
               </Button>
             </DialogFooter>
           </DialogContent>

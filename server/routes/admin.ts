@@ -313,6 +313,7 @@ export function registerAdminRoutes(app: Express) {
   app.post("/api/admin/teachers/:id/reset-password", requireAuth, requireRole("superadmin"), async (req, res) => {
     try {
       const teacherId = parseInt(req.params.id);
+      const { password } = req.body;
       
       // Verify the user is a teacher
       const teacher = await storage.getUserById(teacherId);
@@ -320,19 +321,18 @@ export function registerAdminRoutes(app: Express) {
         return res.status(404).json({ error: "Teacher not found" });
       }
 
-      // Generate a new random password
-      const newPassword = Array.from({ length: 12 }, () => 
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*'
-          .charAt(Math.floor(Math.random() * 70))
-      ).join('');
+      // Validate password
+      if (!password || password.length < 6) {
+        return res.status(400).json({ error: "Password must be at least 6 characters" });
+      }
 
       // Hash the password
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const hashedPassword = await bcrypt.hash(password, 10);
 
       // Update teacher password
       await storage.updateUser(teacherId, { password: hashedPassword });
 
-      res.json({ success: true, password: newPassword });
+      res.json({ success: true });
     } catch (error) {
       console.error("Reset teacher password error:", error);
       res.status(500).json({ error: "Failed to reset teacher password" });

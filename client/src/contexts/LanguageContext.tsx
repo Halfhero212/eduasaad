@@ -185,6 +185,7 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.email_placeholder": "your.email@example.com",
     "auth.password_placeholder": "أدخل كلمة المرور",
     "auth.fullname_placeholder": "أحمد علي",
+    "auth.new_password": "كلمة المرور الجديدة",
     "auth.confirm_password": "تأكيد كلمة المرور",
     "auth.confirm_password_placeholder": "أعد إدخال كلمة المرور",
     "auth.passwords_must_match": "كلمات المرور يجب أن تتطابق",
@@ -342,9 +343,8 @@ const translations: Record<Language, Record<string, string>> = {
     "dialog.category.saving": "جاري الحفظ...",
     
     // Reset Password Dialog
-    "dialog.reset_password.title": "تم إعادة تعيين كلمة المرور بنجاح",
-    "dialog.reset_password.description": "تم إنشاء كلمة مرور جديدة لحساب المعلم",
-    "dialog.reset_password.note": "يرجى حفظ كلمة المرور هذه ومشاركتها مع المعلم. لن تظهر مرة أخرى.",
+    "dialog.reset_password.title": "إعادة تعيين كلمة مرور المعلم",
+    "dialog.reset_password.description": "أدخل كلمة مرور جديدة لحساب المعلم",
     
     // Common Actions
     "action.view": "عرض",
@@ -764,6 +764,7 @@ const translations: Record<Language, Record<string, string>> = {
     "auth.email_placeholder": "your.email@example.com",
     "auth.password_placeholder": "Enter your password",
     "auth.fullname_placeholder": "John Doe",
+    "auth.new_password": "New Password",
     "auth.confirm_password": "Confirm Password",
     "auth.confirm_password_placeholder": "Re-enter your password",
     "auth.passwords_must_match": "Passwords must match",
@@ -922,9 +923,8 @@ const translations: Record<Language, Record<string, string>> = {
     "dialog.category.saving": "Saving...",
     
     // Reset Password Dialog
-    "dialog.reset_password.title": "Password Reset Successful",
-    "dialog.reset_password.description": "New password generated for teacher account",
-    "dialog.reset_password.note": "Please save this password and share it with the teacher. It will not be shown again.",
+    "dialog.reset_password.title": "Reset Teacher Password",
+    "dialog.reset_password.description": "Enter a new password for the teacher account",
     
     // Common Actions
     "action.view": "View",
