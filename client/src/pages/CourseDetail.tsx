@@ -332,7 +332,7 @@ export default function CourseDetail() {
                         </div>
                       </div>
                       {isEnrolled && (
-                        <Link href={`/courses/${course.id}/lessons/${lesson.id}`}>
+                        <Link href={getCourseLessonUrl(course.id, course.title, lesson.id)}>
                           <Button variant="ghost" size="sm">{t("courses.watch")}</Button>
                         </Link>
                       )}

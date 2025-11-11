@@ -15,6 +15,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { CheckCircle, ChevronRight, ChevronLeft, MessageSquare, FileText, Upload, Clock } from "lucide-react";
 import type { CourseLesson } from "@shared/schema";
 import SecureVideoPlayer from "@/components/SecureVideoPlayer";
+import { getCourseLessonUrl } from "@/lib/courseUtils";
 
 export default function LessonPlayer() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>();
@@ -302,7 +303,7 @@ export default function LessonPlayer() {
               <CardContent className="flex justify-between items-center">
                 <div className="flex gap-2">
                   {prevLesson && (
-                    <Link href={`/courses/${courseId}/lessons/${prevLesson.id}`}>
+                    <Link href={getCourseLessonUrl(parseInt(courseId), course.title, prevLesson.id)}>
                       <Button variant="outline" data-testid="button-prev-lesson">
                         <ChevronLeft className="w-4 h-4 mr-2" />
                         {t("lesson.previous")}
@@ -310,7 +311,7 @@ export default function LessonPlayer() {
                     </Link>
                   )}
                   {nextLesson && (
-                    <Link href={`/courses/${courseId}/lessons/${nextLesson.id}`}>
+                    <Link href={getCourseLessonUrl(parseInt(courseId), course.title, nextLesson.id)}>
                       <Button variant="outline" data-testid="button-next-lesson">
                         {t("action.next")}
                         <ChevronRight className="w-4 h-4 ml-2" />
@@ -557,7 +558,7 @@ export default function LessonPlayer() {
               </CardHeader>
               <CardContent className="space-y-2">
                 {lessons.map((l, index) => (
-                  <Link key={l.id} href={`/courses/${courseId}/lessons/${l.id}`}>
+                  <Link key={l.id} href={getCourseLessonUrl(parseInt(courseId), course.title, l.id)}>
                     <div
                       className={`p-3 rounded-lg cursor-pointer hover-elevate ${
                         l.id === lesson.id ? "bg-primary/10" : ""
