@@ -1,0 +1,105 @@
+/home/abraj/.pm2/logs/eduasaad-out.log last 50 lines:
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad |
+0|eduasaad |
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad |
+0|eduasaad |
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad |
+0|eduasaad |
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad |
+0|eduasaad |
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad |
+0|eduasaad |
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad |
+0|eduasaad |
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad |
+0|eduasaad |
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad |
+0|eduasaad |
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad |
+0|eduasaad |
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad |
+0|eduasaad |
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad |
+0|eduasaad |
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad |
+0|eduasaad |
+0|eduasaad | > rest-express@1.0.0 start
+0|eduasaad | > NODE_ENV=production node dist/index.js
+0|eduasaad |
+
+/home/abraj/.pm2/logs/eduasaad-error.log last 50 lines:
+0|eduasaad |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+0|eduasaad |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+0|eduasaad |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+0|eduasaad |
+0|eduasaad | Node.js v20.19.5
+0|eduasaad | file:///home/abraj/abraj-platform/eduasaad/dist/index.js:247
+0|eduasaad |       throw new Error(
+0|eduasaad |             ^
+0|eduasaad |
+0|eduasaad | Error: DATABASE_URL must be set. Did you forget to provision a database?
+0|eduasaad |     at server/db.ts (file:///home/abraj/abraj-platform/eduasaad/dist/index.js:247:13)
+0|eduasaad |     at __init (file:///home/abraj/abraj-platform/eduasaad/dist/index.js:4:56)
+0|eduasaad |     at server/storage.ts (file:///home/abraj/abraj-platform/eduasaad/dist/index.js:279:5)
+0|eduasaad |     at __init (file:///home/abraj/abraj-platform/eduasaad/dist/index.js:4:56)
+0|eduasaad |     at file:///home/abraj/abraj-platform/eduasaad/dist/index.js:605:1
+0|eduasaad |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+0|eduasaad |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+0|eduasaad |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+0|eduasaad |
+0|eduasaad | Node.js v20.19.5
+0|eduasaad | file:///home/abraj/abraj-platform/eduasaad/dist/index.js:247
+0|eduasaad |       throw new Error(
+0|eduasaad |             ^
+0|eduasaad |
+0|eduasaad | Error: DATABASE_URL must be set. Did you forget to provision a database?
+0|eduasaad |     at server/db.ts (file:///home/abraj/abraj-platform/eduasaad/dist/index.js:247:13)
+0|eduasaad |     at __init (file:///home/abraj/abraj-platform/eduasaad/dist/index.js:4:56)
+0|eduasaad |     at server/storage.ts (file:///home/abraj/abraj-platform/eduasaad/dist/index.js:279:5)
+0|eduasaad |     at __init (file:///home/abraj/abraj-platform/eduasaad/dist/index.js:4:56)
+0|eduasaad |     at file:///home/abraj/abraj-platform/eduasaad/dist/index.js:605:1
+0|eduasaad |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+0|eduasaad |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+0|eduasaad |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+0|eduasaad |
+0|eduasaad | Node.js v20.19.5
+0|eduasaad | file:///home/abraj/abraj-platform/eduasaad/dist/index.js:247
+0|eduasaad |       throw new Error(
+0|eduasaad |             ^
+0|eduasaad |
+0|eduasaad | Error: DATABASE_URL must be set. Did you forget to provision a database?
+0|eduasaad |     at server/db.ts (file:///home/abraj/abraj-platform/eduasaad/dist/index.js:247:13)
+0|eduasaad |     at __init (file:///home/abraj/abraj-platform/eduasaad/dist/index.js:4:56)
+0|eduasaad |     at server/storage.ts (file:///home/abraj/abraj-platform/eduasaad/dist/index.js:279:5)
+0|eduasaad |     at __init (file:///home/abraj/abraj-platform/eduasaad/dist/index.js:4:56)
+0|eduasaad |     at file:///home/abraj/abraj-platform/eduasaad/dist/index.js:605:1
+0|eduasaad |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+0|eduasaad |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+0|eduasaad |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+0|eduasaad |
+0|eduasaad | Node.js v20.19.5
+
+ls -la
