@@ -1,0 +1,31 @@
+/home/abraj/.pm2/logs/eduasaad-error.log last 30 lines:
+0|eduasaad |     at moduleResolve (node:internal/modules/esm/resolve:952:10)
+0|eduasaad |     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+0|eduasaad |     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+0|eduasaad |     at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+0|eduasaad |     at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+0|eduasaad |     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+0|eduasaad |     at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+0|eduasaad |   code: 'ERR_MODULE_NOT_FOUND',
+0|eduasaad |   url: 'file:///home/abraj/abraj-platform/eduasaad/vite.config'
+0|eduasaad | }
+0|eduasaad |
+0|eduasaad | Node.js v20.19.5
+0|eduasaad | node:internal/modules/esm/resolve:283
+0|eduasaad |     throw new ERR_MODULE_NOT_FOUND(
+0|eduasaad |           ^
+0|eduasaad |
+0|eduasaad | Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/abraj/abraj-platform/eduasaad/vite.config' imported from /home/abraj/abraj-platform/eduasaad/dist/index.js
+0|eduasaad |     at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+0|eduasaad |     at moduleResolve (node:internal/modules/esm/resolve:952:10)
+0|eduasaad |     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+0|eduasaad |     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+0|eduasaad |     at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+0|eduasaad |     at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+0|eduasaad |     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+0|eduasaad |     at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+0|eduasaad |   code: 'ERR_MODULE_NOT_FOUND',
+0|eduasaad |   url: 'file:///home/abraj/abraj-platform/eduasaad/vite.config'
+0|eduasaad | }
+0|eduasaad |
+0|eduasaad | Node.js v20.19.5
