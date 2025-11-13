@@ -3,6 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { formatIQD } from "@/lib/utils";
 
 interface CourseCardProps {
   id: string | number;
@@ -40,6 +42,9 @@ export function CourseCard({
   enrolled = false,
   onClick,
 }: CourseCardProps) {
+  const { t } = useLanguage();
+  const priceTag = price ? formatIQD(price, t("courses.currency")) : "";
+
   return (
     <Card 
       className="overflow-hidden hover-elevate active-elevate-2 cursor-pointer transition-all group"
@@ -63,11 +68,11 @@ export function CourseCard({
         {/* Price Badge */}
         {isFree ? (
           <Badge className="absolute top-3 right-3 bg-chart-3 text-primary-foreground" data-testid={`badge-price-${id}`}>
-            FREE
+            {t("courses.free")}
           </Badge>
         ) : price ? (
           <Badge className="absolute top-3 right-3 bg-primary text-primary-foreground" data-testid={`badge-price-${id}`}>
-            ${price}
+            {priceTag}
           </Badge>
         ) : null}
       </div>

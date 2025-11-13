@@ -186,12 +186,63 @@ export default function SecureVideoPlayer({
     }
   };
 
-  const toggleFullscreen = () => {
-    if (!containerRef.current) return;
-    if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen();
-    } else {
-      document.exitFullscreen();
+  const toggleFullscreen = async () => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const doc = document as any;
+    const fullscreenElement =
+      document.fullscreenElement ||
+      doc.webkitFullscreenElement ||
+      doc.mozFullScreenElement ||
+      doc.msFullscreenElement;
+
+    const requestFullscreen = (
+      element: HTMLElement & {
+        webkitRequestFullscreen?: () => Promise<void> | void;
+        mozRequestFullScreen?: () => Promise<void> | void;
+        msRequestFullscreen?: () => Promise<void> | void;
+      },
+    ) => {
+      return (
+        element.requestFullscreen?.bind(element) ||
+        element.webkitRequestFullscreen?.bind(element) ||
+        element.mozRequestFullScreen?.bind(element) ||
+        element.msRequestFullscreen?.bind(element)
+      );
+    };
+
+    if (!fullscreenElement) {
+      const requestFn =
+        requestFullscreen(container) ||
+        (playerRef.current?.getIframe &&
+          requestFullscreen(playerRef.current.getIframe()));
+
+      if (requestFn) {
+        try {
+          await requestFn();
+          if (window.screen?.orientation?.lock) {
+            window.screen.orientation.lock("landscape").catch(() => {});
+          }
+        } catch (error) {
+          console.warn("Failed to enter fullscreen", error);
+        }
+      }
+      return;
+    }
+
+    const exitFullscreen =
+      document.exitFullscreen?.bind(document) ||
+      doc.webkitExitFullscreen?.bind(doc) ||
+      doc.mozCancelFullScreen?.bind(doc) ||
+      doc.msExitFullscreen?.bind(doc);
+
+    if (exitFullscreen) {
+      try {
+        await exitFullscreen();
+      } catch (error) {
+        console.warn("Failed to exit fullscreen", error);
+      }
     }
   };
 

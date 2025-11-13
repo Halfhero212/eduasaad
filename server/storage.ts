@@ -56,6 +56,7 @@ export interface IStorage {
   deleteUser(id: number): Promise<void>;
   getAllTeachers(): Promise<User[]>;
   getAllStudents(): Promise<User[]>;
+  getAllSuperadmins(): Promise<User[]>;
 
   // Course Category operations
   getCourseCategory(id: number): Promise<CourseCategory | undefined>;
@@ -183,6 +184,10 @@ export class PostgresStorage implements IStorage {
 
   async getAllStudents(): Promise<User[]> {
     return db.select().from(users).where(eq(users.role, "student"));
+  }
+
+  async getAllSuperadmins(): Promise<User[]> {
+    return db.select().from(users).where(eq(users.role, "superadmin"));
   }
 
   // Course Category operations

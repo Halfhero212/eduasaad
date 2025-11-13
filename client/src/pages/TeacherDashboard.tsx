@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { formatIQD } from "@/lib/utils";
 import { BookOpen, Plus, Users, TrendingUp, Clock, Check, X, Upload, ImageIcon, Filter } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -134,7 +135,7 @@ export default function TeacherDashboard() {
       const res = await apiRequest("POST", "/api/courses", {
         ...data,
         categoryId: parseInt(data.categoryId),
-        price: data.isFree ? 0 : parseFloat(data.price),
+        price: data.isFree ? 0 : parseInt(data.price, 10),
         thumbnailUrl,
       });
       return await res.json();
@@ -175,7 +176,8 @@ export default function TeacherDashboard() {
       });
       return;
     }
-    if (!newCourse.isFree && (!newCourse.price || parseFloat(newCourse.price) <= 0)) {
+    const priceValue = parseInt(newCourse.price || "0", 10);
+    if (!newCourse.isFree && (!priceValue || priceValue <= 0)) {
       toast({
         title: t("toast.validation_error"),
         description: t("toast.enter_valid_price"),
@@ -280,7 +282,14 @@ export default function TeacherDashboard() {
                         {t("dashboard.teacher.course")}: {enrollment.course?.title || "Unknown Course"}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {t("label.price")}: {enrollment.course?.price || "0"} {t("courses.currency")}
+                        {t("label.price")}:{" "}
+                        {!enrollment.course?.price ||
+                        Number(enrollment.course.price) === 0
+                          ? t("courses.free")
+                          : formatIQD(
+                              enrollment.course.price,
+                              t("courses.currency"),
+                            )}
                       </p>
                       <p className="text-xs text-muted-foreground mt-2">
                         {t("dashboard.teacher.pending_approval")}
@@ -367,7 +376,14 @@ export default function TeacherDashboard() {
                         {t("dashboard.teacher.course")}: {enrollment.course?.title || "Unknown Course"}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {t("label.price")}: {enrollment.course?.price || "0"} {t("courses.currency")}
+                        {t("label.price")}:{" "}
+                        {!enrollment.course?.price ||
+                        Number(enrollment.course.price) === 0
+                          ? t("courses.free")
+                          : formatIQD(
+                              enrollment.course.price,
+                              t("courses.currency"),
+                            )}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
                         {new Date(enrollment.enrolledAt).toLocaleDateString()}
@@ -517,7 +533,7 @@ export default function TeacherDashboard() {
                           onChange={(e) => setNewCourse({ ...newCourse, price: e.target.value })}
                           placeholder={t("placeholder.price")}
                           min="0"
-                          step="0.01"
+                          step="1000"
                           data-testid="input-course-price"
                         />
                       </div>
@@ -547,7 +563,9 @@ export default function TeacherDashboard() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-muted-foreground">
-                        {course.isFree ? t("courses.free") : `${course.price} ${t("courses.currency")}`}
+                        {course.isFree
+                          ? t("courses.free")
+                          : formatIQD(course.price ?? 0, t("courses.currency"))}
                       </p>
                     </CardContent>
                     <CardFooter>

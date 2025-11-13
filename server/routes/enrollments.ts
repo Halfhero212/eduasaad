@@ -14,6 +14,7 @@ export function registerEnrollmentRoutes(app: Express) {
       if (!course) {
         return res.status(404).json({ error: "Course not found" });
       }
+      const courseTeacher = course.teacherId ? await storage.getUser(course.teacherId) : null;
 
       // Check if already enrolled
       const existing = await storage.getEnrollment(studentId, courseId);
@@ -43,6 +44,29 @@ export function registerEnrollmentRoutes(app: Express) {
         read: false,
         relatedId: courseId,
       });
+
+      // Notify all superadmins to keep them aware of new student activity
+      const superadmins = await storage.getAllSuperadmins();
+      if (superadmins.length > 0) {
+        const statusForMessage = purchaseStatus === "free" ? "free" : "pending";
+        await Promise.all(
+          superadmins.map((admin) =>
+            storage.createNotification({
+              userId: admin.id,
+              type: purchaseStatus === "free" ? "new_enrollment" : "enrollment_request",
+              title: notificationMessages.enrollment.superadminNew.title,
+              message: notificationMessages.enrollment.superadminNew.message(
+                req.user!.fullName,
+                course.title,
+                statusForMessage,
+                courseTeacher?.fullName,
+              ),
+              read: false,
+              relatedId: courseId,
+            }),
+          ),
+        );
+      }
 
       res.json({
         success: true,

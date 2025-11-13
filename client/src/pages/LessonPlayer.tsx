@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, type MouseEvent as ReactMouseEvent } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -26,6 +26,9 @@ export default function LessonPlayer() {
   const [submissionImages, setSubmissionImages] = useState<File[]>([]);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyContent, setReplyContent] = useState("");
+  const handleContextMenu = (event: ReactMouseEvent) => {
+    event.preventDefault();
+  };
 
   const { data: lessonData, isLoading } = useQuery<{
     lesson: CourseLesson;
@@ -208,7 +211,7 @@ export default function LessonPlayer() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" onContextMenu={handleContextMenu}>
         <Navbar />
         <div className="container mx-auto px-4 py-8">
           <Skeleton className="w-full aspect-video mb-8" />
@@ -220,7 +223,7 @@ export default function LessonPlayer() {
 
   if (!lessonData) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" onContextMenu={handleContextMenu}>
         <Navbar />
         <div className="container mx-auto px-4 py-8 text-center">
           <h1 className="text-2xl font-bold mb-4">{t("lesson.not_found")}</h1>
@@ -253,7 +256,7 @@ export default function LessonPlayer() {
   const isValidVideoId = videoId && videoId.length > 5 && !videoId.includes("/") && !videoId.includes("?");
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" onContextMenu={handleContextMenu}>
       <Navbar />
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}

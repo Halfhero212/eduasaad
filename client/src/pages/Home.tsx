@@ -10,6 +10,7 @@ import { GraduationCap, BookOpen, Users, Award, Search, UserCheck, Trophy } from
 import type { Course } from "@shared/schema";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getCourseUrl } from "@/lib/courseUtils";
+import { formatIQD } from "@/lib/utils";
 import heroImage from "@assets/stock_images/books_learning_educa_0b5e5152.jpg";
 import defaultThumbnail1 from "@assets/stock_images/books_learning_educa_d5ff243b.jpg";
 import defaultThumbnail2 from "@assets/stock_images/notebook_pen_study_d_df2d2ad2.jpg";
@@ -284,7 +285,7 @@ export default function Home() {
                           </Badge>
                         ) : (
                           <Badge variant="default" className="bg-primary/90 backdrop-blur-sm">
-                            {course.price} {t("courses.currency")}
+                            {formatIQD(course.price, t("courses.currency"))}
                           </Badge>
                         )}
                       </div>

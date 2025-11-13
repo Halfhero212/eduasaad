@@ -85,7 +85,7 @@ const translations: Record<Language, Record<string, string>> = {
     "courses.installment_available": "الدفع بالتقسيط متاح",
     "courses.limited_offer": "عرض محدود",
     "courses.already_applied": "تم طلب الشراء",
-    "courses.sign_in_to_enroll": "الرجاء تسجيل الدخول للتسجيل",
+    "courses.sign_in_to_enroll": "الرجاء تسجيل الدخول للشراء",
     "courses.course_content": "محتوى الدورة",
     "courses.lesson_label": "الدرس",
     "courses.min": "دقيقة",
@@ -402,6 +402,7 @@ const translations: Record<Language, Record<string, string>> = {
     "manage.no_lessons": "لا توجد دروس بعد. أضف درسك الأول!",
     "manage.quizzes": "الاختبارات",
     "manage.no_quizzes": "لا توجد اختبارات لهذا الدرس حتى الآن.",
+    "manage.update_course_info": "حدّث معلومات الدورة مثل العنوان والسعر",
     
     // Form Labels
     "label.course_title": "عنوان الدورة",
@@ -446,7 +447,7 @@ const translations: Record<Language, Record<string, string>> = {
     "placeholder.course_title": "مقدمة في تطوير الويب",
     "placeholder.course_description": "دورة شاملة تغطي...",
     "placeholder.what_you_learn": "بناء تطبيقات الويب\nفهم JavaScript\nالعمل مع واجهات برمجة التطبيقات",
-    "placeholder.price": "49.99",
+    "placeholder.price": "25000",
     
     // Categories
     "category.programming": "البرمجة",
@@ -672,7 +673,7 @@ const translations: Record<Language, Record<string, string>> = {
     "courses.free": "Free",
     "courses.paid": "Paid",
     "courses.enroll": "Enroll",
-    "courses.currency": "IQD",
+    "courses.currency": "iqd",
     "courses.buy": "Buy Course",
     "courses.no_courses": "No courses found",
     "courses.what_you_learn": "What you'll learn",
@@ -693,7 +694,7 @@ const translations: Record<Language, Record<string, string>> = {
     "courses.installment_available": "Installment Available",
     "courses.limited_offer": "Limited Offer",
     "courses.already_applied": "Already Applied",
-    "courses.sign_in_to_enroll": "Please sign in to enroll",
+    "courses.sign_in_to_enroll": "Please sign in to purchase",
     "courses.course_content": "Course Content",
     "courses.lesson_label": "Lesson",
     "courses.min": "min",
@@ -1021,6 +1022,7 @@ const translations: Record<Language, Record<string, string>> = {
     "manage.no_lessons": "No lessons yet. Add your first lesson!",
     "manage.quizzes": "Quizzes",
     "manage.no_quizzes": "No quizzes for this lesson yet.",
+    "manage.update_course_info": "Update course details like title and price",
     
     // Form Labels
     "label.course_title": "Course Title",
@@ -1065,7 +1067,7 @@ const translations: Record<Language, Record<string, string>> = {
     "placeholder.course_title": "Introduction to Web Development",
     "placeholder.course_description": "A comprehensive course that covers...",
     "placeholder.what_you_learn": "Build web applications\nUnderstand JavaScript\nWork with APIs",
-    "placeholder.price": "49.99",
+    "placeholder.price": "25000",
     
     // Categories
     "category.programming": "Programming",
@@ -1134,8 +1136,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     
     // Update page title
     document.title = language === "ar" 
-      ? "منصة ابراج التعليمية - أتقن مهارات جديدة" 
-      : "Abraj Educational Platform - Master New Skills";
+      ? "منصة الابتكار - أتقن مهارات جديدة" 
+      : "Innovation Platform - Master New Skills";
   }, [language, isRTL]);
 
   const setLanguage = (lang: Language) => {

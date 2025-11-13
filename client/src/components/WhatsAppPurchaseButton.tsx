@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { MessageCircle } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { formatIQD } from "@/lib/utils";
 
 interface WhatsAppPurchaseButtonProps {
   courseName: string;
@@ -13,14 +13,15 @@ interface WhatsAppPurchaseButtonProps {
 export function WhatsAppPurchaseButton({
   courseName,
   price,
-  whatsappNumber = "9467730145334", // Default contact number
+  whatsappNumber = "9647730145334", // Default contact number (include country code)
   variant = "default",
 }: WhatsAppPurchaseButtonProps) {
   const { t } = useLanguage();
+  const formattedPrice = formatIQD(price, t("courses.currency"));
   
   const handlePurchase = () => {
     const message = encodeURIComponent(
-      `Hello! I'm interested in purchasing the course "${courseName}" for ${price} ${t("courses.currency")}. Please provide payment details.`
+      `Hello! I'm interested in purchasing the course "${courseName}" for ${formattedPrice}. Please provide payment details.`
     );
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
     window.open(whatsappUrl, '_blank');
@@ -35,7 +36,7 @@ export function WhatsAppPurchaseButton({
       data-testid="button-whatsapp-purchase"
     >
       <SiWhatsapp className="h-5 w-5 mr-2" />
-      Buy via WhatsApp ({price} {t("courses.currency")})
+      Buy via WhatsApp ({formattedPrice})
     </Button>
   );
 }

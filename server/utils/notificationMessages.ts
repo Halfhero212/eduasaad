@@ -21,6 +21,22 @@ export const notificationMessages = {
       title: "تم تأكيد التسجيل",
       message: "تم تأكيد تسجيلك في الدورة. يمكنك الآن الوصول إلى جميع الدروس.",
     },
+    superadminNew: {
+      title: "تنبيه تسجيل جديد",
+      message: (
+        studentName: string,
+        courseTitle: string,
+        status: "free" | "pending",
+        teacherName?: string,
+      ) => {
+        const teacherText = teacherName ? ` مع المعلم ${teacherName}` : "";
+        const statusText =
+          status === "free"
+            ? "تم منح الطالب الوصول مباشرة لأنها دورة مجانية."
+            : "التسجيل بانتظار تأكيد الدفع.";
+        return `${studentName} سجل في دورة "${courseTitle}"${teacherText}. ${statusText}`;
+      },
+    },
   },
   quiz: {
     newAvailable: {

@@ -14,13 +14,13 @@ export default function Footer() {
     platform: [
       { label: t('footer.about'), href: '/about' },
       { label: t('footer.how_it_works'), href: '#' },
-      { label: t('footer.become_teacher'), href: 'https://wa.me/9467730145334?text=' + encodeURIComponent(t('footer.become_teacher_message')), external: true },
+      { label: t('footer.become_teacher'), href: 'https://wa.me/9647730145334?text=' + encodeURIComponent(t('footer.become_teacher_message')), external: true },
     ],
     courses: [
       { label: t('footer.browse_courses'), href: '/courses' },
     ],
     support: [
-      { label: t('footer.contact_us'), href: 'https://wa.me/9467730145334', external: true },
+      { label: t('footer.contact_us'), href: 'https://wa.me/9647730145334', external: true },
     ],
   };
 
@@ -189,9 +189,21 @@ export default function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="mt-8 pt-6 border-t text-center">
+        <div className="mt-8 pt-6 border-t text-center space-y-2">
           <p className="text-sm text-muted-foreground">
             {t('footer.copyright')} {new Date().getFullYear()}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {language === 'ar' ? 'تصميم وتنفيذ ' : 'Designed and built by '}
+            <a
+              href="https://www.h-alebtikar.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+              data-testid="link-footer-hae"
+            >
+              HAE
+            </a>
           </p>
         </div>
       </div>

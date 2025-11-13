@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { formatIQD } from "@/lib/utils";
 import { Plus, Video, FileQuestion, ArrowLeft, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import {
   AlertDialog,
@@ -34,7 +35,7 @@ import type { Course, CourseLesson, Quiz } from "@shared/schema";
 export default function CourseManagement() {
   const { id } = useParams<{ id: string }>();
   const { user: currentUser, isLoading } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -71,6 +72,14 @@ export default function CourseManagement() {
     title: "",
     description: "",
     deadline: "",
+  });
+
+  const [courseForm, setCourseForm] = useState({
+    title: "",
+    description: "",
+    whatYouWillLearn: "",
+    isFree: false,
+    price: "",
   });
 
   const { data: courseData, isLoading: courseLoading } = useQuery<{
@@ -220,6 +229,32 @@ export default function CourseManagement() {
     },
   });
 
+  const updateCourseMutation = useMutation({
+    mutationFn: async (payload: typeof courseForm) => {
+      await apiRequest("PUT", `/api/courses/${id}`, {
+        title: payload.title.trim(),
+        description: payload.description,
+        whatYouWillLearn: payload.whatYouWillLearn,
+        isFree: payload.isFree,
+        price: payload.isFree ? 0 : parseInt(payload.price || "0", 10),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/courses/${id}`] });
+      toast({
+        title: t("toast.course_updated"),
+        description: t("toast.course_updated_desc"),
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: t("toast.failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
+        variant: "destructive",
+      });
+    },
+  });
+
   const deleteQuizMutation = useMutation({
     mutationFn: async (quizId: number) => {
       await apiRequest("DELETE", `/api/quizzes/${quizId}`);
@@ -321,6 +356,56 @@ export default function CourseManagement() {
     }
   }, [isLoading, courseLoading, currentUser, courseData, setLocation]);
 
+  useEffect(() => {
+    if (courseData?.course) {
+      const currentPrice = courseData.course.price
+        ? Math.round(Number(courseData.course.price)).toString()
+        : "";
+      setCourseForm({
+        title: courseData.course.title || "",
+        description: courseData.course.description || "",
+        whatYouWillLearn: courseData.course.whatYouWillLearn || "",
+        isFree: courseData.course.isFree,
+        price: courseData.course.isFree ? "" : currentPrice,
+      });
+    }
+  }, [courseData]);
+
+  const handleCourseUpdate = () => {
+    const trimmedTitle = courseForm.title.trim();
+    if (!trimmedTitle) {
+      toast({
+        title: t("toast.failed"),
+        description:
+          language === "ar"
+            ? "يرجى إدخال عنوان الدورة"
+            : "Please enter a course title",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!courseForm.isFree) {
+      const priceValue = parseInt(courseForm.price || "0", 10);
+      if (!priceValue || priceValue <= 0) {
+        toast({
+          title: t("toast.failed"),
+          description: t("toast.enter_valid_price"),
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    updateCourseMutation.mutate({
+      ...courseForm,
+      title: trimmedTitle,
+      price: courseForm.isFree
+        ? ""
+        : Math.round(parseInt(courseForm.price || "0", 10)).toString(),
+    });
+  };
+
   if (isLoading || courseLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -362,7 +447,11 @@ export default function CourseManagement() {
           <h1 className="text-3xl font-bold mb-2">{course.title}</h1>
           <p className="text-muted-foreground mb-4">{course.description}</p>
           <div className="flex gap-2">
-            <Badge>{course.isFree ? t("courses.free") : `${course.price} ${t("courses.currency")}`}</Badge>
+            <Badge>
+              {course.isFree
+                ? t("courses.free")
+                : formatIQD(course.price ?? 0, t("courses.currency"))}
+            </Badge>
             <Link href={`/courses/${course.id}`}>
               <Button variant="outline" size="sm" data-testid="button-view-public">
                 <Edit className="w-4 h-4 mr-2" />
@@ -371,6 +460,113 @@ export default function CourseManagement() {
             </Link>
           </div>
         </div>
+
+        {/* Course Details Editing */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>{t("action.edit_course")}</CardTitle>
+            <CardDescription>{t("manage.update_course_info")}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="course-title-edit">{t("label.course_title")} *</Label>
+              <Input
+                id="course-title-edit"
+                value={courseForm.title}
+                onChange={(e) =>
+                  setCourseForm((prev) => ({ ...prev, title: e.target.value }))
+                }
+                placeholder={t("placeholder.course_title")}
+                data-testid="input-course-title-edit"
+              />
+            </div>
+            <div>
+              <Label htmlFor="course-description-edit">
+                {t("label.course_description")}
+              </Label>
+              <Textarea
+                id="course-description-edit"
+                value={courseForm.description}
+                onChange={(e) =>
+                  setCourseForm((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                placeholder={t("placeholder.course_description")}
+                rows={4}
+                data-testid="input-course-description-edit"
+              />
+            </div>
+            <div>
+              <Label htmlFor="course-learning-edit">
+                {t("courses.what_you_learn")}
+              </Label>
+              <Textarea
+                id="course-learning-edit"
+                value={courseForm.whatYouWillLearn}
+                onChange={(e) =>
+                  setCourseForm((prev) => ({
+                    ...prev,
+                    whatYouWillLearn: e.target.value,
+                  }))
+                }
+                placeholder={t("placeholder.what_you_learn")}
+                rows={4}
+                data-testid="input-course-learning-edit"
+              />
+            </div>
+            <div className="flex flex-col gap-4 md:flex-row md:items-center">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="course-free-edit"
+                  checked={courseForm.isFree}
+                  onChange={(e) =>
+                    setCourseForm((prev) => ({
+                      ...prev,
+                      isFree: e.target.checked,
+                      price: e.target.checked ? "" : prev.price,
+                    }))
+                  }
+                  data-testid="checkbox-course-free-edit"
+                />
+                <Label htmlFor="course-free-edit">{t("courses.free")}</Label>
+              </div>
+              {!courseForm.isFree && (
+                <div className="flex-1">
+                  <Label htmlFor="course-price-edit">
+                    {t("label.price")} *
+                  </Label>
+                  <Input
+                    id="course-price-edit"
+                    type="number"
+                    min="0"
+                    step="1000"
+                    value={courseForm.price}
+                    onChange={(e) =>
+                      setCourseForm((prev) => ({
+                        ...prev,
+                        price: e.target.value,
+                      }))
+                    }
+                    placeholder={t("placeholder.price")}
+                    data-testid="input-course-price-edit"
+                  />
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end">
+              <Button
+                onClick={handleCourseUpdate}
+                disabled={updateCourseMutation.isPending}
+                data-testid="button-update-course"
+              >
+                {updateCourseMutation.isPending ? t("action.submit") : t("action.save")}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Lessons Section */}
         <Card className="mb-8">

@@ -73,6 +73,9 @@ export default function Navbar() {
         return `/courses/${notification.relatedId}`;
       case "new_enrollment":
       case "enrollment_request":
+        if (user?.role === "superadmin") {
+          return "/dashboard/superadmin";
+        }
         // For teachers: navigate to teacher dashboard enrollments
         return "/dashboard/teacher";
       default:

@@ -19,10 +19,11 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Users, GraduationCap, BookOpen, UserCheck, Plus, Trash, Copy, Edit, FolderOpen, Key } from "lucide-react";
 import type { User, CourseCategory } from "@shared/schema";
 import { Textarea } from "@/components/ui/textarea";
+import { formatIQD } from "@/lib/utils";
 
 export default function SuperAdminDashboard() {
   const { user: currentUser, isLoading } = useAuth();
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [newTeacherEmail, setNewTeacherEmail] = useState("");
@@ -45,6 +46,9 @@ export default function SuperAdminDashboard() {
   const [categoryDescription, setCategoryDescription] = useState("");
   const [deleteCategoryId, setDeleteCategoryId] = useState<number | null>(null);
 
+  const isSuperadminReady = !isLoading && currentUser?.role === "superadmin";
+  const autoRefetchMs = 15000;
+
   const { data: statsData } = useQuery<{
     stats: {
       teacherCount: number;
@@ -54,19 +58,25 @@ export default function SuperAdminDashboard() {
     }
   }>({
     queryKey: ["/api/admin/stats"],
-    enabled: !isLoading && currentUser?.role === "superadmin",
+    enabled: isSuperadminReady,
+    refetchInterval: autoRefetchMs,
+    refetchIntervalInBackground: true,
   });
 
   const stats = statsData?.stats;
 
   const { data: teachersData } = useQuery<{ teachers: User[] }>({
     queryKey: ["/api/admin/teachers"],
-    enabled: !isLoading && currentUser?.role === "superadmin",
+    enabled: isSuperadminReady,
+    refetchInterval: autoRefetchMs,
+    refetchIntervalInBackground: true,
   });
 
   const { data: studentsData } = useQuery<{ students: User[] }>({
     queryKey: ["/api/admin/students"],
-    enabled: !isLoading && currentUser?.role === "superadmin",
+    enabled: isSuperadminReady,
+    refetchInterval: autoRefetchMs,
+    refetchIntervalInBackground: true,
   });
 
   const { data: pendingEnrollmentsData } = useQuery<{
@@ -79,12 +89,16 @@ export default function SuperAdminDashboard() {
     }>;
   }>({
     queryKey: ["/api/admin/enrollments/pending"],
-    enabled: !isLoading && currentUser?.role === "superadmin",
+    enabled: isSuperadminReady,
+    refetchInterval: autoRefetchMs,
+    refetchIntervalInBackground: true,
   });
 
   const { data: categoriesData } = useQuery<{ categories: CourseCategory[] }>({
     queryKey: ["/api/admin/categories"],
-    enabled: !isLoading && currentUser?.role === "superadmin",
+    enabled: isSuperadminReady,
+    refetchInterval: autoRefetchMs,
+    refetchIntervalInBackground: true,
   });
 
   const { data: courseStatsData } = useQuery<{
@@ -103,7 +117,9 @@ export default function SuperAdminDashboard() {
     }>;
   }>({
     queryKey: ["/api/admin/courses/stats"],
-    enabled: !isLoading && currentUser?.role === "superadmin",
+    enabled: isSuperadminReady,
+    refetchInterval: autoRefetchMs,
+    refetchIntervalInBackground: true,
   });
 
   const { data: teacherStatsData } = useQuery<{
@@ -126,7 +142,9 @@ export default function SuperAdminDashboard() {
     }>;
   }>({
     queryKey: ["/api/admin/teachers/stats"],
-    enabled: !isLoading && currentUser?.role === "superadmin",
+    enabled: isSuperadminReady,
+    refetchInterval: autoRefetchMs,
+    refetchIntervalInBackground: true,
   });
 
   const teachers = teachersData?.teachers || [];
@@ -500,10 +518,12 @@ export default function SuperAdminDashboard() {
     return null;
   }
 
+  const containerAlignment = isRTL ? "text-right" : "text-left";
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
+      <div className={`container mx-auto px-4 py-8 ${containerAlignment}`}>
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">{t("dashboard.superadmin.title")}</h1>
           <p className="text-muted-foreground">{t("dashboard.superadmin.subtitle")}</p>
@@ -644,7 +664,7 @@ export default function SuperAdminDashboard() {
                         {course.isFree ? (
                           <Badge variant="secondary">{t("courses.free")}</Badge>
                         ) : (
-                          `${course.price} ${t("courses.currency")}`
+                          formatIQD(course.price, t("courses.currency"))
                         )}
                       </TableCell>
                     </TableRow>
@@ -769,7 +789,15 @@ export default function SuperAdminDashboard() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{enrollment.course?.price} {t("courses.currency")}</TableCell>
+                      <TableCell>
+                        {!enrollment.course?.price ||
+                        Number(enrollment.course.price) === 0
+                          ? t("courses.free")
+                          : formatIQD(
+                              enrollment.course.price,
+                              t("courses.currency"),
+                            )}
+                      </TableCell>
                       <TableCell>{new Date(enrollment.enrolledAt).toLocaleDateString()}</TableCell>
                       <TableCell>
                         <Button
@@ -948,14 +976,14 @@ export default function SuperAdminDashboard() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="password">Password (optional - leave empty to auto-generate)</Label>
+                    <Label htmlFor="password">كلمة المرور (اختياري - اتركها فارغة لتوليد كلمة مرور تلقائياً)</Label>
                     <div className="flex gap-2">
                       <Input
                         id="password"
                         type="text"
                         value={newTeacherPassword}
                         onChange={(e) => setNewTeacherPassword(e.target.value)}
-                        placeholder="Enter password or click generate"
+                        placeholder="أدخل كلمة المرور أو اضغط على زر التوليد"
                         data-testid="input-teacher-password"
                       />
                       <Button
@@ -965,11 +993,11 @@ export default function SuperAdminDashboard() {
                         data-testid="button-generate-password"
                       >
                         <Key className="w-4 h-4 mr-2" />
-                        Generate
+                        توليد
                       </Button>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Minimum 8 characters. Leave empty to auto-generate a secure password.
+                      الحد الأدنى 8 أحرف. اترك الحقل فارغاً لتوليد كلمة مرور آمنة تلقائياً.
                     </p>
                   </div>
                 </div>

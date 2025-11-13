@@ -115,7 +115,7 @@ export default function Login() {
                     <div className="text-xs text-muted-foreground mt-2">
                       {t('auth.forgot_password_contact')}{" "}
                       <a
-                        href="https://wa.me/9467730145334"
+                        href="https://wa.me/9647730145334"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline"

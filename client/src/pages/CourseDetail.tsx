@@ -13,6 +13,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Clock, BookOpen, Users, CheckCircle, PlayCircle, Lock, MessageSquare, Share2 } from "lucide-react";
 import type { Course, CourseLesson, User } from "@shared/schema";
 import { getCourseUrl, getCourseLessonUrl } from "@/lib/courseUtils";
+import { formatIQD } from "@/lib/utils";
 
 export default function CourseDetail() {
   const { id } = useParams<{ id: string }>();
@@ -67,9 +68,9 @@ export default function CourseDetail() {
     const message = encodeURIComponent(
       messageTemplate
         .replace("{title}", courseData.course.title)
-        .replace("{price}", `${courseData.course.price} ${t("courses.currency")}`)
+        .replace("{price}", formatIQD(courseData.course.price, t("courses.currency")))
     );
-    const phone = courseData.course.teacher?.whatsappNumber || "9467730145334";
+    const phone = (courseData.course.teacher?.whatsappNumber || "9647730145334").replace(/^\+/, "");
     const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
     
     // Open WhatsApp window immediately (before async operation) to avoid popup blocking
@@ -184,7 +185,6 @@ export default function CourseDetail() {
                 </Avatar>
                 <div>
                   <div className="font-medium">{t("courses.created_by")} {getTeacherName()}</div>
-                  <div className="text-sm opacity-80">{teacher?.email || ""}</div>
                 </div>
               </div>
 
@@ -205,7 +205,9 @@ export default function CourseDetail() {
                       <div className="text-4xl font-bold text-secondary">{t("courses.free")}</div>
                     ) : (
                       <>
-                        <div className="text-4xl font-bold">{course.price} {t("courses.currency")}</div>
+                        <div className="text-4xl font-bold">
+                          {formatIQD(course.price, t("courses.currency"))}
+                        </div>
                         <p className="text-sm text-muted-foreground">{t("courses.one_time_payment")}</p>
                       </>
                     )}
@@ -363,7 +365,6 @@ export default function CourseDetail() {
                   </Avatar>
                   <div>
                     <div className="font-medium text-lg">{getTeacherName()}</div>
-                    <div className="text-sm text-muted-foreground">{teacher?.email || ""}</div>
                   </div>
                 </div>
               </CardContent>
