@@ -22,7 +22,7 @@ const translations: Record<Language, Record<string, string>> = {
     
     // Navigation
     "nav.browse": "تصفح الدورات",
-    "nav.my_learning": "تعلمي",
+    "nav.my_learning": "دوراتي",
     "nav.dashboard": "لوحة التحكم",
     "nav.sign_in": "تسجيل الدخول",
     "nav.get_started": "ابدأ الآن",
@@ -633,7 +633,7 @@ const translations: Record<Language, Record<string, string>> = {
     
     // Navigation
     "nav.browse": "Browse Courses",
-    "nav.my_learning": "My Learning",
+    "nav.my_learning": "My Courses",
     "nav.dashboard": "Dashboard",
     "nav.sign_in": "Sign in",
     "nav.get_started": "Get started",
@@ -1136,8 +1136,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     
     // Update page title
     document.title = language === "ar" 
-      ? "منصة الابتكار - أتقن مهارات جديدة" 
-      : "Innovation Platform - Master New Skills";
+      ? "منصة ابراج التعليمية - أتقن مهارات جديدة" 
+      : "Abraj Educational Platform - Master New Skills";
   }, [language, isRTL]);
 
   const setLanguage = (lang: Language) => {

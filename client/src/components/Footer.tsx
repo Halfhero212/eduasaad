@@ -194,7 +194,7 @@ export default function Footer() {
             {t('footer.copyright')} {new Date().getFullYear()}
           </p>
           <p className="text-xs text-muted-foreground">
-            {language === 'ar' ? 'تصميم وتنفيذ ' : 'Designed and built by '}
+            {language === 'ar' ? 'تصميم ' : 'Designed by '}
             <a
               href="https://www.h-alebtikar.com"
               target="_blank"
