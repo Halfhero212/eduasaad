@@ -60,7 +60,16 @@ export default function Navbar() {
         // For legacy notifications without metadata, go to home
         return "/";
       case "quiz_submission":
-        // For teachers: navigate to teacher dashboard to grade
+        if (notification.metadata) {
+          try {
+            const meta = JSON.parse(notification.metadata);
+            if (meta?.quizId) {
+              return `/dashboard/teacher?focus=quizzes&quizId=${meta.quizId}`;
+            }
+          } catch (error) {
+            console.error("Failed to parse notification metadata:", error);
+          }
+        }
         return "/dashboard/teacher";
       case "grade_received":
         // For students: navigate to student dashboard to see grade

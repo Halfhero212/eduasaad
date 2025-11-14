@@ -33,6 +33,7 @@ export function registerQuizRoutes(app: Express) {
         title,
         description,
         deadline: deadline ? new Date(deadline) : null,
+        isActive: true,
       });
 
       // Create notifications for all enrolled students (in Arabic)
@@ -67,6 +68,17 @@ export function registerQuizRoutes(app: Express) {
     }
   });
 
+  // Get quizzes for a teacher's dashboard
+  app.get("/api/teacher/quizzes", requireAuth, requireRole("teacher"), async (req: AuthRequest, res) => {
+    try {
+      const quizzes = await storage.getQuizzesByTeacher(req.user!.id);
+      res.json({ success: true, quizzes });
+    } catch (error) {
+      console.error("Get teacher quizzes error:", error);
+      res.status(500).json({ error: "Failed to fetch quizzes" });
+    }
+  });
+
   // Submit quiz (students only) with image upload
   app.post("/api/quizzes/:quizId/submit", requireAuth, requireRole("student"), upload.array("images", 5), async (req: AuthRequest, res) => {
     try {
@@ -82,6 +94,10 @@ export function registerQuizRoutes(app: Express) {
       const alreadySubmitted = existing.find((s) => s.studentId === req.user!.id);
       if (alreadySubmitted) {
         return res.status(400).json({ error: "You have already submitted this quiz" });
+      }
+
+      if (!quiz.isActive) {
+        return res.status(400).json({ error: "This quiz is closed for submissions" });
       }
 
       // Upload images to storage
@@ -119,6 +135,12 @@ export function registerQuizRoutes(app: Express) {
             title: notificationMessages.quiz.newSubmission.title,
             message: notificationMessages.quiz.newSubmission.message(req.user!.fullName, quiz.title),
             relatedId: submission.id,
+            metadata: JSON.stringify({
+              courseId: course.id,
+              lessonId: lesson.id,
+              quizId: quiz.id,
+              submissionId: submission.id,
+            }),
           });
         }
       }
@@ -152,25 +174,35 @@ export function registerQuizRoutes(app: Express) {
           return res.status(403).json({ error: "You can only view submissions for your own courses" });
         }
 
-        submissions = await storage.getQuizSubmissionsByQuiz(quizId);
+        const detailed = await storage.getQuizSubmissionsDetailed(quizId);
+        submissions = detailed.map((row) => ({
+          ...row.submission,
+          student: row.student,
+        }));
       } else {
         // Students only see their own submissions
         const allSubmissions = await storage.getQuizSubmissionsByQuiz(quizId);
-        submissions = allSubmissions.filter((s) => s.studentId === req.user!.id);
+        submissions = await Promise.all(
+          allSubmissions
+            .filter((s) => s.studentId === req.user!.id)
+            .map(async (submission) => {
+              const student = await storage.getUser(submission.studentId);
+              return {
+                ...submission,
+                student: student
+                  ? {
+                      id: student.id,
+                      fullName: student.fullName,
+                      email: student.email,
+                      whatsappNumber: student.whatsappNumber,
+                    }
+                  : null,
+              };
+            }),
+        );
       }
 
-      // Enrich with student info
-      const enrichedSubmissions = await Promise.all(
-        submissions.map(async (submission) => {
-          const student = await storage.getUser(submission.studentId);
-          return {
-            ...submission,
-            student: student ? { id: student.id, fullName: student.fullName, email: student.email } : null,
-          };
-        })
-      );
-
-      res.json({ success: true, submissions: enrichedSubmissions });
+      res.json({ success: true, submissions });
     } catch (error) {
       console.error("Get submissions error:", error);
       res.status(500).json({ error: "Failed to get submissions" });
@@ -289,6 +321,35 @@ export function registerQuizRoutes(app: Express) {
     } catch (error) {
       console.error("Delete quiz error:", error);
       res.status(500).json({ error: "Failed to delete quiz" });
+    }
+  });
+
+  // Toggle quiz active status
+  app.put("/api/quizzes/:id/status", requireAuth, requireRole("teacher"), async (req: AuthRequest, res) => {
+    try {
+      const quizId = parseInt(req.params.id);
+      const { isActive } = req.body;
+      const quiz = await storage.getQuiz(quizId);
+
+      if (!quiz) {
+        return res.status(404).json({ error: "Quiz not found" });
+      }
+
+      const lesson = await storage.getCourseLesson(quiz.lessonId);
+      if (!lesson) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }
+
+      const course = await storage.getCourse(lesson.courseId);
+      if (!course || course.teacherId !== req.user!.id) {
+        return res.status(403).json({ error: "You can only update your own quizzes" });
+      }
+
+      const updated = await storage.updateQuiz(quizId, { isActive: !!isActive });
+      res.json({ success: true, quiz: updated });
+    } catch (error) {
+      console.error("Update quiz status error:", error);
+      res.status(500).json({ error: "Failed to update quiz status" });
     }
   });
 }

@@ -96,9 +96,19 @@ export interface IStorage {
   // Quiz operations
   getQuiz(id: number): Promise<Quiz | undefined>;
   getQuizzesByLesson(lessonId: number): Promise<Quiz[]>;
+  getQuizzesByTeacher(teacherId: number): Promise<Array<{
+    quiz: Quiz;
+    course: { id: number; title: string };
+    lesson: { id: number; title: string };
+    submissionCount: number;
+  }>>;
   createQuiz(quiz: InsertQuiz): Promise<Quiz>;
   updateQuiz(id: number, updates: Partial<InsertQuiz>): Promise<Quiz | undefined>;
   deleteQuiz(id: number): Promise<void>;
+  getQuizSubmissionsDetailed(quizId: number): Promise<Array<{
+    submission: QuizSubmission;
+    student: { id: number; fullName: string; email: string; whatsappNumber: string | null };
+  }>>;
 
   // Quiz Submission operations
   getQuizSubmission(id: number): Promise<QuizSubmission | undefined>;
@@ -371,6 +381,31 @@ export class PostgresStorage implements IStorage {
     return db.select().from(quizzes).where(eq(quizzes.lessonId, lessonId));
   }
 
+  async getQuizzesByTeacher(teacherId: number) {
+    const rows = await db.select({
+      quiz: quizzes,
+      courseId: courses.id,
+      courseTitle: courses.title,
+      lessonId: courseLessons.id,
+      lessonTitle: courseLessons.title,
+      submissionCount: sql<number>`COUNT(${quizSubmissions.id})`,
+    })
+      .from(quizzes)
+      .innerJoin(courseLessons, eq(courseLessons.id, quizzes.lessonId))
+      .innerJoin(courses, eq(courses.id, courseLessons.courseId))
+      .leftJoin(quizSubmissions, eq(quizSubmissions.quizId, quizzes.id))
+      .where(eq(courses.teacherId, teacherId))
+      .groupBy(quizzes.id, courses.id, courseLessons.id)
+      .orderBy(desc(quizzes.createdAt));
+
+    return rows.map((row) => ({
+      quiz: row.quiz,
+      course: { id: row.courseId, title: row.courseTitle },
+      lesson: { id: row.lessonId, title: row.lessonTitle },
+      submissionCount: row.submissionCount,
+    }));
+  }
+
   async createQuiz(quiz: InsertQuiz): Promise<Quiz> {
     const [newQuiz] = await db.insert(quizzes).values(quiz).returning();
     return newQuiz;
@@ -383,6 +418,31 @@ export class PostgresStorage implements IStorage {
 
   async deleteQuiz(id: number): Promise<void> {
     await db.delete(quizzes).where(eq(quizzes.id, id));
+  }
+
+  async getQuizSubmissionsDetailed(quizId: number) {
+    const rows = await db
+      .select({
+        submission: quizSubmissions,
+        studentId: users.id,
+        studentName: users.fullName,
+        studentEmail: users.email,
+        studentWhatsapp: users.whatsappNumber,
+      })
+      .from(quizSubmissions)
+      .innerJoin(users, eq(users.id, quizSubmissions.studentId))
+      .where(eq(quizSubmissions.quizId, quizId))
+      .orderBy(desc(quizSubmissions.submittedAt));
+
+    return rows.map((row) => ({
+      submission: row.submission,
+      student: {
+        id: row.studentId,
+        fullName: row.studentName,
+        email: row.studentEmail,
+        whatsappNumber: row.studentWhatsapp,
+      },
+    }));
   }
 
   // Quiz Submission operations

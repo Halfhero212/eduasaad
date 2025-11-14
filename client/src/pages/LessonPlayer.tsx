@@ -58,6 +58,7 @@ export default function LessonPlayer() {
     title: string;
     description: string;
     deadline: string | null;
+    isActive: boolean;
   }> }>({
     queryKey: [`/api/lessons/${lessonId}/quizzes`],
     enabled: !!lessonId,
@@ -349,63 +350,74 @@ export default function LessonPlayer() {
                   {quizzes.map((quiz) => (
                     <Card key={quiz.id} data-testid={`quiz-${quiz.id}`}>
                       <CardHeader>
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-start justify-between gap-4">
                           <div>
                             <CardTitle className="text-lg">{quiz.title}</CardTitle>
                             <p className="text-sm text-muted-foreground mt-1">{quiz.description}</p>
                           </div>
-                          {quiz.deadline && (
-                            <Badge variant="outline" className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {new Date(quiz.deadline).toLocaleDateString()}
-                            </Badge>
-                          )}
+                          <div className="flex flex-col items-end gap-2">
+                            {quiz.deadline && (
+                              <Badge variant="outline" className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {new Date(quiz.deadline).toLocaleDateString()}
+                              </Badge>
+                            )}
+                            {!quiz.isActive && (
+                              <Badge variant="secondary">{t("quiz.closed")}</Badge>
+                            )}
+                          </div>
                         </div>
                       </CardHeader>
                       {user?.role === "student" && (
                         <CardContent className="space-y-3">
-                          <div>
-                            <label className="text-sm font-medium mb-2 block">
-                              {t("quiz.upload_solution")}
-                            </label>
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              multiple
-                              onChange={handleImageChange}
-                              disabled={submissionImages.length >= 5}
-                              data-testid={`input-quiz-images-${quiz.id}`}
-                            />
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {submissionImages.length} / 5 {t("quiz.images_selected")}
-                            </p>
-                          </div>
-                          
-                          {submissionImages.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                              {submissionImages.map((image, index) => (
-                                <Badge key={index} variant="secondary" className="gap-2">
-                                  {image.name}
-                                  <button
-                                    onClick={() => handleRemoveImage(index)}
-                                    className="ml-1 text-destructive"
-                                    data-testid={`button-remove-image-${index}`}
-                                  >
-                                    ✕
-                                  </button>
-                                </Badge>
-                              ))}
-                            </div>
+                          {!quiz.isActive ? (
+                            <p className="text-sm text-muted-foreground">{t("quiz.closed")}</p>
+                          ) : (
+                            <>
+                              <div>
+                                <label className="text-sm font-medium mb-2 block">
+                                  {t("quiz.upload_solution")}
+                                </label>
+                                <Input
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  onChange={handleImageChange}
+                                  disabled={submissionImages.length >= 5}
+                                  data-testid={`input-quiz-images-${quiz.id}`}
+                                />
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {submissionImages.length} / 5 {t("quiz.images_selected")}
+                                </p>
+                              </div>
+                              
+                              {submissionImages.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                  {submissionImages.map((image, index) => (
+                                    <Badge key={index} variant="secondary" className="gap-2">
+                                      {image.name}
+                                      <button
+                                        onClick={() => handleRemoveImage(index)}
+                                        className="ml-1 text-destructive"
+                                        data-testid={`button-remove-image-${index}`}
+                                      >
+                                        ✕
+                                      </button>
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                              
+                              <Button
+                                onClick={() => handleSubmitQuiz(quiz.id)}
+                                disabled={submitQuizMutation.isPending || submissionImages.length === 0}
+                                data-testid={`button-submit-quiz-${quiz.id}`}
+                              >
+                                <Upload className="w-4 h-4 mr-2" />
+                                {submitQuizMutation.isPending ? t("quiz.submitting") : t("quiz.submit")}
+                              </Button>
+                            </>
                           )}
-                          
-                          <Button
-                            onClick={() => handleSubmitQuiz(quiz.id)}
-                            disabled={submitQuizMutation.isPending || submissionImages.length === 0}
-                            data-testid={`button-submit-quiz-${quiz.id}`}
-                          >
-                            <Upload className="w-4 h-4 mr-2" />
-                            {submitQuizMutation.isPending ? t("quiz.submitting") : t("quiz.submit")}
-                          </Button>
                         </CardContent>
                       )}
                     </Card>

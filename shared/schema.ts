@@ -121,6 +121,7 @@ export const quizzes = pgTable("quizzes", {
   title: varchar("title", { length: 500 }).notNull(),
   description: text("description").notNull(),
   deadline: timestamp("deadline"),
+  isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
