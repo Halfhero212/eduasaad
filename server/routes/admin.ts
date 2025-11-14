@@ -10,7 +10,8 @@ export function registerAdminRoutes(app: Express) {
   // Get all teachers (superadmin only)
   app.get("/api/admin/teachers", requireAuth, requireRole("superadmin"), async (req, res) => {
     try {
-      const teachers = await storage.getAllTeachers();
+      const archived = req.query.archived === "true";
+      const teachers = await storage.getAllTeachers(archived);
 
       const enrichedTeachers = await Promise.all(
         teachers.map(async (teacher) => {
@@ -127,13 +128,31 @@ export function registerAdminRoutes(app: Express) {
         return res.status(404).json({ error: "Teacher not found" });
       }
 
-      // Delete the teacher
-      await storage.deleteUser(teacherId);
+      await storage.updateUser(teacherId, {
+        email: `${teacher.email}.deleted.${Date.now()}`,
+        isActive: false,
+        whatsappNumber: null,
+      });
 
       res.json({ success: true, message: "Teacher deleted successfully" });
     } catch (error) {
       console.error("Delete teacher error:", error);
       res.status(500).json({ error: "Failed to delete teacher" });
+    }
+  });
+
+  app.delete("/api/admin/teachers/:id/hard", requireAuth, requireRole("superadmin"), async (req, res) => {
+    try {
+      const teacherId = parseInt(req.params.id);
+      const teacher = await storage.getUserById(teacherId);
+      if (!teacher || teacher.role !== "teacher") {
+        return res.status(404).json({ error: "Teacher not found" });
+      }
+      await storage.hardDeleteTeacher(teacherId);
+      res.json({ success: true, message: "Teacher permanently deleted" });
+    } catch (error) {
+      console.error("Hard delete teacher error:", error);
+      res.status(500).json({ error: "Failed to permanently delete teacher" });
     }
   });
 
@@ -148,8 +167,7 @@ export function registerAdminRoutes(app: Express) {
         return res.status(404).json({ error: "Student not found" });
       }
 
-      // Delete the student
-      await storage.deleteUser(studentId);
+      await storage.updateUser(studentId, { isActive: false });
 
       res.json({ success: true, message: "Student deleted successfully" });
     } catch (error) {
@@ -157,6 +175,22 @@ export function registerAdminRoutes(app: Express) {
       res.status(500).json({ error: "Failed to delete student" });
     }
   });
+
+  app.delete("/api/admin/students/:id/hard", requireAuth, requireRole("superadmin"), async (req, res) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      const student = await storage.getUserById(studentId);
+      if (!student || student.role !== "student") {
+        return res.status(404).json({ error: "Student not found" });
+      }
+      await storage.hardDeleteStudent(studentId);
+      res.json({ success: true, message: "Student permanently deleted" });
+    } catch (error) {
+      console.error("Hard delete student error:", error);
+      res.status(500).json({ error: "Failed to permanently delete student" });
+    }
+  });
+
 
   // Get all pending enrollments (superadmin only)
   app.get("/api/admin/enrollments/pending", requireAuth, requireRole("superadmin"), async (req, res) => {

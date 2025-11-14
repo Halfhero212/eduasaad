@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Users, GraduationCap, BookOpen, UserCheck, Plus, Trash, Copy, Edit, FolderOpen, Key } from "lucide-react";
@@ -45,6 +45,7 @@ export default function SuperAdminDashboard() {
   const [categoryName, setCategoryName] = useState("");
   const [categoryDescription, setCategoryDescription] = useState("");
   const [deleteCategoryId, setDeleteCategoryId] = useState<number | null>(null);
+  const [deleteCourseId, setDeleteCourseId] = useState<number | null>(null);
 
   const isSuperadminReady = !isLoading && currentUser?.role === "superadmin";
   const autoRefetchMs = 15000;
@@ -67,6 +68,13 @@ export default function SuperAdminDashboard() {
 
   const { data: teachersData } = useQuery<{ teachers: User[] }>({
     queryKey: ["/api/admin/teachers"],
+    enabled: isSuperadminReady,
+    refetchInterval: autoRefetchMs,
+    refetchIntervalInBackground: true,
+  });
+
+  const { data: archivedTeachersData } = useQuery<{ teachers: User[] }>({
+    queryKey: ["/api/admin/teachers?archived=true"],
     enabled: isSuperadminReady,
     refetchInterval: autoRefetchMs,
     refetchIntervalInBackground: true,
@@ -148,6 +156,7 @@ export default function SuperAdminDashboard() {
   });
 
   const teachers = teachersData?.teachers || [];
+  const archivedTeachers = archivedTeachersData?.teachers || [];
   const students = studentsData?.students || [];
   const pendingEnrollments = pendingEnrollmentsData?.enrollments || [];
   const categories = categoriesData?.categories || [];
@@ -183,6 +192,7 @@ export default function SuperAdminDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/teachers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/teachers?archived=true"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
       setDeleteTeacherId(null);
       toast({
@@ -220,6 +230,75 @@ export default function SuperAdminDashboard() {
       });
     },
   });
+
+  const deleteCourseMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/courses/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/courses/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      setDeleteCourseId(null);
+      toast({
+        title: t("toast.course_deleted"),
+        description: t("toast.course_deleted_desc"),
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: t("toast.failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const hardDeleteTeacherMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/admin/teachers/${id}/hard`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/teachers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/teachers?archived=true"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/courses/stats"] });
+      setDeleteTeacherId(null);
+      toast({
+        title: t("toast.teacher_hard_deleted"),
+        description: t("toast.teacher_hard_deleted_desc"),
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: t("dialog.delete.failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const hardDeleteStudentMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/admin/students/${id}/hard`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/students"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
+      setDeleteStudentId(null);
+      toast({
+        title: t("toast.student_hard_deleted"),
+        description: t("toast.student_hard_deleted_desc"),
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: t("dialog.delete.failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
+        variant: "destructive",
+      });
+    },
+  });
+
 
   const confirmEnrollmentMutation = useMutation({
     mutationFn: async (enrollmentId: number) => {
@@ -627,6 +706,7 @@ export default function SuperAdminDashboard() {
                     <TableHead className="text-center">{t("label.pending")}</TableHead>
                     <TableHead className="text-center">{t("label.free")}</TableHead>
                     <TableHead className="text-right">{t("label.price")}</TableHead>
+                    <TableHead className="text-right">{t("label.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -667,6 +747,17 @@ export default function SuperAdminDashboard() {
                           formatIQD(course.price, t("courses.currency"))
                         )}
                       </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => setDeleteCourseId(course.id)}
+                          data-testid={`button-delete-course-${course.id}`}
+                        >
+                          <Trash className="w-4 h-4 mr-1" />
+                          {t("action.delete")}
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -678,6 +769,66 @@ export default function SuperAdminDashboard() {
             )}
           </CardContent>
         </Card>
+
+        {archivedTeachers.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>{t("dashboard.superadmin.archived_teachers")}</CardTitle>
+              <CardDescription>{t("dashboard.superadmin.archived_teachers_desc")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("dashboard.superadmin.name")}</TableHead>
+                    <TableHead>{t("dashboard.superadmin.email")}</TableHead>
+                    <TableHead className="text-right">{t("label.actions")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {archivedTeachers.map((teacher) => (
+                    <TableRow key={`archived-teacher-${teacher.id}`}>
+                      <TableCell className="font-medium">{teacher.fullName}</TableCell>
+                      <TableCell>{teacher.email}</TableCell>
+                      <TableCell className="text-right">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              data-testid={`button-hard-delete-archived-teacher-${teacher.id}`}
+                            >
+                              <Trash className="h-4 w-4 mr-1" />
+                              {t("action.delete_permanently")}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>{t("dialog.delete.title")}</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                {t("dialog.delete.teacher_hard_warning")}
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>{t("dialog.delete.cancel")}</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => hardDeleteTeacherMutation.mutate(teacher.id)}
+                                disabled={hardDeleteTeacherMutation.isPending}
+                              >
+                                {hardDeleteTeacherMutation.isPending ? t("dialog.delete.deleting") : t("action.delete_permanently")}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
+
 
         {/* Teacher Statistics */}
         <Card className="mb-8">
@@ -1136,6 +1287,9 @@ export default function SuperAdminDashboard() {
               <AlertDialogTitle>{t("dialog.delete.title")}</AlertDialogTitle>
               <AlertDialogDescription>
                 {t("dialog.delete.teacher_message")}
+                <div className="mt-2 text-sm text-muted-foreground">
+                  {t("dialog.delete.teacher_hard_warning")}
+                </div>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -1144,11 +1298,18 @@ export default function SuperAdminDashboard() {
               </AlertDialogCancel>
               <AlertDialogAction
                 onClick={() => deleteTeacherId && deleteTeacherMutation.mutate(deleteTeacherId)}
-                disabled={deleteTeacherMutation.isPending}
-                className="bg-destructive hover:bg-destructive/90"
-                data-testid="button-confirm-delete-teacher"
+                disabled={deleteTeacherMutation.isPending || hardDeleteTeacherMutation.isPending}
+                data-testid="button-archive-teacher"
               >
-                {deleteTeacherMutation.isPending ? t("dialog.delete.deleting") : t("dialog.delete.confirm")}
+                {deleteTeacherMutation.isPending ? t("dialog.delete.deleting") : t("action.archive_account")}
+              </AlertDialogAction>
+              <AlertDialogAction
+                onClick={() => deleteTeacherId && hardDeleteTeacherMutation.mutate(deleteTeacherId)}
+                disabled={hardDeleteTeacherMutation.isPending || deleteTeacherMutation.isPending}
+                className="bg-destructive hover:bg-destructive/90"
+                data-testid="button-hard-delete-teacher"
+              >
+                {hardDeleteTeacherMutation.isPending ? t("dialog.delete.deleting") : t("action.delete_permanently")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -1161,6 +1322,9 @@ export default function SuperAdminDashboard() {
               <AlertDialogTitle>{t("dialog.delete.title")}</AlertDialogTitle>
               <AlertDialogDescription>
                 {t("dialog.delete.student_message")}
+                <div className="mt-2 text-sm text-muted-foreground">
+                  {t("dialog.delete.student_hard_warning")}
+                </div>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -1169,11 +1333,18 @@ export default function SuperAdminDashboard() {
               </AlertDialogCancel>
               <AlertDialogAction
                 onClick={() => deleteStudentId && deleteStudentMutation.mutate(deleteStudentId)}
-                disabled={deleteStudentMutation.isPending}
-                className="bg-destructive hover:bg-destructive/90"
-                data-testid="button-confirm-delete-student"
+                disabled={deleteStudentMutation.isPending || hardDeleteStudentMutation.isPending}
+                data-testid="button-archive-student"
               >
-                {deleteStudentMutation.isPending ? t("dialog.delete.deleting") : t("dialog.delete.confirm")}
+                {deleteStudentMutation.isPending ? t("dialog.delete.deleting") : t("action.archive_account")}
+              </AlertDialogAction>
+              <AlertDialogAction
+                onClick={() => deleteStudentId && hardDeleteStudentMutation.mutate(deleteStudentId)}
+                disabled={hardDeleteStudentMutation.isPending || deleteStudentMutation.isPending}
+                className="bg-destructive hover:bg-destructive/90"
+                data-testid="button-hard-delete-student"
+              >
+                {hardDeleteStudentMutation.isPending ? t("dialog.delete.deleting") : t("action.delete_permanently")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -1199,6 +1370,31 @@ export default function SuperAdminDashboard() {
                 data-testid="button-confirm-delete-category"
               >
                 {deleteCategoryMutation.isPending ? t("dialog.delete.deleting") : t("dialog.delete.confirm")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Delete Course Confirmation Dialog */}
+        <AlertDialog open={deleteCourseId !== null} onOpenChange={(open) => !open && setDeleteCourseId(null)}>
+          <AlertDialogContent data-testid="dialog-delete-course">
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("dialog.delete.title")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("dialog.delete.course_message")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel data-testid="button-cancel-delete-course">
+                {t("dialog.delete.cancel")}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteCourseId && deleteCourseMutation.mutate(deleteCourseId)}
+                disabled={deleteCourseMutation.isPending}
+                className="bg-destructive hover:bg-destructive/90"
+                data-testid="button-confirm-delete-course"
+              >
+                {deleteCourseMutation.isPending ? t("dialog.delete.deleting") : t("dialog.delete.confirm")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

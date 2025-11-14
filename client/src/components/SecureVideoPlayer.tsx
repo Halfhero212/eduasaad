@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import clsx from "clsx";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause, Volume2, VolumeX, Maximize } from "lucide-react";
@@ -32,6 +33,7 @@ export default function SecureVideoPlayer({
   const playerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
+  const [isFallbackFullscreen, setIsFallbackFullscreen] = useState(false);
   const timeTrackingIntervalRef = useRef<NodeJS.Timeout>();
   const lastReportedTimeRef = useRef<number>(0);
 
@@ -187,6 +189,16 @@ export default function SecureVideoPlayer({
   };
 
   const toggleFullscreen = async () => {
+    if (isFallbackFullscreen) {
+      setIsFallbackFullscreen(false);
+      if (window.screen?.orientation?.unlock) {
+        try {
+          window.screen.orientation.unlock();
+        } catch {}
+      }
+      return;
+    }
+
     const container = containerRef.current;
     if (!container) return;
 
@@ -226,6 +238,12 @@ export default function SecureVideoPlayer({
           }
         } catch (error) {
           console.warn("Failed to enter fullscreen", error);
+          setIsFallbackFullscreen(true);
+        }
+      } else {
+        setIsFallbackFullscreen(true);
+        if (window.screen?.orientation?.lock) {
+          window.screen.orientation.lock("landscape").catch(() => {});
         }
       }
       return;
@@ -240,6 +258,11 @@ export default function SecureVideoPlayer({
     if (exitFullscreen) {
       try {
         await exitFullscreen();
+        if (window.screen?.orientation?.unlock) {
+          try {
+            window.screen.orientation.unlock();
+          } catch {}
+        }
       } catch (error) {
         console.warn("Failed to exit fullscreen", error);
       }
@@ -295,10 +318,50 @@ export default function SecureVideoPlayer({
     return () => window.removeEventListener("keydown", handleKeyDown, true);
   }, []);
 
+  useEffect(() => {
+    if (isFallbackFullscreen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      window.scrollTo(0, 0);
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isFallbackFullscreen]);
+
+  useEffect(() => {
+    const handler = () => {
+      const doc = document as any;
+      const fullscreenElement =
+        document.fullscreenElement ||
+        doc.webkitFullscreenElement ||
+        doc.mozFullScreenElement ||
+        doc.msFullscreenElement;
+      if (!fullscreenElement) {
+        if (window.screen?.orientation?.unlock) {
+          try {
+            window.screen.orientation.unlock();
+          } catch {}
+        }
+      }
+    };
+    document.addEventListener("fullscreenchange", handler);
+    document.addEventListener("webkitfullscreenchange", handler as any);
+    return () => {
+      document.removeEventListener("fullscreenchange", handler);
+      document.removeEventListener("webkitfullscreenchange", handler as any);
+    };
+  }, []);
+
   return (
     <div
       ref={containerRef}
-      className="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl border-2 border-primary/20"
+      className={clsx(
+        "relative w-full bg-black rounded-xl overflow-hidden shadow-2xl border-2 border-primary/20",
+        isFallbackFullscreen
+          ? "fixed inset-0 z-[60] w-screen h-screen max-h-screen rounded-none border-none"
+          : "aspect-video",
+      )}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => isPlaying && setShowControls(false)}
       onContextMenu={handleContextMenu}

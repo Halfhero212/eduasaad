@@ -54,9 +54,11 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined>;
   deleteUser(id: number): Promise<void>;
-  getAllTeachers(): Promise<User[]>;
+  getAllTeachers(archived?: boolean): Promise<User[]>;
   getAllStudents(): Promise<User[]>;
   getAllSuperadmins(): Promise<User[]>;
+  hardDeleteTeacher(id: number): Promise<void>;
+  hardDeleteStudent(id: number): Promise<void>;
 
   // Course Category operations
   getCourseCategory(id: number): Promise<CourseCategory | undefined>;
@@ -176,7 +178,10 @@ export class PostgresStorage implements IStorage {
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(and(eq(users.email, email), eq(users.isActive, true)));
     return user;
   }
 
@@ -194,16 +199,44 @@ export class PostgresStorage implements IStorage {
     await db.delete(users).where(eq(users.id, id));
   }
 
-  async getAllTeachers(): Promise<User[]> {
-    return db.select().from(users).where(eq(users.role, "teacher"));
+  private async deleteUserAssociations(userId: number): Promise<void> {
+    await db.delete(notifications).where(eq(notifications.userId, userId));
+    await db.delete(lessonComments).where(eq(lessonComments.userId, userId));
+    await db.delete(courseReviews).where(eq(courseReviews.studentId, userId));
+    await db.delete(quizSubmissions).where(eq(quizSubmissions.studentId, userId));
+    await db.delete(lessonProgress).where(eq(lessonProgress.studentId, userId));
+    await db.delete(enrollments).where(eq(enrollments.studentId, userId));
+    await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, userId));
+    await db.delete(courseAnnouncements).where(eq(courseAnnouncements.teacherId, userId));
+  }
+
+  async hardDeleteTeacher(id: number): Promise<void> {
+    const teacherCourses = await this.getCoursesByTeacher(id);
+    for (const course of teacherCourses) {
+      await this.deleteCourse(course.id);
+    }
+    await this.deleteUserAssociations(id);
+    await db.delete(users).where(eq(users.id, id));
+  }
+
+  async hardDeleteStudent(id: number): Promise<void> {
+    await this.deleteUserAssociations(id);
+    await db.delete(users).where(eq(users.id, id));
+  }
+
+  async getAllTeachers(archived = false): Promise<User[]> {
+    return db
+      .select()
+      .from(users)
+      .where(and(eq(users.role, "teacher"), eq(users.isActive, !archived)));
   }
 
   async getAllStudents(): Promise<User[]> {
-    return db.select().from(users).where(eq(users.role, "student"));
+    return db.select().from(users).where(and(eq(users.role, "student"), eq(users.isActive, true)));
   }
 
   async getAllSuperadmins(): Promise<User[]> {
-    return db.select().from(users).where(eq(users.role, "superadmin"));
+    return db.select().from(users).where(and(eq(users.role, "superadmin"), eq(users.isActive, true)));
   }
 
   // Course Category operations

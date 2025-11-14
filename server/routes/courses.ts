@@ -435,8 +435,8 @@ export function registerCourseRoutes(app: Express) {
     }
   });
 
-  // Delete course (teachers only, own courses)
-  app.delete("/api/courses/:id", requireAuth, requireRole("teacher"), async (req: AuthRequest, res) => {
+  // Delete course (teachers or superadmins)
+  app.delete("/api/courses/:id", requireAuth, requireRole("teacher", "superadmin"), async (req: AuthRequest, res) => {
     try {
       const courseId = parseInt(req.params.id);
       const course = await storage.getCourse(courseId);
@@ -445,7 +445,7 @@ export function registerCourseRoutes(app: Express) {
         return res.status(404).json({ error: "Course not found" });
       }
 
-      if (course.teacherId !== req.user!.id) {
+      if (req.user!.role !== "superadmin" && course.teacherId !== req.user!.id) {
         return res.status(403).json({ error: "You can only delete your own courses" });
       }
 

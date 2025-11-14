@@ -72,6 +72,10 @@ export function registerAuthRoutes(app: Express) {
         return res.status(401).json({ error: "Invalid email or password" });
       }
 
+      if (!user.isActive) {
+        return res.status(403).json({ error: "Account has been deactivated" });
+      }
+
       // Verify password
       const validPassword = await bcrypt.compare(password, user.password);
       if (!validPassword) {
@@ -124,6 +128,10 @@ export function registerAuthRoutes(app: Express) {
             role: req.user.role,
           },
         });
+      }
+
+      if (!user.isActive) {
+        return res.status(403).json({ error: "Account has been deactivated" });
       }
 
       // Return fresh data from database

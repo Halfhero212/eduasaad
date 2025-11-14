@@ -11,6 +11,7 @@ export const users = pgTable("users", {
   fullName: varchar("full_name", { length: 255 }).notNull(),
   role: varchar("role", { length: 50 }).notNull().$type<"superadmin" | "teacher" | "student">(),
   whatsappNumber: varchar("whatsapp_number", { length: 50 }),
+  isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
