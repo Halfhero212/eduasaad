@@ -139,6 +139,7 @@ export const quizSubmissions = pgTable("quiz_submissions", {
   quizId: integer("quiz_id").notNull().references(() => quizzes.id, { onDelete: "cascade" }),
   studentId: integer("student_id").notNull().references(() => users.id),
   imageUrls: text("image_urls").array(), // Array of image URLs in object storage
+  teacherImageUrls: text("teacher_image_urls").array(),
   score: integer("score"),
   feedback: text("feedback"),
   submittedAt: timestamp("submitted_at").defaultNow().notNull(),

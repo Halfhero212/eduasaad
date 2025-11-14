@@ -109,6 +109,12 @@ export interface IStorage {
     submission: QuizSubmission;
     student: { id: number; fullName: string; email: string; whatsappNumber: string | null };
   }>>;
+  getStudentQuizResults(studentId: number): Promise<Array<{
+    submission: QuizSubmission;
+    quiz: { id: number; title: string; description: string };
+    lesson: { id: number; title: string };
+    course: { id: number; title: string; slug: string };
+  }>>;
 
   // Quiz Submission operations
   getQuizSubmission(id: number): Promise<QuizSubmission | undefined>;
@@ -441,6 +447,45 @@ export class PostgresStorage implements IStorage {
         fullName: row.studentName,
         email: row.studentEmail,
         whatsappNumber: row.studentWhatsapp,
+      },
+    }));
+  }
+
+  async getStudentQuizResults(studentId: number) {
+    const rows = await db
+      .select({
+        submission: quizSubmissions,
+        quizId: quizzes.id,
+        quizTitle: quizzes.title,
+        quizDescription: quizzes.description,
+        lessonId: courseLessons.id,
+        lessonTitle: courseLessons.title,
+        courseId: courses.id,
+        courseTitle: courses.title,
+        courseSlug: courses.slug,
+      })
+      .from(quizSubmissions)
+      .innerJoin(quizzes, eq(quizzes.id, quizSubmissions.quizId))
+      .innerJoin(courseLessons, eq(courseLessons.id, quizzes.lessonId))
+      .innerJoin(courses, eq(courses.id, courseLessons.courseId))
+      .where(eq(quizSubmissions.studentId, studentId))
+      .orderBy(desc(quizSubmissions.submittedAt));
+
+    return rows.map((row) => ({
+      submission: row.submission,
+      quiz: {
+        id: row.quizId,
+        title: row.quizTitle,
+        description: row.quizDescription,
+      },
+      lesson: {
+        id: row.lessonId,
+        title: row.lessonTitle,
+      },
+      course: {
+        id: row.courseId,
+        title: row.courseTitle,
+        slug: row.courseSlug,
       },
     }));
   }

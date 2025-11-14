@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { CheckCircle, ChevronRight, ChevronLeft, MessageSquare, FileText, Upload, Clock } from "lucide-react";
+import { CheckCircle, ChevronRight, ChevronLeft, MessageSquare, FileText, Upload, Clock, ImageIcon } from "lucide-react";
 import type { CourseLesson } from "@shared/schema";
 import SecureVideoPlayer from "@/components/SecureVideoPlayer";
 import { getCourseLessonUrl } from "@/lib/courseUtils";
@@ -23,7 +23,7 @@ export default function LessonPlayer() {
   const { t } = useLanguage();
   const { toast } = useToast();
   const [newComment, setNewComment] = useState("");
-  const [submissionImages, setSubmissionImages] = useState<File[]>([]);
+  const [submissionImages, setSubmissionImages] = useState<Record<number, File[]>>({});
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyContent, setReplyContent] = useState("");
   const handleContextMenu = (event: ReactMouseEvent) => {
@@ -53,19 +53,29 @@ export default function LessonPlayer() {
     enabled: !!lessonId,
   });
 
-  const { data: quizzesData } = useQuery<{ quizzes: Array<{
-    id: number;
-    title: string;
-    description: string;
-    deadline: string | null;
-    isActive: boolean;
-  }> }>({
+  const { data: quizzesData } = useQuery<{
+    quizzes: Array<{
+      id: number;
+      title: string;
+      description: string;
+      deadline: string | null;
+      isActive: boolean;
+    }>;
+    studentSubmissions?: Record<number, {
+      id: number;
+      quizId: number;
+      score: number | null;
+      feedback: string | null;
+      teacherImageUrls: string[] | null;
+    }>;
+  }>({
     queryKey: [`/api/lessons/${lessonId}/quizzes`],
     enabled: !!lessonId,
   });
 
   const comments = commentsData?.comments || [];
   const quizzes = quizzesData?.quizzes || [];
+  const studentSubmissions = (user?.role === "student" ? quizzesData?.studentSubmissions : undefined) || {};
 
   // Group comments into parent questions and their replies
   const topLevelComments = comments.filter(c => c.parentCommentId === null);
@@ -152,9 +162,15 @@ export default function LessonPlayer() {
       
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: [`/api/lessons/${lessonId}/quizzes`] });
-      setSubmissionImages([]);
+      if (variables?.quizId) {
+        setSubmissionImages((prev) => {
+          const next = { ...prev };
+          delete next[variables.quizId];
+          return next;
+        });
+      }
       toast({
         title: t("toast.quiz_submitted"),
         description: t("toast.quiz_submitted_desc"),
@@ -179,27 +195,41 @@ export default function LessonPlayer() {
     submitReplyMutation.mutate({ commentId, content: replyContent });
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files);
-      if (files.length + submissionImages.length > 5) {
-        toast({
-          title: t("toast.too_many_images"),
-          description: "Maximum 5 images allowed",
-          variant: "destructive",
-        });
-        return;
-      }
-      setSubmissionImages([...submissionImages, ...files]);
+  const handleImageChange = (quizId: number, files: FileList | null) => {
+    if (!files) return;
+    const newFiles = Array.from(files);
+    const current = submissionImages[quizId] || [];
+    if (newFiles.length + current.length > 5) {
+      toast({
+        title: t("toast.too_many_images"),
+        description: "Maximum 5 images allowed",
+        variant: "destructive",
+      });
+      return;
     }
+    setSubmissionImages((prev) => ({
+      ...prev,
+      [quizId]: [...current, ...newFiles],
+    }));
   };
 
-  const handleRemoveImage = (index: number) => {
-    setSubmissionImages(submissionImages.filter((_, i) => i !== index));
+  const handleRemoveImage = (quizId: number, index: number) => {
+    setSubmissionImages((prev) => {
+      const current = prev[quizId] || [];
+      const filtered = current.filter((_, i) => i !== index);
+      const next = { ...prev };
+      if (filtered.length === 0) {
+        delete next[quizId];
+      } else {
+        next[quizId] = filtered;
+      }
+      return next;
+    });
   };
 
   const handleSubmitQuiz = (quizId: number) => {
-    if (submissionImages.length === 0) {
+    const images = submissionImages[quizId] || [];
+    if (images.length === 0) {
       toast({
         title: t("toast.no_images"),
         description: "Please upload at least one image",
@@ -207,7 +237,7 @@ export default function LessonPlayer() {
       });
       return;
     }
-    submitQuizMutation.mutate({ quizId, images: submissionImages });
+    submitQuizMutation.mutate({ quizId, images });
   };
 
   if (isLoading) {
@@ -347,9 +377,13 @@ export default function LessonPlayer() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {quizzes.map((quiz) => (
-                    <Card key={quiz.id} data-testid={`quiz-${quiz.id}`}>
-                      <CardHeader>
+                  {quizzes.map((quiz) => {
+                    const mySubmission =
+                      user?.role === "student" ? studentSubmissions?.[quiz.id] : undefined;
+                    const selectedImages = submissionImages[quiz.id] || [];
+                    return (
+                      <Card key={quiz.id} data-testid={`quiz-${quiz.id}`}>
+                        <CardHeader>
                         <div className="flex items-start justify-between gap-4">
                           <div>
                             <CardTitle className="text-lg">{quiz.title}</CardTitle>
@@ -370,7 +404,46 @@ export default function LessonPlayer() {
                       </CardHeader>
                       {user?.role === "student" && (
                         <CardContent className="space-y-3">
-                          {!quiz.isActive ? (
+                          {mySubmission ? (
+                            <div className="space-y-3">
+                              <p className="text-sm text-muted-foreground">
+                                {t("quiz.already_submitted")}
+                              </p>
+                              {mySubmission.score !== null && (
+                                <p className="text-sm font-medium">
+                                  {t("quiz.score")}: {mySubmission.score}%
+                                </p>
+                              )}
+                              {mySubmission.feedback && (
+                                <p className="text-sm text-muted-foreground">
+                                  {t("quiz.teacher_feedback")}: {mySubmission.feedback}
+                                </p>
+                              )}
+                              {mySubmission.teacherImageUrls && mySubmission.teacherImageUrls.length > 0 ? (
+                                <div className="space-y-1">
+                                  <p className="text-sm font-medium">{t("quiz.teacher_images")}</p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {mySubmission.teacherImageUrls.map((url, index) => (
+                                      <a
+                                        key={url}
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-sm text-primary hover:underline flex items-center gap-1"
+                                      >
+                                        <ImageIcon className="w-4 h-4" />
+                                        {t("quiz.view_image")} {mySubmission.teacherImageUrls!.length > 1 ? index + 1 : ""}
+                                      </a>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="text-sm text-muted-foreground">
+                                  {t("quiz.awaiting_feedback")}
+                                </p>
+                              )}
+                            </div>
+                          ) : !quiz.isActive ? (
                             <p className="text-sm text-muted-foreground">{t("quiz.closed")}</p>
                           ) : (
                             <>
@@ -382,22 +455,21 @@ export default function LessonPlayer() {
                                   type="file"
                                   accept="image/*"
                                   multiple
-                                  onChange={handleImageChange}
-                                  disabled={submissionImages.length >= 5}
+                                  onChange={(e) => handleImageChange(quiz.id, e.target.files)}
+                                  disabled={selectedImages.length >= 5}
                                   data-testid={`input-quiz-images-${quiz.id}`}
                                 />
                                 <p className="text-xs text-muted-foreground mt-1">
-                                  {submissionImages.length} / 5 {t("quiz.images_selected")}
+                                  {selectedImages.length} / 5 {t("quiz.images_selected")}
                                 </p>
                               </div>
-                              
-                              {submissionImages.length > 0 && (
+                              {selectedImages.length > 0 && (
                                 <div className="flex flex-wrap gap-2">
-                                  {submissionImages.map((image, index) => (
+                                  {selectedImages.map((image, index) => (
                                     <Badge key={index} variant="secondary" className="gap-2">
                                       {image.name}
                                       <button
-                                        onClick={() => handleRemoveImage(index)}
+                                        onClick={() => handleRemoveImage(quiz.id, index)}
                                         className="ml-1 text-destructive"
                                         data-testid={`button-remove-image-${index}`}
                                       >
@@ -407,10 +479,9 @@ export default function LessonPlayer() {
                                   ))}
                                 </div>
                               )}
-                              
                               <Button
                                 onClick={() => handleSubmitQuiz(quiz.id)}
-                                disabled={submitQuizMutation.isPending || submissionImages.length === 0}
+                                disabled={submitQuizMutation.isPending || selectedImages.length === 0}
                                 data-testid={`button-submit-quiz-${quiz.id}`}
                               >
                                 <Upload className="w-4 h-4 mr-2" />
@@ -420,8 +491,9 @@ export default function LessonPlayer() {
                           )}
                         </CardContent>
                       )}
-                    </Card>
-                  ))}
+                      </Card>
+                    );
+                  })}
                 </CardContent>
               </Card>
             )}

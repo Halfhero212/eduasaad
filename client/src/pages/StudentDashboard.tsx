@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, Award, Target, PlayCircle } from "lucide-react";
-import { getCourseUrl } from "@/lib/courseUtils";
+import { getCourseUrl, getCourseLessonUrl } from "@/lib/courseUtils";
 import { formatIQD } from "@/lib/utils";
 import defaultThumbnail1 from "@assets/stock_images/books_learning_educa_d5ff243b.jpg";
 import defaultThumbnail2 from "@assets/stock_images/modern_workspace_lap_d3ff4837.jpg";
@@ -28,6 +28,20 @@ interface EnrolledCourse {
   progress: number;
 }
 
+interface StudentQuizResult {
+  submission: {
+    id: number;
+    score: number | null;
+    feedback: string | null;
+    submittedAt: string;
+    gradedAt: string | null;
+    teacherImageUrls: string[] | null;
+  };
+  quiz: { id: number; title: string; description: string };
+  lesson: { id: number; title: string };
+  course: { id: number; title: string; slug: string };
+}
+
 export default function StudentDashboard() {
   const { user: currentUser, isLoading } = useAuth();
   const { t } = useLanguage();
@@ -36,6 +50,12 @@ export default function StudentDashboard() {
   const { data: enrollmentData } = useQuery<{ courses: EnrolledCourse[] }>({
     queryKey: ["/api/enrollments/my-courses"],
     enabled: !!currentUser && currentUser.role === "student",
+  });
+
+  const { data: quizResultsData } = useQuery<{ results: StudentQuizResult[] }>({
+    queryKey: ["/api/student/quiz-results"],
+    enabled: !!currentUser && currentUser.role === "student",
+    staleTime: 30_000,
   });
 
   useEffect(() => {
@@ -65,6 +85,8 @@ export default function StudentDashboard() {
   }
 
   const enrolledCourses = enrollmentData?.courses || [];
+  const quizResults = quizResultsData?.results || [];
+  const latestQuizResults = quizResults.slice(0, 4);
   const completedCourses = enrolledCourses.filter(c => c.progress === 100);
   const averageProgress = enrolledCourses.length > 0
     ? Math.round(enrolledCourses.reduce((acc, c) => acc + c.progress, 0) / enrolledCourses.length)
@@ -109,6 +131,76 @@ export default function StudentDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Quiz Results */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>{t("dashboard.student.quiz_results")}</CardTitle>
+            <CardDescription>{t("dashboard.student.quiz_results_desc")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {latestQuizResults.length > 0 ? (
+              <div className="space-y-4">
+                {latestQuizResults.map((result) => {
+                  const submittedAt = new Date(result.submission.submittedAt).toLocaleString();
+                  const lessonUrl = getCourseLessonUrl(
+                    result.course.id,
+                    result.course.title,
+                    result.lesson.id,
+                  );
+                  const hasScore = result.submission.score !== null;
+                  const hasTeacherResponse =
+                    hasScore ||
+                    !!result.submission.feedback ||
+                    (result.submission.teacherImageUrls?.length ?? 0) > 0;
+                  const statusText = hasScore
+                    ? `${t("dashboard.student.quiz_score")}: ${result.submission.score}%`
+                    : hasTeacherResponse
+                      ? t("dashboard.student.teacher_response_ready")
+                      : t("dashboard.student.awaiting_feedback");
+                  return (
+                    <div
+                      key={result.submission.id}
+                      className="border rounded-lg p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
+                    >
+                      <div className="space-y-2">
+                        <div>
+                          <p className="font-semibold">{result.quiz.title}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {result.course.title} • {result.lesson.title}
+                          </p>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {t("dashboard.student.submitted_at")}: {submittedAt}
+                        </p>
+                        {result.submission.feedback && (
+                          <p className="text-sm text-muted-foreground">
+                            <span className="font-medium">{t("dashboard.student.quiz_feedback")}:</span>{" "}
+                            {result.submission.feedback}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-start md:items-end gap-2">
+                        <Badge variant={hasScore || hasTeacherResponse ? "default" : "secondary"}>
+                          {statusText}
+                        </Badge>
+                        <Link href={lessonUrl} data-testid={`link-quiz-result-${result.submission.id}`}>
+                          <Button variant="outline" size="sm">
+                            {t("dashboard.student.view_lesson")}
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                {t("dashboard.student.no_quiz_results")}
+              </p>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Enrolled Courses */}
         <Card>

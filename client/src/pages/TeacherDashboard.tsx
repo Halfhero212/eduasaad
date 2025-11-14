@@ -38,6 +38,7 @@ import {
   TrendingUp,
   Clock,
   Plus,
+  Upload,
   Eye,
   Power,
   PowerOff,
@@ -67,6 +68,7 @@ type QuizSubmissionDetail = {
   score: number | null;
   feedback: string | null;
   imageUrls: string[] | null;
+  teacherImageUrls: string[] | null;
   student: { id: number; fullName: string; email: string; whatsappNumber: string | null } | null;
 };
 
@@ -89,6 +91,7 @@ export default function TeacherDashboard() {
   const [selectedQuiz, setSelectedQuiz] = useState<{ id: number; title: string } | null>(null);
   const [quizSubmissions, setQuizSubmissions] = useState<QuizSubmissionDetail[]>([]);
   const [submissionsLoading, setSubmissionsLoading] = useState(false);
+  const [responseFiles, setResponseFiles] = useState<Record<number, File[]>>({});
 
   const [newCourse, setNewCourse] = useState({
     title: "",
@@ -291,6 +294,43 @@ export default function TeacherDashboard() {
     },
   });
 
+  const uploadResponseMutation = useMutation({
+    mutationFn: async ({ submissionId, files }: { submissionId: number; files: File[] }) => {
+      const formData = new FormData();
+      files.forEach((file) => formData.append("images", file));
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/submissions/${submissionId}/response`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body: formData,
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to upload response");
+      }
+      return res.json();
+    },
+    onSuccess: (_data, variables) => {
+      toast({
+        title: t("toast.quiz_response_uploaded"),
+        description: t("toast.quiz_response_uploaded_desc"),
+      });
+      if (variables?.submissionId) {
+        setResponseFiles((prev) => ({ ...prev, [variables.submissionId]: [] }));
+      }
+      if (selectedQuiz) {
+        void openQuizSubmissions(selectedQuiz.id, selectedQuiz.title);
+      }
+    },
+    onError: (error) => {
+      toast({
+        title: t("toast.failed"),
+        description: error instanceof Error ? error.message : t("toast.error_generic"),
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleCreateCourse = () => {
     if (!newCourse.title || !newCourse.description || !newCourse.categoryId) {
       toast({
@@ -347,6 +387,26 @@ export default function TeacherDashboard() {
       ...prev,
       [section]: !prev[section],
     }));
+  };
+
+  const handleResponseFileChange = (submissionId: number, fileList: FileList | null) => {
+    setResponseFiles((prev) => ({
+      ...prev,
+      [submissionId]: fileList ? Array.from(fileList) : [],
+    }));
+  };
+
+  const handleUploadResponse = (submissionId: number) => {
+    const files = responseFiles[submissionId];
+    if (!files || files.length === 0) {
+      toast({
+        title: t("toast.validation_error"),
+        description: t("dashboard.teacher.upload_response_missing"),
+        variant: "destructive",
+      });
+      return;
+    }
+    uploadResponseMutation.mutate({ submissionId, files });
   };
 
   const handleCourseQuery = useCallback(() => {
@@ -985,6 +1045,55 @@ export default function TeacherDashboard() {
                       ))}
                     </div>
                   )}
+                  {submission.teacherImageUrls && submission.teacherImageUrls.length > 0 && (
+                    <div className="mt-3 space-y-1">
+                      <p className="text-sm font-medium">{t("dashboard.teacher.uploaded_response")}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {submission.teacherImageUrls.map((url, index) => (
+                          <a
+                            key={url}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-primary hover:underline flex items-center gap-1"
+                          >
+                            <ImageIcon className="w-4 h-4" />
+                            {t("quiz.view_image")} {submission.teacherImageUrls!.length > 1 ? index + 1 : ""}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div className="space-y-2 pt-2">
+                    <Label className="text-xs text-muted-foreground">
+                      {t("dashboard.teacher.upload_response_label")}
+                    </Label>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => handleResponseFileChange(submission.id, e.target.files)}
+                      data-testid={`input-teacher-response-${submission.id}`}
+                    />
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={
+                        uploadResponseMutation.isPending ||
+                        !responseFiles[submission.id] ||
+                        responseFiles[submission.id]?.length === 0
+                      }
+                      onClick={() => handleUploadResponse(submission.id)}
+                      data-testid={`button-upload-response-${submission.id}`}
+                    >
+                      {uploadResponseMutation.isPending ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Upload className="w-4 h-4 mr-2" />
+                      )}
+                      {t("dashboard.teacher.upload_response")}
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>

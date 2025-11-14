@@ -54,6 +54,11 @@ export const notificationMessages = {
       message: (quizTitle: string, score: number) =>
         `تم تقييم اختبارك "${quizTitle}". الدرجة: ${score}%`,
     },
+    teacherResponse: {
+      title: "ملاحظات المعلم على الاختبار",
+      message: (quizTitle: string) =>
+        `قام المعلم برفع النسخة المصححة لاختبار "${quizTitle}"`,
+    },
   },
   question: {
     new: {

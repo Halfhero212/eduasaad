@@ -4,6 +4,7 @@ import { requireAuth, requireRole, type AuthRequest } from "../middleware/auth";
 import multer from "multer";
 import { getStorageAdapter } from "../utils/storage-adapter";
 import { notificationMessages } from "../utils/notificationMessages";
+import type { QuizSubmission, InsertQuizSubmission } from "@shared/schema";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -56,15 +57,37 @@ export function registerQuizRoutes(app: Express) {
   });
 
   // Get quizzes for a lesson
-  app.get("/api/lessons/:lessonId/quizzes", requireAuth, async (req, res) => {
+  app.get("/api/lessons/:lessonId/quizzes", requireAuth, async (req: AuthRequest, res) => {
     try {
       const lessonId = parseInt(req.params.lessonId);
       const quizzes = await storage.getQuizzesByLesson(lessonId);
+      let studentSubmissions: Record<number, QuizSubmission> | undefined;
 
-      res.json({ success: true, quizzes });
+      if (req.user?.role === "student" && quizzes.length > 0) {
+        const quizIds = new Set(quizzes.map((quiz) => quiz.id));
+        const submissions = await storage.getQuizSubmissionsByStudent(req.user.id);
+        studentSubmissions = {};
+        for (const submission of submissions) {
+          if (quizIds.has(submission.quizId)) {
+            studentSubmissions[submission.quizId] = submission;
+          }
+        }
+      }
+
+      res.json({ success: true, quizzes, studentSubmissions });
     } catch (error) {
       console.error("Get quizzes error:", error);
       res.status(500).json({ error: "Failed to get quizzes" });
+    }
+  });
+
+  app.get("/api/student/quiz-results", requireAuth, requireRole("student"), async (req: AuthRequest, res) => {
+    try {
+      const results = await storage.getStudentQuizResults(req.user!.id);
+      res.json({ success: true, results });
+    } catch (error) {
+      console.error("Get student quiz results error:", error);
+      res.status(500).json({ error: "Failed to fetch quiz results" });
     }
   });
 
@@ -119,6 +142,7 @@ export function registerQuizRoutes(app: Express) {
         quizId,
         studentId: req.user!.id,
         imageUrls: imageUrls.length > 0 ? imageUrls : null,
+        teacherImageUrls: null,
         score: null,
         feedback: null,
         gradedAt: null,
@@ -137,6 +161,7 @@ export function registerQuizRoutes(app: Express) {
             relatedId: submission.id,
             metadata: JSON.stringify({
               courseId: course.id,
+              courseSlug: course.slug,
               lessonId: lesson.id,
               quizId: quiz.id,
               submissionId: submission.id,
@@ -245,10 +270,16 @@ export function registerQuizRoutes(app: Express) {
       // Create notification for student
       await storage.createNotification({
         userId: submission.studentId,
-        type: "reply",
+        type: "quiz_response",
         title: notificationMessages.quiz.graded.title,
         message: notificationMessages.quiz.graded.message(quiz.title, score),
         relatedId: submissionId,
+        metadata: JSON.stringify({
+          courseId: course.id,
+          courseSlug: course.slug,
+          lessonId: lesson.id,
+          quizId: quiz.id,
+        }),
       });
 
       res.json({ success: true, submission: updated });
@@ -323,6 +354,87 @@ export function registerQuizRoutes(app: Express) {
       res.status(500).json({ error: "Failed to delete quiz" });
     }
   });
+
+  // Upload teacher response (images/feedback)
+  app.post(
+    "/api/submissions/:submissionId/response",
+    requireAuth,
+    requireRole("teacher"),
+    upload.array("images", 5),
+    async (req: AuthRequest, res) => {
+      try {
+        const submissionId = parseInt(req.params.submissionId);
+        const submission = await storage.getQuizSubmission(submissionId);
+        if (!submission) {
+          return res.status(404).json({ error: "Submission not found" });
+        }
+
+        const quiz = await storage.getQuiz(submission.quizId);
+        if (!quiz) {
+          return res.status(404).json({ error: "Quiz not found" });
+        }
+
+        const lesson = await storage.getCourseLesson(quiz.lessonId);
+        if (!lesson) {
+          return res.status(404).json({ error: "Lesson not found" });
+        }
+
+        const course = await storage.getCourse(lesson.courseId);
+        if (!course || course.teacherId !== req.user!.id) {
+          return res.status(403).json({ error: "You can only update submissions for your own courses" });
+        }
+
+        const files = req.files as Express.Multer.File[];
+        if (!files || files.length === 0) {
+          return res.status(400).json({ error: "Please attach at least one image" });
+        }
+
+        const storageAdapter = getStorageAdapter();
+        const uploadedUrls: string[] = [];
+        for (const file of files) {
+          const fileName = `quiz-submissions/${quiz.id}/${submission.studentId}/teacher/${Date.now()}-${file.originalname}`;
+          const result = await storageAdapter.uploadFromBytes(fileName, file.buffer);
+          if (result.ok) {
+            uploadedUrls.push(storageAdapter.getPublicUrl(fileName));
+          }
+        }
+
+        const updates: Partial<InsertQuizSubmission> = {
+          teacherImageUrls: uploadedUrls,
+          gradedAt: new Date(),
+        };
+
+        if (req.body.score !== undefined) {
+          const parsed = parseInt(req.body.score);
+          updates.score = Number.isNaN(parsed) ? null : parsed;
+        }
+
+        if (req.body.feedback) {
+          updates.feedback = req.body.feedback;
+        }
+
+        const updated = await storage.updateQuizSubmission(submissionId, updates as any);
+
+        await storage.createNotification({
+          userId: submission.studentId,
+          type: "quiz_response",
+          title: notificationMessages.quiz.teacherResponse.title,
+          message: notificationMessages.quiz.teacherResponse.message(quiz.title),
+          relatedId: submissionId,
+          metadata: JSON.stringify({
+            courseId: course.id,
+            lessonId: lesson.id,
+            quizId: quiz.id,
+          }),
+        });
+
+        res.json({ success: true, submission: updated });
+      } catch (error) {
+        console.error("Upload teacher response error:", error);
+        res.status(500).json({ error: "Failed to upload response" });
+      }
+    },
+  );
 
   // Toggle quiz active status
   app.put("/api/quizzes/:id/status", requireAuth, requireRole("teacher"), async (req: AuthRequest, res) => {

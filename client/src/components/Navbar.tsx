@@ -74,6 +74,18 @@ export default function Navbar() {
       case "grade_received":
         // For students: navigate to student dashboard to see grade
         return "/dashboard/student";
+      case "quiz_response":
+        if (notification.metadata) {
+          try {
+            const meta = JSON.parse(notification.metadata);
+            if (meta?.courseId && meta?.lessonId) {
+              return `/courses/${meta.courseId}/lessons/${meta.lessonId}`;
+            }
+          } catch (error) {
+            console.error("Failed to parse notification metadata:", error);
+          }
+        }
+        return "/dashboard/student";
       case "new_content":
         // Navigate to course page
         return `/courses/${notification.relatedId}`;
