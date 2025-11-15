@@ -9,8 +9,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { GraduationCap } from "lucide-react";
+
+const countryOptions = [
+  { value: "+964", label: "العراق (+964)" },
+  { value: "+971", label: "الإمارات (+971)" },
+  { value: "+966", label: "السعودية (+966)" },
+  { value: "+962", label: "الأردن (+962)" },
+  { value: "+1", label: "USA (+1)" },
+];
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -18,10 +33,22 @@ export default function Login() {
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  const loginSchema = useMemo(() => z.object({
-    email: z.string().email({ message: t('auth.invalid_email') }),
-    password: z.string().min(1, { message: t('auth.password_required') }),
-  }), [t]);
+  const loginSchema = useMemo(
+    () =>
+      z
+        .object({
+          email: z.string().email({ message: t("auth.invalid_email") }).optional().or(z.literal("")),
+          phone: z.string().optional(),
+          countryCode: z.string().min(1),
+          password: z.string().min(1, { message: t("auth.password_required") }),
+        })
+        .refine((data) => {
+          const hasEmail = !!data.email?.trim();
+          const hasPhone = !!data.phone?.trim();
+          return hasEmail || hasPhone;
+        }, { message: t("auth.identifier_required"), path: ["email"] }),
+    [t],
+  );
 
   type LoginForm = z.infer<typeof loginSchema>;
 
@@ -30,6 +57,8 @@ export default function Login() {
     mode: "onChange", // Validate instantly as user types
     defaultValues: {
       email: "",
+      phone: "",
+      countryCode: countryOptions[0].value,
       password: "",
     },
   });
@@ -48,7 +77,19 @@ export default function Login() {
 
   const onSubmit = async (data: LoginForm) => {
     try {
-      await login(data.email, data.password);
+      let finalIdentifier = data.email?.trim() || "";
+      if (!finalIdentifier) {
+        const raw = data.phone?.trim() || "";
+        const digitsOnly = raw.replace(/\D/g, "");
+        if (!digitsOnly) {
+          throw new Error(t("auth.identifier_required"));
+        }
+        const withoutLeadingZero = digitsOnly.replace(/^0+/, "") || digitsOnly;
+        const code = data.countryCode || countryOptions[0].value;
+        finalIdentifier = `${code}${withoutLeadingZero}`;
+      }
+
+      await login(finalIdentifier, data.password);
       toast({
         title: t('toast.login_success'),
         description: t('toast.login_success_desc'),
@@ -84,11 +125,11 @@ export default function Login() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('auth.email')}</FormLabel>
+                    <FormLabel>{t("auth.email")}</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
-                        placeholder={t('auth.email_placeholder')}
+                        autoComplete="username"
                         data-testid="input-email"
                         {...field}
                       />
@@ -97,6 +138,49 @@ export default function Login() {
                   </FormItem>
                 )}
               />
+              <div className="flex gap-2">
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>{t("auth.phone_only")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="tel"
+                          autoComplete="tel"
+                          data-testid="input-phone"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="countryCode"
+                  render={({ field: countryField }) => (
+                    <FormItem className="w-40">
+                      <FormLabel>{t("auth.country_code")}</FormLabel>
+                      <Select onValueChange={countryField.onChange} defaultValue={countryField.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {countryOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={form.control}
                 name="password"

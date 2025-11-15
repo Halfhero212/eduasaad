@@ -43,7 +43,7 @@ import {
   courseReviews,
   courseAnnouncements,
 } from "@shared/schema";
-import { eq, and, desc, sql, inArray } from "drizzle-orm";
+import { eq, and, desc, sql, inArray, or } from "drizzle-orm";
 import { generateSlug } from "@shared/utils";
 
 export interface IStorage {
@@ -51,6 +51,7 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserById(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByWhatsappNumber(number: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined>;
   deleteUser(id: number): Promise<void>;
@@ -183,6 +184,52 @@ export class PostgresStorage implements IStorage {
       .from(users)
       .where(and(eq(users.email, email), eq(users.isActive, true)));
     return user;
+  }
+
+  async getUserByWhatsappNumber(number: string): Promise<User | undefined> {
+    const trimmed = number.trim();
+    const normalized = trimmed.replace(/\s+/g, "");
+    const digits = normalized.replace(/\D/g, "");
+    const digitsNoLeadingZero = digits.replace(/^0+/, "") || digits;
+    const withPlus = normalized.startsWith("+") ? normalized : `+${digitsNoLeadingZero}`;
+    const withoutPlus = normalized.startsWith("+") ? normalized.slice(1) : digitsNoLeadingZero;
+    const lastEight = digitsNoLeadingZero.slice(-8);
+    const candidateSet = new Set<string>([
+      normalized,
+      withPlus,
+      withoutPlus,
+      digits,
+      digitsNoLeadingZero,
+    ]);
+
+    const candidates = Array.from(candidateSet).filter(Boolean);
+
+    if (candidates.length > 0) {
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(and(inArray(users.whatsappNumber, candidates), eq(users.isActive, true)));
+      if (user) {
+        return user;
+      }
+    }
+
+    if (lastEight.length >= 5) {
+      const pattern = `%${lastEight}`;
+      const [userBySuffix] = await db
+        .select()
+        .from(users)
+        .where(
+          and(
+            eq(users.isActive, true),
+            sql`regexp_replace(${users.whatsappNumber}, '\\D', '', 'g') LIKE ${pattern}`,
+          ),
+        );
+      if (userBySuffix) {
+        return userBySuffix;
+      }
+    }
+    return undefined;
   }
 
   async createUser(user: InsertUser): Promise<User> {

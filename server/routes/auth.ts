@@ -5,6 +5,25 @@ import crypto from "crypto";
 import { generateToken, requireAuth, requireRole, type AuthRequest } from "../middleware/auth";
 import { sendPasswordResetEmail } from "../services/email";
 
+const DEFAULT_COUNTRY_CODE = "+964";
+
+function normalizePhoneNumber(raw: string) {
+  if (!raw) return raw;
+  let value = raw.trim();
+  if (value.startsWith("00")) {
+    value = `+${value.slice(2)}`;
+  }
+  if (value.startsWith("+")) {
+    return value.replace(/\s+/g, "");
+  }
+  const digits = value.replace(/\D/g, "");
+  if (!digits) return value;
+  if (digits.startsWith("964")) {
+    return `+${digits}`;
+  }
+  return `${DEFAULT_COUNTRY_CODE}${digits.replace(/^0+/, "") || digits}`;
+}
+
 export function registerAuthRoutes(app: Express) {
   // Student registration
   app.post("/api/auth/register", async (req, res) => {
@@ -31,12 +50,13 @@ export function registerAuthRoutes(app: Express) {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create student user
+      const normalizedWhatsapp = normalizePhoneNumber(whatsappNumber);
       const user = await storage.createUser({
         email,
         password: hashedPassword,
         fullName,
         role: "student",
-        whatsappNumber,
+        whatsappNumber: normalizedWhatsapp,
       });
 
       const token = generateToken(user);
@@ -60,16 +80,23 @@ export function registerAuthRoutes(app: Express) {
   // Login
   app.post("/api/auth/login", async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const identifierRaw = (req.body.identifier ?? req.body.email ?? "").toString().trim();
+      const { password } = req.body;
 
-      if (!email || !password) {
-        return res.status(400).json({ error: "Email and password are required" });
+      if (!identifierRaw || !password) {
+        return res.status(400).json({ error: "Email/phone and password are required" });
       }
 
-      // Find user
-      const user = await storage.getUserByEmail(email);
+      let user: Awaited<ReturnType<typeof storage.getUserByEmail>> | undefined;
+      if (identifierRaw.includes("@")) {
+        user = await storage.getUserByEmail(identifierRaw.toLowerCase());
+      } else {
+        const normalized = normalizePhoneNumber(identifierRaw);
+        user = await storage.getUserByWhatsappNumber(normalized);
+      }
+
       if (!user) {
-        return res.status(401).json({ error: "Invalid email or password" });
+        return res.status(401).json({ error: "Invalid login credentials" });
       }
 
       if (!user.isActive) {
@@ -79,7 +106,7 @@ export function registerAuthRoutes(app: Express) {
       // Verify password
       const validPassword = await bcrypt.compare(password, user.password);
       if (!validPassword) {
-        return res.status(401).json({ error: "Invalid email or password" });
+        return res.status(401).json({ error: "Invalid login credentials" });
       }
 
       const token = generateToken(user);

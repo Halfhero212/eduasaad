@@ -6,7 +6,7 @@ import type { User } from "@shared/schema";
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<void>;
   register: (fullName: string, email: string, whatsappNumber: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
@@ -60,8 +60,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [token]);
 
   const loginMutation = useMutation({
-    mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const res = await apiRequest("POST", "/api/auth/login", { email, password });
+    mutationFn: async ({ identifier, password }: { identifier: string; password: string }) => {
+      const res = await apiRequest("POST", "/api/auth/login", { identifier, password });
       const data = await res.json();
       // Store token immediately in localStorage so it's available for the next query
       localStorage.setItem("token", data.token);
@@ -87,8 +87,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  const login = async (email: string, password: string) => {
-    await loginMutation.mutateAsync({ email, password });
+  const login = async (identifier: string, password: string) => {
+    await loginMutation.mutateAsync({ identifier, password });
   };
 
   const register = async (fullName: string, email: string, whatsappNumber: string, password: string) => {
